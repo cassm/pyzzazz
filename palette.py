@@ -1,0 +1,37 @@
+import os
+import imageio
+
+
+class Palette:
+    def __init__(self, palette_path):
+        palette_path = os.path.join(os.getcwd(), palette_path)
+
+        if not os.path.isfile(palette_path):
+            raise Exception("ERROR: the file {} does not exist".format(palette_path))
+
+        self.rgb_buffer = []
+        self.parse_file(palette_path)
+
+        self.space_per_palette = 1
+        self.time_per_palette = 1
+
+    def parse_file(self, palette_path):
+        try:
+            image = imageio.imread(palette_path)
+            for pixel in image[0]:
+                self.rgb_buffer.append(pixel.tolist())
+
+        except:
+            raise Exception("Palette: failed to parse palette file")
+
+    def colour_correct(self, factors):
+        self.rgb_buffer = list(list(cha * factors[i] for i, cha in enumerate(pix)) for pix in self.rgb_buffer)
+
+    def sample_radial(self, space_delta, time_delta):
+        space_progress = space_delta / self.space_per_palette
+        time_progress = time_delta / self.time_per_palette
+        total_progress = (space_progress + time_progress) % 1.0
+
+        total_index = total_progress * len(self.rgb_buffer)
+
+        return self.rgb_buffer[total_index]
