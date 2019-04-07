@@ -1,0 +1,60 @@
+{
+  "Senders": [
+    {
+      "name": "rgbw_sender_0",
+      "type": "serial",
+      "port": "/dev/tty.usbmodem364420",
+      "num_lines": 8
+    },
+
+    {
+      "name": "hdmi_0",
+      "type": "hdmi",
+      "port": "omxplayer",
+      "num_lines": 1
+    }
+  ],
+
+  "Fixtures": [
+    {
+      "name": "icosahedron_0",
+      "geometry": "dodecahedron",
+      "location": [0, 0, 0],
+      "sender": "rgbw_sender_0",
+      "line": 0
+    },
+
+    {
+      "name": "mplayer_0",
+      "geometry": "video",
+      "location": [0, 0, 0],
+      "sender": "hdmi_0",
+      "line": 0
+    }
+  ],
+
+  "Controllers": [
+    {
+      "name": "controller_0",
+      "port": "/dev/tty.usbmodem666420",
+
+      "buttons": [
+        {
+          "name": "sparkle",
+          "id": "0",
+          "fixture_regex": "icosahedron_*",
+          "command_string": "pattern_sparkle"
+        }
+      ],
+
+      "sliders": [
+        {
+          "name": "master",
+          "id": "0",
+          "fixture_regex": "*",
+          "command_string": "brightness"
+        }
+      ]
+    }
+  ]
+}
