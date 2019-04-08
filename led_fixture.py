@@ -65,7 +65,8 @@ class LedFixture(Fixture):
         pass
 
     def send(self):
-        self.sender.send(self.line, self.get_pixels())
+        if len(self.leds) > 0:
+            self.sender.send(self.line, self.get_pixels())
 
     def get_pixels(self):
         return list(led.colour for led in self.leds)
