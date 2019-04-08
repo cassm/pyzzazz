@@ -69,7 +69,7 @@ class LedFixture(Fixture):
             self.sender.send(self.line, self.get_pixels())
 
     def get_pixels(self):
-        return list(led.colour for led in self.leds)
+        return list((min(led.colour.r, 255), min(led.colour.g, 255), min(led.colour.b, 255)) for led in self.leds)
 
     def add_cartesian(self, vector):
         for led in self.leds:
