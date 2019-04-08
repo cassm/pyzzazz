@@ -13,6 +13,7 @@
       "name": "icosahedron_0",
       "geometry": "dodecahedron",
       "location": [0, 0, 0],
+      "radius": 20,
       "sender": "rgbw_sender_0",
       "line": 0
     },
