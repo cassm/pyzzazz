@@ -8,7 +8,7 @@ class Cartesian:
         self.z = z
 
     def __add__(self, o):
-        return self.x + o.x, self.y + o.y, self.z + o.z
+        return Cartesian(self.x + o.x, self.y + o.y, self.z + o.z)
 
     __radd__ = __add__
 
@@ -19,7 +19,7 @@ class Cartesian:
         return self
 
     def __sub__(self, o):
-        return self.x - o.x, self.y - o.y, self.z - o.z
+        return Cartesian(self.x - o.x, self.y - o.y, self.z - o.z)
 
     __rsub__ = __sub__
 
