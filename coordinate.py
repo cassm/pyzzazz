@@ -99,7 +99,7 @@ class Coordinate:
         self._global_spherical = self._global_cartesian.get_spherical()
 
     def __eq__(self, o):
-        return self.cartesian() == o.get_cartesian()
+        return self._global_cartesian == o.get_cartesian()
 
     def add_cartesian(self, o):
         self._local_cartesian += o
