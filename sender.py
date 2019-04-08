@@ -81,25 +81,28 @@ class Sender:
 
         # if not connected, drop frame
         if self.is_connected():
-            # header = ['~', line, len(pixels) >> 8, len(pixels & 0xff)]
-            header = [ord('~'), line]
-            footer = [ord('|')]
 
             payload = list(channel for pixel in pixels for channel in pixel)
 
-            # avoid sentinel value
-            for char in payload:
-                if char == 126:
-                    char += 1
-
             try:
-                packet = header + payload + footer
-                self.serial.write(bytearray(packet))
+                self.serial.write(self.encapsulate(line, payload))
 
             except Exception as e:
                 print (e)
                 # if something's wrong, drop the frame and hope it fixes itself
                 pass
+
+    def encapsulate(self, line, payload):
+        header = [ord('~'), line]
+        footer = [ord('|')]
+
+        # avoid sentinel value
+        for char in payload:
+            if char == 126:
+                char += 1
+
+        return bytearray(header + payload + footer)
+
 
     def receive(self):
         buffer = b""
