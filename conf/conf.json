@@ -5,13 +5,6 @@
       "type": "serial",
       "port": "/dev/tty.usbmodem364420",
       "num_lines": 8
-    },
-
-    {
-      "name": "hdmi_0",
-      "type": "hdmi",
-      "port": "omxplayer",
-      "num_lines": 1
     }
   ],
 
@@ -26,10 +19,8 @@
 
     {
       "name": "mplayer_0",
-      "geometry": "video",
       "location": [0, 0, 0],
-      "sender": "hdmi_0",
-      "line": 0
+      "sender": "hdmi",
     }
   ],
 
