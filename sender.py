@@ -1,0 +1,115 @@
+import serial
+import time
+
+
+class Sender:
+    def __init__(self, config):
+        self.validate_config(config)
+
+        self.name = config.get("name")
+        self.port = config.get("port")
+        self.num_lines = config.get("num_lines")
+        self.connected = False
+        self.serial = serial.Serial()
+
+        self.last_connection_time = time.time()
+        self.connection_retry_interval = 1.0  # seconds
+        self.previously_connected = False
+
+        self.last_send_time = time.time()
+        self.send_interval = 0.005  # seconds
+
+    def validate_config(self, config):
+        if "name" not in config.keys():
+            raise Exception("Sender: config contains no name")
+
+        if "port" not in config.keys():
+            raise Exception("Sender: config contains no port")
+
+        if "num_lines" not in config.keys():
+            raise Exception("Sender: config contains no num_lines")
+
+    # check for connection and handle logging
+    def is_connected(self):
+        if self.previously_connected:
+            if self.serial.isOpen():
+                return True
+            else:
+                print("Sender {} lost connection on port {}".format(self.name, self.port))
+                self.previously_connected = False
+                return False
+        else:
+            if not self.serial.isOpen():
+                return False
+            else:
+                print("Sender {} connected on port {}".format(self.name, self.port))
+                self.previously_connected = True
+                return True
+
+    def try_connect(self):
+        # don't retry if interval hasn't passed
+        if time.time() - self.last_connection_time < self.connection_retry_interval:
+            return
+
+        self.last_connection_time = time.time()
+
+        try:
+            self.serial = serial.Serial(self.port,
+                                        baudrate=57600,
+                                        parity=serial.PARITY_NONE,
+                                        stopbits=serial.STOPBITS_ONE,
+                                        bytesize=serial.EIGHTBITS,
+                                        writeTimeout=0,
+                                        timeout=0,
+                                        rtscts=False,
+                                        dsrdtr=False,
+                                        xonxoff=False)
+
+        except serial.SerialException:
+            # Assume we can keep trying
+            pass
+
+    def send(self, line, pixels):
+        if line > self.num_lines or line < 0:
+            raise Exception("Sender: send called on invalid line {}".format(line))
+
+        # don't retry if interval hasn't passed
+        if time.time() - self.last_send_time < self.send_interval:
+            return
+
+        self.last_send_time = time.time()
+
+        # if not connected, drop frame
+        if self.is_connected():
+            # header = ['~', line, len(pixels) >> 8, len(pixels & 0xff)]
+            header = [ord('~'), line]
+            footer = [ord('|')]
+
+            payload = list(channel for pixel in pixels for channel in pixel)
+
+            # avoid sentinel value
+            for char in payload:
+                if char == 126:
+                    char += 1
+
+            try:
+                packet = header + payload + footer
+                self.serial.write(bytearray(packet))
+
+            except Exception as e:
+                print (e)
+                # if something's wrong, drop the frame and hope it fixes itself
+                pass
+
+    def receive(self):
+        buffer = b""
+
+        bytes_received = 1
+
+        while bytes_received > 0:
+            char = self.serial.read()
+            bytes_received = len(char)
+            buffer += char
+
+        if len(buffer) > 0:
+            print(str(buffer))
