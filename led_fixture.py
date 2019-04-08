@@ -1,12 +1,6 @@
 from fixture import Fixture
 
 
-class Led:
-    def __init__(self, coordinate, colour=Colour()):
-        self.colour = colour
-        self.coordinate = coordinate
-
-
 class Colour:
     def __init__(self, r=0, g=0, b=0):
         self.r = r
@@ -36,6 +30,12 @@ class Colour:
 
     def max(self, o):
         return max(self.r, o.r), max(self.g, o.g), max(self.b, o.b)
+
+
+class Led:
+    def __init__(self, coordinate, colour=Colour()):
+        self.colour = colour
+        self.coordinate = coordinate
 
 
 class LedFixture(Fixture):
