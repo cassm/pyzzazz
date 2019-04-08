@@ -18,19 +18,10 @@ class ConfigParser:
             raise Exception("ConfigParser: File does not exist")
 
     def get_fixtures(self):
-        try:
-            return self.config["Fixtures"]
-        except KeyError:
-            raise Exception("ConfigParser: config contains no fixtures")
+        return self.config.get("Fixtures", [])
 
     def get_controllers(self):
-        try:
-            return self.config["Controllers"]
-        except KeyError:
-            raise Exception("ConfigParser: config contains no controllers")
+        return self.config.get("Controllers", [])
 
     def get_senders(self):
-        try:
-            return self.config["Senders"]
-        except KeyError:
-            raise Exception("ConfigParser: config contains no senders")
+        return self.config.get("Senders", [])
