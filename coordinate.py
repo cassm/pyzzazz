@@ -42,9 +42,6 @@ class Cartesian:
 
         return Spherical(r, theta, phi)
 
-    def is_zero(self):
-        return self.x == 0 and self.y == 0 and self.z == 0
-
 
 class Spherical:
     def __init__(self, r, theta, phi):
@@ -68,16 +65,12 @@ class Spherical:
 
         self.theta %= (2*math.pi)
 
-
     def get_cartesian(self):
         x = self.r * math.sin(self.phi) * math.cos(self.theta)
         y = self.r * math.sin(self.phi) * math.sin(self.theta)
         z = self.r * math.cos(self.phi)
 
         return Cartesian(x, y, z)
-
-    def is_zero(self):
-        return self.r == 0 and self.theta == 0 and self.phi == 0
 
 
 class Coordinate:
