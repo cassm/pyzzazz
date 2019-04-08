@@ -20,7 +20,7 @@
     {
       "name": "mplayer_0",
       "location": [0, 0, 0],
-      "sender": "hdmi",
+      "sender": "hdmi"
     }
   ],
 
