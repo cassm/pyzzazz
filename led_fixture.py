@@ -67,6 +67,10 @@ class LedFixture(Fixture):
     def get_pixels(self):
         return list(led.colour for led in self.leds)
 
+    def add_cartesian(self, vector):
+        for led in self.leds:
+            led.coordinate.add_cartesian(vector)
+
     def rotate_phi_global(self, angle):
         for led in self.leds:
             led.coordinate.rotate_theta_global(angle)
