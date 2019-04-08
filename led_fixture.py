@@ -11,7 +11,7 @@ class Colour:
         self.__rsub__ = self.__sub__
 
     def __add__(self, o):
-        return self.r + o.r, self.g + o.g, self.b + o.b
+        return Colour(self.r + o.r, self.g + o.g, self.b + o.b)
 
     def __iadd__(self, o):
         self.r += o.r
@@ -20,7 +20,7 @@ class Colour:
         return self
 
     def __sub__(self, o):
-        return max(self.r - o.r, 0), max(self.g - o.g, 0), max(self.b - o.b, 0)
+        return Colour(max(self.r - o.r, 0), max(self.g - o.g, 0), max(self.b - o.b, 0))
 
     def __isub__(self, o):
         self.r = max(self.r - o.r, 0)
@@ -29,7 +29,10 @@ class Colour:
         return self
 
     def max(self, o):
-        return max(self.r, o.r), max(self.g, o.g), max(self.b, o.b)
+        return Colour(max(self.r, o.r), max(self.g, o.g), max(self.b, o.b))
+
+    def min(self, o):
+        return Colour(min(self.r, o.r), min(self.g, o.g), min(self.b, o.b))
 
 
 class Led:
