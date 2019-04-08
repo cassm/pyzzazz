@@ -1,7 +1,19 @@
 class Fixture:
     def __init__(self, config):
-        self.name = config.get("name", "No name present in fixture definition")
-        self.location = config.get("location", "No location present in fixture definition")
+        self.validate_config(config)
+
+        self.name = config.get("name")
+        self.location = config.get("location")
+
+    def validate_config(self, config):
+        if "name" not in config.keys():
+            raise Exception("Fixture: config contains no name")
+
+        if "location" not in config.keys():
+            raise Exception("Fixture: config contains no location")
+
+        if "sender" not in config.keys():
+            raise Exception("Fixture: config contains no sender")
 
     def send(self):
         pass

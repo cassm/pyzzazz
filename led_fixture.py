@@ -40,13 +40,26 @@ class Colour:
 
 class LedFixture(Fixture):
     def __init__(self, config, sender):
+        self.validate_config(config)
+
         Fixture.__init__(self, config)
+
         self.geometry = config.get("geometry", "No geometry present in fixture definition")
         self.num_pixels = config.get("num_pixels", "No num_pixels present in fixture definition")
         self.sender = sender
         self.line = config.get("line", "No line present in fixture definition")
 
         self.leds = []
+
+    def validate_config(self, config):
+        if "geometry" not in config.keys():
+            raise Exception("LedFixture: config contains no geometry")
+
+        if "line" not in config.keys():
+            raise Exception("LedFixture: config contains no line")
+
+    def parse_command(self, command_string):
+        pass
 
     def send(self):
         self.sender.send(self.line, self.leds)
