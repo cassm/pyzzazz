@@ -81,4 +81,4 @@ class OpcSender(Sender):
             raise Exception("Sender: send called on invalid line {}".format(line))
 
         if self.is_connected():
-            self._client.put_pixels(pixels, channel=line)
+            self._client.put_pixels(pixels, channel=line+1)
