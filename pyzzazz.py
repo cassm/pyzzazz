@@ -77,6 +77,7 @@ class Pyzzazz:
 
     def update(self):
         self.effective_time += (time.time() - self.last_update) * self.speed
+        self.last_update = time.time()
 
         for sender in self.senders:
             if not sender.is_connected():
