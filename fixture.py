@@ -18,6 +18,9 @@ class Fixture:
     def send(self):
         pass
 
+    def register_command(self, command_string):
+        pass
+
     def parse_command(self, command_string):
         pass
 
