@@ -18,6 +18,13 @@ class OpcSender(Sender):
         self._client = opc.Client(":".join([self.ip, self.port]))
         self._previously_connected = False
 
+        self._src_dir = os.path.expanduser("~/PycharmProjects/pyzzazz")
+        self._layouts_dir = "{}/layouts".format(self._src_dir)
+
+        if not os.path.isdir(self._layouts_dir):
+            os.mkdir(self._layouts_dir)
+
+
     def validate_config(self, config):
         if "ip" not in config.keys():
             raise Exception("Sender: config contains no ip")
@@ -33,15 +40,15 @@ class OpcSender(Sender):
 
             point_list = list({"point": led} for led in fixtures_list.get(line, []))
 
-            with open("layouts/{}_{}.json".format(self.name, line), "w") as f:
+            with open("{}/{}_{}.json".format(self._layouts_dir, self.name, line), "w") as f:
                 f.write(json.dumps(point_list, indent=2))
 
     def start(self):
         args = []
-        args.append("{}/openpixelcontrol/bin/gl_server".format(os.path.expanduser("~/PycharmProjects/pyzzazz")))
+        args.append("{}/openpixelcontrol/bin/gl_server".format(self._src_dir))
 
         for i in range(self.num_lines):
-            args.append("-l{}/layouts/{}_{}.json".format(os.path.expanduser("~/PycharmProjects/pyzzazz"), self.name, i))
+            args.append("-l{}/{}_{}.json".format(self._layouts_dir, self.name, i))
 
         args.append("-p{}".format(self.port))
 
