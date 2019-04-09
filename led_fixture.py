@@ -11,12 +11,12 @@ class Colour:
         self.__rsub__ = self.__sub__
 
     def __add__(self, o):
-        return Colour(self.r + o.r, self.g + o.g, self.b + o.b)
+        return Colour(max(self.r + o.r, 0), max(self.g + o.g, 0), max(self.b + o.b, 0))
 
     def __iadd__(self, o):
-        self.r += o.r
-        self.g += o.g
-        self.b += o.b
+        self.r = max(self.r + o.r, 0)
+        self.g = max(self.g + o.g, 0)
+        self.b = max(self.b + o.b, 0)
         return self
 
     def __sub__(self, o):
