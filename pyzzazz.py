@@ -31,6 +31,8 @@ class Pyzzazz:
                 print("Creating opc sender {} on port {}".format(sender_conf.get("name", ""), sender_conf.get("port", "")))
                 self.senders.append(OpcSender(sender_conf))
 
+        print("\n")
+
         self.fixtures = []
         for fixture_conf in self.config_parser.get_fixtures():
             self.sanity_check_fixture_conf(fixture_conf)
@@ -39,6 +41,8 @@ class Pyzzazz:
                 print("Creating dodecahedron {} with senders {}".format(fixture_conf.get("name", ""), fixture_conf.get("senders", [])))
                 fixture_senders = list(sender for sender in self.senders if sender.name in fixture_conf.get("senders", []))
                 self.fixtures.append(Dodecahedron(fixture_conf, fixture_senders))
+
+        print("\n")
 
         for sender in self.senders:
             if sender.type == "opc":

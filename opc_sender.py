@@ -43,6 +43,8 @@ class OpcSender(Sender):
             with open("{}/{}_{}.json".format(self._layouts_dir, self.name, line), "w") as f:
                 f.write(json.dumps(point_list, indent=2))
 
+        print("\n")
+
     def start(self):
         args = []
         args.append("{}/openpixelcontrol/bin/gl_server".format(self._src_dir))
@@ -52,6 +54,7 @@ class OpcSender(Sender):
 
         args.append("-p{}".format(self.port))
 
+        print("Opening open pixel control simulation server...\n\n")
         return subprocess.Popen(args)
 
     def is_connected(self):
