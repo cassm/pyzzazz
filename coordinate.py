@@ -96,6 +96,7 @@ class Coordinate:
 
         self._global_cartesian = self._local_cartesian + self._local_origin
         self._global_spherical = self._global_cartesian.get_spherical()
+        self._global_delta = self._cartesian_delta(Cartesian(0, 0, 0))
 
     def __eq__(self, o):
         return self._global_cartesian == o.get_cartesian()
@@ -106,6 +107,10 @@ class Coordinate:
         self._local_spherical = self._local_cartesian.get_spherical()
         self._global_cartesian = self._local_cartesian + self._local_origin
         self._global_spherical = self._global_cartesian.get_spherical()
+        self._global_delta = self._cartesian_delta(Cartesian(0, 0, 0))
+
+    def get_global_delta(self):
+        return self._global_delta
 
     def get_local_origin(self):
         return self._local_origin
@@ -116,6 +121,7 @@ class Coordinate:
         self._local_origin = o
         self._global_cartesian = self._local_cartesian + self._local_origin
         self._global_spherical = self._global_cartesian.get_spherical()
+        self._global_delta = self._cartesian_delta(Cartesian(0, 0, 0))
 
     # changes the local origin and leaves the point static in the GLOBAL frame
     def make_relative_to(self, local_origin):
@@ -131,6 +137,7 @@ class Coordinate:
         self._global_cartesian = self._global_spherical.get_cartesian()
         self._local_cartesian = self._global_cartesian - self._local_origin
         self._local_spherical = self._local_cartesian.get_spherical()
+        self._global_delta = self._cartesian_delta(Cartesian(0, 0, 0))
 
     def get_global_cartesian(self):
         return self._global_cartesian
@@ -140,6 +147,7 @@ class Coordinate:
         self._global_spherical = self._global_cartesian.get_spherical()
         self._local_cartesian = self._global_cartesian - self._local_origin
         self._local_spherical = self._local_cartesian.get_spherical()
+        self._global_delta = self._cartesian_delta(Cartesian(0, 0, 0))
 
     def get_local_spherical(self):
         return self._local_spherical
@@ -149,6 +157,7 @@ class Coordinate:
         self._local_cartesian = self._local_spherical.get_cartesian()
         self._global_cartesian = self._local_cartesian + self._local_origin
         self._global_spherical = self._global_cartesian.get_spherical()
+        self._global_delta = self._cartesian_delta(Cartesian(0, 0, 0))
 
     def get_local_cartesian(self):
         return self._local_cartesian
@@ -158,6 +167,7 @@ class Coordinate:
         self._local_spherical = self._local_cartesian.get_spherical()
         self._global_cartesian = self._local_cartesian + self._local_origin
         self._global_spherical = self._global_cartesian.get_spherical()
+        self._global_delta = self._cartesian_delta(Cartesian(0, 0, 0))
 
     def rotate_theta_global(self, angle):
         # must rotate local then global
@@ -167,6 +177,10 @@ class Coordinate:
         new_origin.add_theta(angle)
         self._local_origin = new_origin.get_cartesian()
 
+        self._global_cartesian = self._local_cartesian + self._local_origin
+        self._global_spherical = self._global_cartesian.get_spherical()
+        self._global_delta = self._cartesian_delta(Cartesian(0, 0, 0))
+
     def rotate_phi_global(self, angle):
         # must rotate local then global
         self.rotate_phi_local(angle)
@@ -175,18 +189,24 @@ class Coordinate:
         new_origin.add_phi(angle)
         self._local_origin = new_origin.get_cartesian()
 
+        self._global_cartesian = self._local_cartesian + self._local_origin
+        self._global_spherical = self._global_cartesian.get_spherical()
+        self._global_delta = self._cartesian_delta(Cartesian(0, 0, 0))
+
     def rotate_phi_local(self, angle):
         self._local_spherical.add_phi(angle)
         self._local_cartesian = self._local_spherical.get_cartesian()
         self._global_cartesian = self._local_cartesian + self._local_origin
         self._global_spherical = self._global_cartesian.get_spherical()
+        self._global_delta = self._cartesian_delta(Cartesian(0, 0, 0))
 
     def rotate_theta_local(self, angle):
         self._local_spherical.add_theta(angle)
         self._local_cartesian = self._local_spherical.get_cartesian()
         self._global_cartesian = self._local_cartesian + self._local_origin
         self._global_spherical = self._global_cartesian.get_spherical()
+        self._global_delta = self._cartesian_delta(Cartesian(0, 0, 0))
 
-    def delta(self, o):
-        cartesian_delta = self._global_cartesian - o.get_global_cartesian()
+    def _cartesian_delta(self, o):
+        cartesian_delta = self._global_cartesian - o
         return cartesian_delta.get_magnitude
