@@ -21,5 +21,5 @@ class Fixture:
     def parse_command(self, command_string):
         pass
 
-    def update(self, time):
+    def update(self, time, palette):
         pass
