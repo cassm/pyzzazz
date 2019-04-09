@@ -1,9 +1,9 @@
 from led_fixture import LedFixture
 from led_fixture import Led
-from led_fixture import Colour
-from coordinate import Coordinate
-from coordinate import Spherical
-from coordinate import Cartesian
+from colour import Colour
+from coord import Coordinate
+from coord import Spherical
+from coord import Cartesian
 
 class Dodecahedron(LedFixture):
     def __init__(self, config, sender):
