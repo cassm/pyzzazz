@@ -110,7 +110,7 @@ class Coordinate:
         self._global_delta = self._cartesian_delta(Cartesian(0, 0, 0))
 
     def get_global_delta(self):
-        return self._global_delta
+        return self._cartesian_delta(Cartesian(0, 0, 0))
 
     def get_local_origin(self):
         return self._local_origin
@@ -209,4 +209,4 @@ class Coordinate:
 
     def _cartesian_delta(self, o):
         cartesian_delta = self._global_cartesian - o
-        return cartesian_delta.get_magnitude
+        return cartesian_delta.get_magnitude()
