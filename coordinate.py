@@ -42,6 +42,9 @@ class Cartesian:
 
         return Spherical(r, theta, phi)
 
+    def list(self):
+        return [self.x, self.y, self.z]
+
 
 class Spherical:
     def __init__(self, r, theta, phi):
@@ -71,6 +74,9 @@ class Spherical:
         z = self.r * math.cos(self.phi)
 
         return Cartesian(x, y, z)
+
+    def list(self):
+        return [self.r, self.theta, self.phi]
 
 
 class Coordinate:
