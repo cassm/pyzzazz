@@ -10,6 +10,24 @@ class Colour:
         self.__radd__ = self.__add__
         self.__rsub__ = self.__sub__
 
+    def __mul__(self, o):
+        return Colour(max(self.r * o, 0), max(self.g * o, 0), max(self.b * o, 0))
+
+    def __imul__(self, o):
+        self.r = max(self.r * o, 0)
+        self.g = max(self.g * o, 0)
+        self.b = max(self.b * o, 0)
+        return self
+
+    def __div__(self, o):
+        return Colour(max(self.r * o, 0), max(self.g * o, 0), max(self.b * o, 0))
+
+    def __idiv__(self, o):
+        self.r = max(self.r / o, 0)
+        self.g = max(self.g / o, 0)
+        self.b = max(self.b / o, 0)
+        return self
+
     def __add__(self, o):
         return Colour(max(self.r + o.r, 0), max(self.g + o.g, 0), max(self.b + o.b, 0))
 
