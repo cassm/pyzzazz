@@ -49,6 +49,13 @@ class Pyzzazz:
                 sender.generate_layout_files(self.fixtures)
                 self.subprocesses.append(sender.start())
 
+        #FIXME do controllers here
+        print ("{} fixtures initialised".format(len(self.fixtures)))
+        for fixture in self.fixtures:
+            print("{} with {} leds".format(fixture.name, len(fixture.leds)))
+            fixture.register_command("pattern sparkle")
+            fixture.parse_command("pattern sparkle")
+
     def sanity_check_sender_conf(self, sender_conf):
         sender_names = tuple(sender.name for sender in self.senders)
         if sender_conf.get("name", "") in sender_names:
