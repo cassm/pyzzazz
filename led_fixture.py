@@ -42,14 +42,14 @@ class Led:
 
 
 class LedFixture(Fixture):
-    def __init__(self, config, sender):
+    def __init__(self, config, senders):
         self.validate_config(config)
 
         Fixture.__init__(self, config)
 
         self.geometry = config.get("geometry", "No geometry present in fixture definition")
         self.num_pixels = config.get("num_pixels", "No num_pixels present in fixture definition")
-        self.sender = sender
+        self.senders = senders
         self.line = config.get("line", "No line present in fixture definition")
 
         self.leds = []
@@ -66,7 +66,8 @@ class LedFixture(Fixture):
 
     def send(self):
         if len(self.leds) > 0:
-            self.sender.send(self.line, self.get_pixels())
+            for sender in self.senders:
+                sender.send(self.line, self.get_pixels())
 
     def get_pixels(self):
         return list((min(led.colour.r, 255), min(led.colour.g, 255), min(led.colour.b, 255)) for led in self.leds)
@@ -90,3 +91,6 @@ class LedFixture(Fixture):
     def rotate_theta_local(self, angle):
         for led in self.leds:
             led.coordinate.rotate_theta_local(angle)
+
+    def has_sender(self, name):
+        return name in list(sender.name for sender in self.senders)
