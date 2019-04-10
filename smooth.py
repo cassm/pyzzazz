@@ -12,5 +12,12 @@ class Smooth(Pattern):
 
     def get_pixel_colour(self, pixels, index, time, palette):
         space_delta = pixels[index].coordinate.get_global_delta()
+
+        offset_space_component = pixels[index].coordinate.get("global", "spherical").theta * 3
+        offset_time_component = time
+        offset = math.sin(offset_space_component + offset_time_component)
+        offset /= 4
+        space_delta += offset
+
         return palette.sample_radial(space_delta, time, self._space_divisor, self._time_divisor)
 
