@@ -1,5 +1,7 @@
 from fixture import Fixture
 from sparkle import Sparkle
+from fizzy_lifting_drink import FizzyLiftingDrink
+from make_me_one_with_everything import MakeMeOneWithEverything
 from smooth import Smooth
 from colour import Colour
 
@@ -50,6 +52,12 @@ class LedFixture(Fixture):
 
             elif args[1] == "sparkle":
                 self.patterns["sparkle"] = Sparkle(len(self.leds), 3, 0.05, 0.5)
+
+            elif args[1] == "fizzy_lifting_drink":
+                self.patterns["fizzy_lifting_drink"] = FizzyLiftingDrink()
+
+            elif args[1] == "make_me_one_with_everything":
+                self.patterns["make_me_one_with_everything"] = MakeMeOneWithEverything(64, 255, 3)
 
             else:
                 raise Exception("LedFixture: unknown pattern {}".format(args[1]))
