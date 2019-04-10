@@ -16,6 +16,12 @@ class Pyzzazz:
         self.last_update = time.time()
         self.subprocesses = []
 
+        # TODO multiple palettes, pass dict to fixtures
+        #      controllers
+        #      add target type for commands (fixtures, master, etc)
+        #      modulators? overlays?
+        #      set from image/video
+
         controllers = self.config_parser.get_controllers()
 
         self.senders = []
@@ -95,6 +101,7 @@ class Pyzzazz:
             fixture.send()
 
     def shut_down(self):
+        print("Shutting down...")
         for p in self.subprocesses:
             p.kill()
 

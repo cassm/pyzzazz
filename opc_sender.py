@@ -18,6 +18,7 @@ class OpcSender(Sender):
         self._client = opc.Client(":".join([self.ip, self.port]))
         self._previously_connected = False
 
+        #FIXME this is stupid
         self._src_dir = os.path.expanduser("~/PycharmProjects/pyzzazz")
         self._layouts_dir = "{}/layouts".format(self._src_dir)
 

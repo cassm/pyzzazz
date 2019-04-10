@@ -96,7 +96,6 @@ class UsbSerialSender(Sender):
 
         return bytearray(header + payload + footer)
 
-
     def receive(self):
         buffer = b""
 
