@@ -59,8 +59,8 @@ class Pyzzazz:
         print ("{} fixtures initialised".format(len(self.fixtures)))
         for fixture in self.fixtures:
             print("{} with {} leds".format(fixture.name, len(fixture.leds)))
-            fixture.register_command("pattern sparkle")
-            fixture.parse_command("pattern sparkle")
+            fixture.register_command("pattern smooth")
+            fixture.parse_command("pattern smooth")
 
     def sanity_check_sender_conf(self, sender_conf):
         sender_names = tuple(sender.name for sender in self.senders)
@@ -121,15 +121,19 @@ class GracefulKiller:
 if __name__ == "__main__":
     killer = GracefulKiller()
 
-    print("Initialising...")
-    pyzzazz = Pyzzazz("conf/conf.json", "conf/auto.bmp")
+    try:
+        print("Initialising...")
+        pyzzazz = Pyzzazz("conf/conf.json", "conf/auto.bmp")
 
-    print("Running...")
-    while True:
-        pyzzazz.update()
+        print("Running...")
+        while True:
+            pyzzazz.update()
 
-        if killer.kill_now:
-            pyzzazz.shut_down()
-            break
+            if killer.kill_now:
+                pyzzazz.shut_down()
+                break
+
+    finally:
+        pyzzazz.shut_down()
 
     print("have a nice day :)")
