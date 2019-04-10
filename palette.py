@@ -13,7 +13,7 @@ class Palette:
         self.rgb_buffer = []
         self.parse_file(palette_path)
 
-        self.space_per_palette = 1
+        self.space_per_palette = 3
         self.time_per_palette = 1
 
     def parse_file(self, palette_path):

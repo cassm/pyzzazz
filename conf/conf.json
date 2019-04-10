@@ -19,7 +19,7 @@
     {
       "name": "icosahedron_0",
       "geometry": "dodecahedron",
-      "location": [-2, 0, -1.75],
+      "location": [-2, 0, -1.9],
       "radius": 0.20,
       "senders": ["sim_0", "rgbw_sender_0"],
       "line": 0
@@ -27,7 +27,7 @@
     {
       "name": "icosahedron_1",
       "geometry": "dodecahedron",
-      "location": [-1.25, 0, -0.75],
+      "location": [-1.25, 0, -0.9],
       "radius": 0.25,
       "senders": ["sim_0", "rgbw_sender_0"],
       "line": 1
@@ -35,7 +35,7 @@
     {
       "name": "icosahedron_2",
       "geometry": "dodecahedron",
-      "location": [0, 0, 0],
+      "location": [0, 0, -0.15],
       "radius": 0.30,
       "senders": ["sim_0", "rgbw_sender_0"],
       "line": 2
@@ -43,7 +43,7 @@
     {
       "name": "icosahedron_3",
       "geometry": "dodecahedron",
-      "location": [1.25, 0, -0.75],
+      "location": [1.25, 0, -0.9],
       "radius": 0.25,
       "senders": ["sim_0", "rgbw_sender_0"],
       "line": 3
@@ -51,7 +51,7 @@
     {
       "name": "icosahedron_4",
       "geometry": "dodecahedron",
-      "location": [2, 0, -1.75],
+      "location": [2, 0, -1.9],
       "radius": 0.2,
       "senders": ["sim_0", "rgbw_sender_0"],
       "line": 4
