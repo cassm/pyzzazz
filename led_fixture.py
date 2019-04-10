@@ -75,7 +75,7 @@ class LedFixture(Fixture):
         return list((min(led.colour.r, 255), min(led.colour.g, 255), min(led.colour.b, 255)) for led in self.leds)
 
     def get_coords(self):
-        return list(led.coordinate.get_global_cartesian().list() for led in self.leds)
+        return list(led.coordinate.get("global", "cartesian").list() for led in self.leds)
 
     def add_cartesian(self, vector):
         for led in self.leds:
