@@ -4,6 +4,7 @@ from colour import Colour
 from coord import Coordinate
 from coord import Spherical
 from coord import Cartesian
+import math
 
 class Dodecahedron(LedFixture):
     def __init__(self, config, sender):
@@ -30,7 +31,7 @@ class Dodecahedron(LedFixture):
         fixture_origin = Cartesian(*config.get("location"))
 
         for coord in led_spherical_local_coords:
-            led_local_spherical = Spherical(r=config["radius"], theta=coord[0], phi=coord[1])
+            led_local_spherical = Spherical(r=config["radius"], theta=math.radians(coord[0]), phi=math.radians(coord[1]))
             led_coordinate = Coordinate(local_origin=fixture_origin, local_spherical=led_local_spherical)
             self.leds.append(Led(led_coordinate, Colour(128, 0, 128)))
 

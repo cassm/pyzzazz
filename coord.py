@@ -91,8 +91,8 @@ class Spherical:
             raise Exception("unknown axis {}".format(axis))
 
     def to_cartesian(self):
-        x = self.r * math.sin(self.phi) * math.cos(self.theta)
-        y = self.r * math.sin(self.phi) * math.sin(self.theta)
+        x = self.r * math.sin(self.phi % math.pi) * math.cos(self.theta)
+        y = self.r * math.sin(self.phi % math.pi) * math.sin(self.theta)
         z = self.r * math.cos(self.phi)
 
         return Cartesian(x, y, z)
