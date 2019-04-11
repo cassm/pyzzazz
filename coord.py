@@ -32,18 +32,21 @@ class Cartesian:
     def __eq__(self, o):
         return self.x == o.x and self.y == o.y and self.z == o.z
 
+    def __iter__(self):
+        return iter([self.x, self.y, self.z])
+
+    def __getitem__(self, key):
+        return list(self)[key]
+
     def get_magnitude(self):
         return math.sqrt(self.x ** 2 + self.y ** 2 + self.z ** 2)
 
-    def get_spherical(self):
+    def to_spherical(self):
         r = self.get_magnitude()
         theta = math.atan(self.y/self.x)
         phi = math.atan(math.sqrt(self.x ** 2 + self.y ** 2) / self.z)
 
         return Spherical(r, theta, phi)
-
-    def list(self):
-        return [self.x, self.y, self.z]
 
 
 class Spherical:
@@ -51,6 +54,12 @@ class Spherical:
         self.r = r
         self.theta = theta
         self.phi = phi
+
+    def __iter__(self):
+        return iter([self.r, self.theta, self.phi])
+
+    def __getitem__(self, key):
+        return list(self)[key]
 
     def add_angle(self, axis, angle):
         if axis == "phi":
@@ -72,35 +81,32 @@ class Spherical:
         else:
             raise Exception("unknown axis {}".format(axis))
 
-    def get_cartesian(self):
+    def to_cartesian(self):
         x = self.r * math.sin(self.phi) * math.cos(self.theta)
         y = self.r * math.sin(self.phi) * math.sin(self.theta)
         z = self.r * math.cos(self.phi)
 
         return Cartesian(x, y, z)
 
-    def list(self):
-        return [self.r, self.theta, self.phi]
-
 
 class Coordinate:
-    def __init__(self, local_origin, local_cartesian=None, local_spherical=None):
+    def __init__(self, local_origin=Cartesian(0, 0, 0), local_cartesian=None, local_spherical=None):
         self._local_origin = local_origin
 
         if local_cartesian and not local_spherical:
             self._local_cartesian = local_cartesian
-            self._local_spherical = self._local_cartesian.get_spherical()
+            self._local_spherical = self._local_cartesian.to_spherical()
 
         elif local_spherical and not local_cartesian:
             self._local_spherical = local_spherical
-            self._local_cartesian = self._local_spherical.get_cartesian()
+            self._local_cartesian = self._local_spherical.to_cartesian()
 
         else:
             raise Exception("Coordinate: must initialise with either spherical or cartesian, not neither or both")
 
         self._global_cartesian = self._local_cartesian + self._local_origin
-        self._global_spherical = self._global_cartesian.get_spherical()
-        self._global_delta = self._cartesian_delta(Cartesian(0, 0, 0))
+        self._global_spherical = self._global_cartesian.to_spherical()
+        self._global_delta = self._local_cartesian.get_magnitude()
 
         self.access_dict = {"global":
                                  {"cartesian": self._global_cartesian,
@@ -110,7 +116,7 @@ class Coordinate:
                                   "spherical": self._local_spherical}}
 
     def __eq__(self, o):
-        return self._global_cartesian == o.get_cartesian()
+        return self._global_cartesian == o.to_cartesian()
 
     def get(self, reference_frame, geometry):
         try:
@@ -127,28 +133,28 @@ class Coordinate:
 
     def _update_from(self, variable):
         if variable == "global_cartesian":
-            self._global_spherical = self._global_cartesian.get_spherical()
+            self._global_spherical = self._global_cartesian.to_spherical()
             self._local_cartesian = self._global_cartesian - self._local_origin
-            self._local_spherical = self._local_cartesian.get_spherical()
-            self._global_delta = self._cartesian_delta(Cartesian(0, 0, 0))
+            self._local_spherical = self._local_cartesian.to_spherical()
+            self._global_delta = self._local_cartesian.get_magnitude()
 
         elif variable == "global_spherical":
-            self._global_cartesian = self._global_spherical.get_cartesian()
+            self._global_cartesian = self._global_spherical.to_cartesian()
             self._local_cartesian = self._global_cartesian - self._local_origin
-            self._local_spherical = self._local_cartesian.get_spherical()
-            self._global_delta = self._cartesian_delta(Cartesian(0, 0, 0))
+            self._local_spherical = self._local_cartesian.to_spherical()
+            self._global_delta = self._local_cartesian.get_magnitude()
 
         elif variable == "local_cartesian":
-            self._local_spherical = self._local_cartesian.get_spherical()
+            self._local_spherical = self._local_cartesian.to_spherical()
             self._global_cartesian = self._local_cartesian + self._local_origin
-            self._global_spherical = self._global_cartesian.get_spherical()
-            self._global_delta = self._cartesian_delta(Cartesian(0, 0, 0))
+            self._global_spherical = self._global_cartesian.to_spherical()
+            self._global_delta = self._local_cartesian.get_magnitude()
 
         elif variable == "local_spherical":
-            self._local_cartesian = self._local_spherical.get_cartesian()
+            self._local_cartesian = self._local_spherical.to_cartesian()
             self._global_cartesian = self._local_cartesian + self._local_origin
-            self._global_spherical = self._global_cartesian.get_spherical()
-            self._global_delta = self._cartesian_delta(Cartesian(0, 0, 0))
+            self._global_spherical = self._global_cartesian.to_spherical()
+            self._global_delta = self._local_cartesian.get_magnitude()
 
         else:
             raise Exception("invalid variables {}".format(variable))
@@ -158,13 +164,13 @@ class Coordinate:
             # must rotate local then global
             self.rotate(axis, "local", angle)
 
-            new_origin = self._local_origin.get_spherical()
+            new_origin = self._local_origin.to_spherical()
             new_origin.add_angle(axis, angle)
-            self._local_origin = new_origin.get_cartesian()
+            self._local_origin = new_origin.to_cartesian()
 
             self._global_cartesian = self._local_cartesian + self._local_origin
-            self._global_spherical = self._global_cartesian.get_spherical()
-            self._global_delta = self._cartesian_delta(Cartesian(0, 0, 0))
+            self._global_spherical = self._global_cartesian.to_spherical()
+            self._global_delta = self._local_cartesian.get_magnitude()
 
         elif reference_frame == "local":
             self._local_spherical.add_angle(axis, angle)
@@ -173,10 +179,10 @@ class Coordinate:
     def add_cartesian(self, o):
         self._local_cartesian += o
 
-        self._local_spherical = self._local_cartesian.get_spherical()
+        self._local_spherical = self._local_cartesian.to_spherical()
         self._global_cartesian = self._local_cartesian + self._local_origin
-        self._global_spherical = self._global_cartesian.get_spherical()
-        self._global_delta = self._cartesian_delta(Cartesian(0, 0, 0))
+        self._global_spherical = self._global_cartesian.to_spherical()
+        self._global_delta = self._local_cartesian.get_magnitude()
 
     def get_global_delta(self):
         return self._global_delta
@@ -189,15 +195,11 @@ class Coordinate:
     def set_local_origin(self, o):
         self._local_origin = o
         self._global_cartesian = self._local_cartesian + self._local_origin
-        self._global_spherical = self._global_cartesian.get_spherical()
-        self._global_delta = self._cartesian_delta(Cartesian(0, 0, 0))
+        self._global_spherical = self._global_cartesian.to_spherical()
+        self._global_delta = self._local_cartesian.get_magnitude()
 
     # changes the local origin and leaves the point static in the GLOBAL frame
     def make_relative_to(self, local_origin):
         local_origin_delta = local_origin - self._local_origin
         self._local_cartesian += local_origin_delta
-        self._local_spherical = self._local_cartesian.get_spherical()
-
-    def _cartesian_delta(self, o):
-        cartesian_delta = self._global_cartesian - o
-        return cartesian_delta.get_magnitude()
+        self._local_spherical = self._local_cartesian.to_spherical()

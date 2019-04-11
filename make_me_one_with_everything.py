@@ -33,7 +33,7 @@ class MakeMeOneWithEverything(Pattern):
 
         #TODO I think the swooshes are broken
         for swoosh in self._active_swooshes:
-            swoosh_level += self.inverse_square(pixels[index].coordinate.get("local", "spherical").list()[swoosh[1]+1]+30, (time - swoosh[0])*2, 2.5)
+            swoosh_level += self.inverse_square(pixels[index].coordinate.get("local", "spherical")[swoosh[1]+1]+30, (time - swoosh[0])*2, 2.5)
 
         w = max(w, swoosh_level * 255)
 
