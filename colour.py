@@ -51,13 +51,18 @@ class Colour:
     def min(self, o):
         return Colour(min(self.r, o.r), min(self.g, o.g), min(self.b, o.b))
 
-    #FIXME returns "Colour object is not iterable"
-    def list(self):
+    def __iter__(self):
         '''
         >>> list(Colour(15, 7, 8))
         [15, 7, 8]
+        >>> for led in (Colour(15, 7, 8)):
+        ...     print(led)
+        ... 
+        15
+        7
+        8
         '''
-        return [self.r, self.g, self.b]
+        return iter([self.r, self.g, self.b])
 
     def gt(self, o):
         assert type(o) == Colour, 'must compare Colour to Colour'
