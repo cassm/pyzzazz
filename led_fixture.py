@@ -7,9 +7,9 @@ from colour import Colour
 
 
 class Led:
-    def __init__(self, coordinate, colour=Colour()):
+    def __init__(self, coord, colour=Colour()):
         self.colour = colour
-        self.coordinate = coordinate
+        self.coord = coord
 
 
 class LedFixture(Fixture):
@@ -83,27 +83,27 @@ class LedFixture(Fixture):
         return list(led.colour.channelwise_min(Colour(255, 255, 255)) for led in self.leds)
 
     def get_coords(self):
-        return list(list(led.coordinate.get("global", "cartesian")) for led in self.leds)
+        return list(list(led.coord.get("global", "cartesian")) for led in self.leds)
 
     def add_cartesian(self, vector):
         for led in self.leds:
-            led.coordinate.add_cartesian(vector)
+            led.coord.add_cartesian(vector)
 
     def rotate_phi_global(self, angle):
         for led in self.leds:
-            led.coordinate.rotate_theta_global(angle)
+            led.coord.rotate_theta_global(angle)
 
     def rotate_theta_global(self, angle):
         for led in self.leds:
-            led.coordinate.rotate_theta_global(angle)
+            led.coord.rotate_theta_global(angle)
 
     def rotate_phi_local(self, angle):
         for led in self.leds:
-            led.coordinate.rotate_theta_local(angle)
+            led.coord.rotate_theta_local(angle)
 
     def rotate_theta_local(self, angle):
         for led in self.leds:
-            led.coordinate.rotate_theta_local(angle)
+            led.coord.rotate_theta_local(angle)
 
     def has_sender(self, name):
         return name in list(sender.name for sender in self.senders)

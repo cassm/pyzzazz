@@ -25,7 +25,7 @@ class MakeMeOneWithEverything(Pattern):
 
     def get_pixel_colour(self, pixels, index, time, palette):
         pixel = pixels[index]
-        origin_delta = pixel.coordinate.get_global_delta()
+        origin_delta = pixel.coord.get_global_delta()
 
         r = max(math.sin(-time / -2 + origin_delta * (5 + math.cos(-time / 2 + origin_delta))) * self._shimmer_level, 0)
         g = max(math.sin(-time / -2 + origin_delta * (5 + math.cos(-time / 2.2 + origin_delta))) * self._shimmer_level, 0)
@@ -37,7 +37,7 @@ class MakeMeOneWithEverything(Pattern):
         for swoosh in self._active_swooshes:
             time_since_swoosh = time-swoosh[0]
 
-            distance_behind_swoosh = time_since_swoosh*swoosh[2] - pixel.coordinate.get("local", "spherical")[swoosh[1]]
+            distance_behind_swoosh = time_since_swoosh*swoosh[2] - pixel.coord.get("local", "spherical")[swoosh[1]]
 
             while distance_behind_swoosh < 0:
                 distance_behind_swoosh += 2*math.pi

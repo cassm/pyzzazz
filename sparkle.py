@@ -25,7 +25,7 @@ class Sparkle(Pattern):
                 index = random.randrange(0, len(leds))
                 # print("sparkle at {} on {} out of {}".format(time, index, len(leds)))
                 self._sparkle_info[index].time = time
-                self._sparkle_info[index].colour = palette.sample_radial(leds[index].coordinate.get_global_delta(), time, self._space_divisor, self._time_divisor)
+                self._sparkle_info[index].colour = palette.sample_radial(leds[index].coord.get_global_delta(), time, self._space_divisor, self._time_divisor)
 
     def get_pixel_colour(self, pixels, index, time, palette):
         # do not allow zero, because we divide by this
@@ -34,7 +34,7 @@ class Sparkle(Pattern):
         # do not allow brightness to exceed 1 to avoid distortion
         sparkle_brightness = min(1.0 / time_delta, 1.0)
         sparkle_value = self._sparkle_info[index].colour * sparkle_brightness
-        background_colour = palette.sample_radial(pixels[index].coordinate.get_global_delta(), time, self._space_divisor, self._time_divisor)
+        background_colour = palette.sample_radial(pixels[index].coord.get_global_delta(), time, self._space_divisor, self._time_divisor)
         background_colour *= self._background_brightness
 
         return sparkle_value.channelwise_max(background_colour)

@@ -11,9 +11,9 @@ class Smooth(Pattern):
         return
 
     def get_pixel_colour(self, pixels, index, time, palette):
-        space_delta = pixels[index].coordinate.get_global_delta()
+        space_delta = pixels[index].coord.get_global_delta()
 
-        offset_space_component = pixels[index].coordinate.get("global", "spherical").theta * 3
+        offset_space_component = pixels[index].coord.get("global", "spherical").theta * 3
         offset_time_component = time
         offset = math.sin(offset_space_component + offset_time_component)
         offset /= 4

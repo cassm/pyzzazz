@@ -20,7 +20,7 @@ class FizzyLiftingDrink(Pattern):
 
         t = time * 5
 
-        pct = pixels[index].coordinate.get_global_delta()
+        pct = pixels[index].coord.get_global_delta()
 
         # diagonal black stripes
         pct_jittered = (pct * 77) % 37
