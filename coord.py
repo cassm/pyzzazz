@@ -1,6 +1,15 @@
 import math
 
 
+def nonzero(val):
+    epsilon = 0.00001
+
+    if val == 0:
+        return val + epsilon
+    else:
+        return val
+
+
 class Cartesian:
     def __init__(self, x, y, z):
         self.x = x
@@ -43,8 +52,8 @@ class Cartesian:
 
     def to_spherical(self):
         r = self.get_magnitude()
-        theta = math.atan(self.y/self.x)
-        phi = math.atan(math.sqrt(self.x ** 2 + self.y ** 2) / self.z)
+        theta = math.atan(self.y / nonzero(self.x))
+        phi = math.atan(math.sqrt(self.x ** 2 + self.y ** 2) / nonzero(self.z))
 
         return Spherical(r, theta, phi)
 
