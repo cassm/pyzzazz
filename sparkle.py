@@ -30,8 +30,7 @@ class Sparkle(Pattern):
         for i in range(self._max_sparkles):
             if random.random() < self._sparkle_probability:
                 index = random.randrange(0, len(leds))
-                # print("sparkle at {} on {} out of {}".format(time, index, len(leds)))
-                self._sparkle_info[index].time = time
+                self._sparkle_info[index].time = time - 0.5 # hack to reduce time at full brightness
                 self._sparkle_info[index].colour = palette.sample_radial(leds[index].coord.get_delta("global"), time, self._space_divisor, self._time_divisor)
 
     def get_pixel_colour(self, pixels, index, time, palette):
