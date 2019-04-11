@@ -52,7 +52,7 @@ class Colour:
         return Colour(min(self.r, o.r), min(self.g, o.g), min(self.b, o.b))
 
     def __iter__(self):
-        '''
+        """
         >>> list(Colour(15, 7, 8))
         [15, 7, 8]
         >>> for led in (Colour(15, 7, 8)):
@@ -61,7 +61,7 @@ class Colour:
         15
         7
         8
-        '''
+        """
         return iter([self.r, self.g, self.b])
 
     def eq(self, o):
@@ -73,19 +73,19 @@ class Colour:
         return self.r != o.r and self.g != o.g and self.b != o.b
     
     def __repr__(self):
-        '''
+        """
         >>> c1 = Colour(15, 7, 8)
         >>> c1
         Colour(r: 15, g: 7, b:8)
-        '''
+        """
         return 'Colour(r: {0:g}, g: {1:g}, b:{2:g})'.format(self.r, self.g, self.b)
 
     def __str__(self):
-        '''
+        """
         >>> str(Colour(16, 0, 0))
         '(16, 0, 0)'
         >>> print(Colour(16, 0, 0))
         (16, 0, 0)
-        '''
+        """
 
         return '({0:g}, {1:g}, {2:g})'.format(self.r, self.g, self.b)
