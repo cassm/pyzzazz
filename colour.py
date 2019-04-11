@@ -53,6 +53,10 @@ class Colour:
 
     #FIXME returns "Colour object is not iterable"
     def list(self):
+        '''
+        >>> list(Colour(15, 7, 8))
+        [15, 7, 8]
+        '''
         return [self.r, self.g, self.b]
 
     def gt(self, o):
@@ -78,3 +82,21 @@ class Colour:
     def ne(self, o):
         assert type(o) == Colour, 'must compare Colour to Colour'
         return self.r != o.r and self.g != o.g and self.b != o.b
+    
+    def __repr__(self):
+        '''
+        >>> c1 = Colour(15, 7, 8)
+        >>> c1
+        Colour(r: 15, g: 7, b:8)
+        '''
+        return 'Colour(r: {0:g}, g: {1:g}, b:{2:g})'.format(self.r, self.g, self.b)
+
+    def __str__(self):
+        '''
+        >>> str(Colour(16, 0, 0))
+        '(16, 0, 0)'
+        >>> print(Colour(16, 0, 0))
+        (16, 0, 0)
+        '''
+
+        return '({0:g}, {1:g}, {2:g})'.format(self.r, self.g, self.b)
