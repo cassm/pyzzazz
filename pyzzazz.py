@@ -14,7 +14,7 @@ class Pyzzazz:
         self.speed = 1.0
         self.effective_time = 0.0
         self.last_update = time.time()
-        self.subprocesses = []
+        self.subprocesses = list()
 
         # TODO multiple palettes, pass dict to fixtures
         #      controllers
@@ -55,7 +55,7 @@ class Pyzzazz:
                 sender.generate_layout_files(self.fixtures)
                 self.subprocesses.append(sender.start())
 
-        #FIXME do controllers here
+        # FIXME do controllers here
         print ("{} fixtures initialised".format(len(self.fixtures)))
         for fixture in self.fixtures:
             print("{} with {} leds".format(fixture.name, len(fixture.leds)))
