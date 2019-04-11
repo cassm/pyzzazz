@@ -43,10 +43,10 @@ class Colour:
         self.b = max(self.b - o.b, 0)
         return self
 
-    def max(self, o):
+    def channelwise_max(self, o):
         return Colour(max(self.r, o.r), max(self.g, o.g), max(self.b, o.b))
 
-    def min(self, o):
+    def channelwise_min(self, o):
         return Colour(min(self.r, o.r), min(self.g, o.g), min(self.b, o.b))
 
     def list(self):

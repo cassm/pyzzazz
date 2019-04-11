@@ -80,10 +80,10 @@ class LedFixture(Fixture):
             led.colour = self.patterns[self.pattern].get_pixel_colour(self.leds, index, time, palette)
 
     def get_pixels(self):
-        return list((min(led.colour.r, 255), min(led.colour.g, 255), min(led.colour.b, 255)) for led in self.leds)
+        return list(led.colour.channelwise_min(Colour(255, 255, 255)).list() for led in self.leds)
 
     def get_coords(self):
-        return list(led.coordinate.get("global", "cartesian").list() for led in self.leds)
+        return list(list(led.coordinate.get("global", "cartesian")) for led in self.leds)
 
     def add_cartesian(self, vector):
         for led in self.leds:

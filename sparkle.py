@@ -37,5 +37,5 @@ class Sparkle(Pattern):
         background_colour = palette.sample_radial(pixels[index].coordinate.get_global_delta(), time, self._space_divisor, self._time_divisor)
         background_colour *= self._background_brightness
 
-        return sparkle_value.max(background_colour)
+        return sparkle_value.channelwise_max(background_colour)
 
