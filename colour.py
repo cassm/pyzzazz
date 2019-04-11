@@ -65,7 +65,7 @@ class Colour:
 
     def eq(self, o):
         assert type(o) == Colour, 'must compare Colour to Colour'
-        return self.r == o.r and self.g == o.g and self.b =g= o.b
+        return self.r == o.r and self.g == o.g and self.b == o.b
 
     def ne(self, o):
         assert type(o) == Colour, 'must compare Colour to Colour'
