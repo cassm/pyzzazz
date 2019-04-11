@@ -10,14 +10,21 @@ class SparkleRecord:
 
 
 class Sparkle(Pattern):
-    def __init__(self, num_leds, max_sparkles, sparkle_probability, background_brightness):
+    def __init__(self, num_leds):
         self._sparkle_info = [SparkleRecord() for _ in range(num_leds)]
-        self._max_sparkles = max_sparkles
-        self._sparkle_probability = sparkle_probability
-        self._background_brightness = background_brightness
 
-        self._time_divisor = 50
-        self._space_divisor = 1
+        # sane defaults
+        self._max_sparkles = 1
+        self._sparkle_probability = 0.2
+        self._background_brightness = 0.5
+
+        self._time_divisor = -250
+        self._space_divisor = 2
+
+    def set_vars(self, command):
+        self._max_sparkles = command.get("max_sparkles", self._max_sparkles)
+        self._sparkle_probability = command.get("sparkle_probability", self._sparkle_probability)
+        self._background_brightness = command.get("background_brightness", self._background_brightness)
 
     def update(self, leds, time, palette):
         for i in range(self._max_sparkles):

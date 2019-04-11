@@ -68,7 +68,7 @@
           "name": "sparkle",
           "id": "0",
           "fixture_regex": "icosahedron_*",
-          "command_string": "pattern sparkle"
+          "command": "{'type': 'pattern', 'name': 'sparkle', 'args': {'max_sparkles': 3, 'sparkle_probability': 0.05, 'background_brightness': 0.5}}"
         }
       ],
 

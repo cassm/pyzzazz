@@ -34,36 +34,33 @@ class LedFixture(Fixture):
         if "line" not in config.keys():
             raise Exception("LedFixture: config contains no line")
 
-    def parse_command(self, command_string):
-        args = command_string.split(" ")
-
-        if args[0] == "pattern":
-            self.pattern = args[1]
+    def receive_command(self, command):
+        if command["type"] == "pattern":
+            self.pattern = command["name"]
+            self.patterns[self.pattern].set_vars(command["args"])
 
         else:
-            raise Exception("LedFixture: unknown command {}".format(args[0]))
+            raise Exception("LedFixture: unknown command type {}".format(command["type"]))
 
-    def register_command(self, command_string):
-        args = command_string.split(" ")
-
-        if args[0] == "pattern":
-            if args[1] == "smooth":
+    def register_command(self, command):
+        if command["type"] == "pattern" and command["name"] not in self.patterns:
+            if command["name"] == "smooth":
                 self.patterns["smooth"] = Smooth()
 
-            elif args[1] == "sparkle":
-                self.patterns["sparkle"] = Sparkle(len(self.leds), 3, 0.05, 0.5)
+            elif command["name"] == "sparkle":
+                self.patterns["sparkle"] = Sparkle(len(self.leds))
 
-            elif args[1] == "fizzy_lifting_drink":
+            elif command["name"] == "fizzy_lifting_drink":
                 self.patterns["fizzy_lifting_drink"] = FizzyLiftingDrink()
 
-            elif args[1] == "make_me_one_with_everything":
-                self.patterns["make_me_one_with_everything"] = MakeMeOneWithEverything(128, 255, 15)
+            elif command["name"] == "make_me_one_with_everything":
+                self.patterns["make_me_one_with_everything"] = MakeMeOneWithEverything()
 
             else:
-                raise Exception("LedFixture: unknown pattern {}".format(args[1]))
+                raise Exception("LedFixture: unknown pattern {}".format(command["name"]))
 
         else:
-            raise Exception("LedFixture: unknown command {}".format(args[0]))
+            raise Exception("LedFixture: unknown command type {}".format(command["type"]))
 
     def send(self):
         if len(self.leds) > 0:

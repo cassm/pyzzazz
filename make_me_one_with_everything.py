@@ -5,12 +5,20 @@ import math
 
 
 class MakeMeOneWithEverything(Pattern):
-    def __init__(self, shimmer_level, white_level, swoosh_interval):
+    def __init__(self):
         self._active_swooshes = []
-        self._shimmer_level = shimmer_level
-        self._white_level = white_level
-        self._swoosh_interval = swoosh_interval
+
+        # sane defaults
+        self._shimmer_level = 128
+        self._white_level = 256
+        self._swoosh_interval = 15
+
         self._next_swoosh = random.gauss(self._swoosh_interval, self._swoosh_interval / 4)
+
+    def set_vars(self, command):
+        self._shimmer_level = command.get("shimmer_level", self._shimmer_level)
+        self._white_level = command.get("white_level", self._white_level)
+        self._swoosh_interval = command.get("swoosh_interval", self._swoosh_interval)
 
     def update(self, leds, time, palette):
         if time > self._next_swoosh:
