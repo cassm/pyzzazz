@@ -80,7 +80,7 @@ class LedFixture(Fixture):
             led.colour = self.patterns[self.pattern].get_pixel_colour(self.leds, index, time, palette)
 
     def get_pixels(self):
-        return list(led.colour.channelwise_min(Colour(255, 255, 255)).list() for led in self.leds)
+        return list(led.colour.channelwise_min(Colour(255, 255, 255)) for led in self.leds)
 
     def get_coords(self):
         return list(list(led.coordinate.get("global", "cartesian")) for led in self.leds)
