@@ -25,7 +25,7 @@ class MakeMeOneWithEverything(Pattern):
 
     def get_pixel_colour(self, pixels, index, time, palette):
         pixel = pixels[index]
-        origin_delta = pixel.coord.get_global_delta()
+        origin_delta = pixel.coord.get_delta("global")
 
         r = max(math.sin(-time / -2 + origin_delta * (5 + math.cos(-time / 2 + origin_delta))) * self._shimmer_level, 0)
         g = max(math.sin(-time / -2 + origin_delta * (5 + math.cos(-time / 2.2 + origin_delta))) * self._shimmer_level, 0)

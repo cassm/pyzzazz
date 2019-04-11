@@ -206,11 +206,13 @@ class Coordinate:
         self._global_spherical = self._global_cartesian.to_spherical()
         self._global_delta = self._local_cartesian.get_magnitude()
 
-    def get_global_delta(self):
-        return self._global_delta
-
-    def get_local_origin(self):
-        return self._local_origin
+    def get_delta(self, reference_frame):
+        if reference_frame == "global":
+            return self._global_delta
+        elif reference_frame == "local":
+            return self._local_delta
+        else:
+            raise Exception("unknown reference frame {}".format(reference_frame))
 
     # FIXME change these names?
     # changes the local origin and leaves the point static in the LOCAL frame
