@@ -57,7 +57,7 @@ class LedFixture(Fixture):
                 self.patterns["fizzy_lifting_drink"] = FizzyLiftingDrink()
 
             elif args[1] == "make_me_one_with_everything":
-                self.patterns["make_me_one_with_everything"] = MakeMeOneWithEverything(64, 255, 3)
+                self.patterns["make_me_one_with_everything"] = MakeMeOneWithEverything(128, 255, 15)
 
             else:
                 raise Exception("LedFixture: unknown pattern {}".format(args[1]))
