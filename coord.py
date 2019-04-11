@@ -47,6 +47,12 @@ class Cartesian:
     def __getitem__(self, key):
         return list(self)[key]
 
+    def __str__(self):
+        return '[x: {0:g}, y: {1:g}, z:{2:g}]'.format(self.x, self.y, self.z)
+
+    def __repr__(self):
+        return 'Cartesian(x: {0:g}, y: {1:g}, z:{2:g})'.format(self.x, self.y, self.z)
+
     def get_magnitude(self):
         return math.sqrt(self.x ** 2 + self.y ** 2 + self.z ** 2)
 
@@ -63,12 +69,19 @@ class Spherical:
         self.r = r
         self.theta = theta
         self.phi = phi
+        self.epsilon = 0.00001
 
     def __iter__(self):
         return iter([self.r, self.theta, self.phi])
 
     def __getitem__(self, key):
         return list(self)[key]
+
+    def __str__(self):
+        return '[r: {0:g}, theta: {1:g}, phi:{2:g}]'.format(self.r, self.theta, self.phi)
+
+    def __repr__(self):
+        return 'Spherical(r: {0:g}, theta: {1:g}, phi:{2:g})'.format(self.r, self.theta, self.phi)
 
     def add_angle(self, axis, angle):
         if axis == "phi":
