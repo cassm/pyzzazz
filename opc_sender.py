@@ -25,7 +25,6 @@ class OpcSender(Sender):
         if not os.path.isdir(self._layouts_dir):
             os.mkdir(self._layouts_dir)
 
-
     def validate_config(self, config):
         if "ip" not in config.keys():
             raise Exception("Sender: config contains no ip")
@@ -47,7 +46,7 @@ class OpcSender(Sender):
         print("\n")
 
     def start(self):
-        args = []
+        args = list()
         args.append("{}/openpixelcontrol/bin/gl_server".format(self._src_dir))
 
         for i in range(self.num_lines):
