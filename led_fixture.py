@@ -44,21 +44,22 @@ class LedFixture(Fixture):
             raise Exception("LedFixture: unknown command type {}".format(command["type"]))
 
     def register_command(self, command):
-        if command["type"] == "pattern" and command["name"] not in self.patterns:
-            if command["name"] == "smooth":
-                self.patterns["smooth"] = Smooth()
+        if command["type"] == "pattern":
+            if command["name"] not in self.patterns:
+                if command["name"] == "smooth":
+                    self.patterns["smooth"] = Smooth()
 
-            elif command["name"] == "sparkle":
-                self.patterns["sparkle"] = Sparkle(len(self.leds))
+                elif command["name"] == "sparkle":
+                    self.patterns["sparkle"] = Sparkle(len(self.leds))
 
-            elif command["name"] == "fizzy_lifting_drink":
-                self.patterns["fizzy_lifting_drink"] = FizzyLiftingDrink()
+                elif command["name"] == "fizzy_lifting_drink":
+                    self.patterns["fizzy_lifting_drink"] = FizzyLiftingDrink()
 
-            elif command["name"] == "make_me_one_with_everything":
-                self.patterns["make_me_one_with_everything"] = MakeMeOneWithEverything()
+                elif command["name"] == "make_me_one_with_everything":
+                    self.patterns["make_me_one_with_everything"] = MakeMeOneWithEverything()
 
-            else:
-                raise Exception("LedFixture: unknown pattern {}".format(command["name"]))
+                else:
+                    raise Exception("LedFixture: unknown pattern {}".format(command["name"]))
 
         else:
             raise Exception("LedFixture: unknown command type {}".format(command["type"]))
