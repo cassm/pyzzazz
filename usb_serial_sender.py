@@ -5,7 +5,6 @@ from usb_serial_port import UsbSerialPort
 class UsbSerialSender(Sender):
     def __init__(self, config):
         Sender.__init__(self, config)
-
         self.validate_config(config)
         self.port = config.get("port", "")
 
@@ -42,16 +41,3 @@ class UsbSerialSender(Sender):
                 char += 1
 
         return bytearray(header + payload + footer)
-
-    def receive(self):
-        buffer = b""
-
-        bytes_received = 1
-
-        while bytes_received > 0:
-            char = self.serial.read()
-            bytes_received = len(char)
-            buffer += char
-
-        if len(buffer) > 0:
-            print(str(buffer))

@@ -54,7 +54,6 @@ class MakeMeOneWithEverything(Pattern):
 
         w = max(w, swoosh_level * 255)
 
-        # FIXME is suspect this is broken
         return Colour(r+w, g+w, b+w)
 
     @staticmethod

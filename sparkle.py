@@ -1,5 +1,5 @@
 from pattern import Pattern
-from colour import Colour
+from common.colour import Colour
 import random
 
 
