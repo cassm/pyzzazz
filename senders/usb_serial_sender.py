@@ -1,5 +1,5 @@
-from sender import Sender
-from usb_serial_port import UsbSerialPort
+from senders.sender import Sender
+from common.usb_serial_port import UsbSerialPort
 
 
 class UsbSerialSender(Sender):

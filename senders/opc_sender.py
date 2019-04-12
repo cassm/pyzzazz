@@ -1,4 +1,4 @@
-from sender import Sender
+from senders.sender import Sender
 import openpixelcontrol.python.opc as opc
 import subprocess
 import json

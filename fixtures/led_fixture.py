@@ -1,9 +1,9 @@
-from fixture import Fixture
-from sparkle import Sparkle
-from fizzy_lifting_drink import FizzyLiftingDrink
-from make_me_one_with_everything import MakeMeOneWithEverything
-from smooth import Smooth
-from colour import Colour
+from fixtures.fixture import Fixture
+from patterns.sparkle import Sparkle
+from patterns.fizzy_lifting_drink import FizzyLiftingDrink
+from patterns.make_me_one_with_everything import MakeMeOneWithEverything
+from patterns.smooth import Smooth
+from common.colour import Colour
 
 
 class Led:

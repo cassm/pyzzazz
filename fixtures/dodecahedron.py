@@ -1,9 +1,9 @@
-from led_fixture import LedFixture
-from led_fixture import Led
-from colour import Colour
-from coord import Coordinate
-from coord import Spherical
-from coord import Cartesian
+from fixtures.led_fixture import LedFixture
+from fixtures.led_fixture import Led
+from common.colour import Colour
+from common.coord import Coordinate
+from common.coord import Spherical
+from common.coord import Cartesian
 import math
 
 class Dodecahedron(LedFixture):

@@ -1,4 +1,4 @@
-from pattern import Pattern
+from patterns.pattern import Pattern
 from common.colour import Colour
 import random
 

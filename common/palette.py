@@ -1,6 +1,6 @@
 import os
 import imageio
-from colour import Colour
+from common.colour import Colour
 
 
 class Palette:
