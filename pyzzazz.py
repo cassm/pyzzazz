@@ -92,12 +92,14 @@ class Pyzzazz:
         self.effective_time += (time.time() - self.last_update) * self.speed
         self.last_update = time.time()
 
+        smoothness = 0.5
+
         for sender in self.senders:
             if not sender.is_connected():
                 sender.try_connect()
 
         for fixture in self.fixtures:
-            fixture.update(self.effective_time, self.palette)
+            fixture.update(self.effective_time, self.palette, smoothness)
             fixture.send()
 
     def shut_down(self):

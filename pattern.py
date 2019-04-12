@@ -1,4 +1,7 @@
 class Pattern:
+    def set_vars(self, args):
+        pass
+
     def update(self, leds, time, palette):
         pass
 

@@ -1,6 +1,15 @@
 import math
 
 
+def nonzero(val):
+    epsilon = 0.00001
+
+    if val == 0:
+        return val + epsilon
+    else:
+        return val
+
+
 class Cartesian:
     def __init__(self, x, y, z):
         self.x = x
@@ -38,13 +47,19 @@ class Cartesian:
     def __getitem__(self, key):
         return list(self)[key]
 
+    def __str__(self):
+        return '[x: {0:g}, y: {1:g}, z:{2:g}]'.format(self.x, self.y, self.z)
+
+    def __repr__(self):
+        return 'Cartesian(x: {0:g}, y: {1:g}, z:{2:g})'.format(self.x, self.y, self.z)
+
     def get_magnitude(self):
         return math.sqrt(self.x ** 2 + self.y ** 2 + self.z ** 2)
 
     def to_spherical(self):
         r = self.get_magnitude()
-        theta = math.atan(self.y/self.x)
-        phi = math.atan(math.sqrt(self.x ** 2 + self.y ** 2) / self.z)
+        theta = math.atan(self.y / nonzero(self.x))
+        phi = math.atan(math.sqrt(self.x ** 2 + self.y ** 2) / nonzero(self.z))
 
         return Spherical(r, theta, phi)
 
@@ -54,12 +69,19 @@ class Spherical:
         self.r = r
         self.theta = theta
         self.phi = phi
+        self.epsilon = 0.00001
 
     def __iter__(self):
         return iter([self.r, self.theta, self.phi])
 
     def __getitem__(self, key):
         return list(self)[key]
+
+    def __str__(self):
+        return '[r: {0:g}, theta: {1:g}, phi:{2:g}]'.format(self.r, self.theta, self.phi)
+
+    def __repr__(self):
+        return 'Spherical(r: {0:g}, theta: {1:g}, phi:{2:g})'.format(self.r, self.theta, self.phi)
 
     def add_angle(self, axis, angle):
         if axis == "phi":
@@ -82,8 +104,8 @@ class Spherical:
             raise Exception("unknown axis {}".format(axis))
 
     def to_cartesian(self):
-        x = self.r * math.sin(self.phi) * math.cos(self.theta)
-        y = self.r * math.sin(self.phi) * math.sin(self.theta)
+        x = self.r * math.sin(self.phi % math.pi) * math.cos(self.theta)
+        y = self.r * math.sin(self.phi % math.pi) * math.sin(self.theta)
         z = self.r * math.cos(self.phi)
 
         return Cartesian(x, y, z)
@@ -184,11 +206,13 @@ class Coordinate:
         self._global_spherical = self._global_cartesian.to_spherical()
         self._global_delta = self._local_cartesian.get_magnitude()
 
-    def get_global_delta(self):
-        return self._global_delta
-
-    def get_local_origin(self):
-        return self._local_origin
+    def get_delta(self, reference_frame):
+        if reference_frame == "global":
+            return self._global_delta
+        elif reference_frame == "local":
+            return self._local_delta
+        else:
+            raise Exception("unknown reference frame {}".format(reference_frame))
 
     # FIXME change these names?
     # changes the local origin and leaves the point static in the LOCAL frame
