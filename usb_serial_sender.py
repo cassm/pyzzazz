@@ -1,6 +1,5 @@
-import serial
-import time
 from sender import Sender
+from usb_serial_port import UsbSerialPort
 
 
 class UsbSerialSender(Sender):
@@ -8,82 +7,30 @@ class UsbSerialSender(Sender):
         Sender.__init__(self, config)
 
         self.validate_config(config)
+        self.port = config.get("port", "")
 
-        self.connected = False
-        self.serial = serial.Serial()
-
-        self.last_connection_time = time.time()
-        self.connection_retry_interval = 1.0  # seconds
-        self.previously_connected = False
-
-        self.last_send_time = time.time()
-        self.send_interval = 0.005  # seconds
+        self._serial = UsbSerialPort(config)
 
     def validate_config(self, config):
-        return
+        if "port" not in config.keys():
+            raise Exception("LedFixture: config contains no port")
 
-    # check for connection and handle logging
     def is_connected(self):
-        if self.previously_connected:
-            if self.serial.isOpen():
-                return True
-            else:
-                print("Sender {} lost connection on port {}".format(self.name, self.port))
-                self.previously_connected = False
-                return False
-        else:
-            if not self.serial.isOpen():
-                return False
-            else:
-                print("Sender {} connected on port {}".format(self.name, self.port))
-                self.previously_connected = True
-                return True
+        return self._serial.is_connected()
 
     def try_connect(self):
-        # don't retry if interval hasn't passed
-        if time.time() - self.last_connection_time < self.connection_retry_interval:
-            return
-
-        self.last_connection_time = time.time()
-
-        try:
-            self.serial = serial.Serial(self.port,
-                                        baudrate=57600,
-                                        parity=serial.PARITY_NONE,
-                                        stopbits=serial.STOPBITS_ONE,
-                                        bytesize=serial.EIGHTBITS,
-                                        writeTimeout=0,
-                                        timeout=0,
-                                        rtscts=False,
-                                        dsrdtr=False,
-                                        xonxoff=False)
-
-        except serial.SerialException:
-            # Assume we can keep trying
-            pass
+        self._serial.try_connect()
 
     def send(self, line, pixels):
         if line > self.num_lines or line < 0:
             raise Exception("Sender: send called on invalid line {}".format(line))
 
-        # don't retry if interval hasn't passed
-        if time.time() - self.last_send_time < self.send_interval:
-            return
-
-        self.last_send_time = time.time()
-
         # if not connected, drop frame
         if self.is_connected():
 
-            payload = list(channel for pixel in pixels for channel in pixel)
+            packet  = self.encapsulate(line, list(channel for pixel in pixels for channel in pixel))
 
-            try:
-                self.serial.write(self.encapsulate(line, payload))
-
-            except Exception as e:
-                print (e)
-                # if something's wrong, drop the frame and hope it fixes itself
-                pass
+            self._serial.send_bytes(packet)
 
     def encapsulate(self, line, payload):
         header = [ord('~'), line]
@@ -91,7 +38,7 @@ class UsbSerialSender(Sender):
 
         # avoid sentinel value
         for char in payload:
-            if char == 126:
+            if char == header[0] or char == footer[0]:
                 char += 1
 
         return bytearray(header + payload + footer)
