@@ -1,23 +1,32 @@
 from bitarray import bitarray
-import struct
 
 
 # FIXME probably make this less fragile. strict mode?
-class StatePacketHeader:
+class CommHeader:
     signature = 0xBEEE
 
-    ops_by_byte = {0x00: "state_request",
-                   0x01: "state_reply"}
+    ops_by_byte = {0x00: "name_request",
+                   0x01: "name_reply",
+                   0x02: "state_request",
+                   0x03: "state_reply"}
 
-    ops_by_str = {"state_request": 0x00,
-                  "state_reply": 0x01}
+    ops_by_str = {"name_request": 0x00,
+                  "name_reply": 0x01,
+                  "state_request": 0x02,
+                  "state_reply": 0x03}
 
     header_len = 5
 
-    def __init__(self, opcode=-1, payload_len=-1):
-        self.signature = self.signature
-        self.opcode = opcode
-        self.payload_len = payload_len
+    def __init__(self, payload_len=0, msgtype=None, bytes=None):
+        if bytes:
+            assert msgtype is None, "Header must be instantiated with either a bytestream or a type"
+            self.set_bytes(bytes)
+
+        else:
+            assert msgtype is not None, "Header must be instantiated with either a bytestream or a type"
+            self.signature = self.signature
+            self.payload_len = payload_len
+            self.opcode = self.ops_by_str[msgtype]
 
     def set_bytes(self, raw_bytes):
         assert len(raw_bytes) == self.header_len, \
@@ -34,7 +43,7 @@ class StatePacketHeader:
         self.payload_len = raw_bytes[3] << 8 | raw_bytes[4]
 
     def get_bytes(self):
-        assert min(self.signature, self.opcode, self.payload_len) > 0, \
+        assert min(self.signature, self.opcode, self.payload_len) >= 0, \
             "selfHeader: get_bytes called with uninitialised fields"
 
         header_bytes = bytearray()
@@ -46,10 +55,44 @@ class StatePacketHeader:
 
         return header_bytes
 
+    def get_dict(self):
+        return {"msgtype": self.ops_by_byte[self.opcode],
+                "payload_len": self.payload_len}
+
+
+class NameResponsePayload:
+    def __init__(self, name=None, bytes=None):
+        if bytes is not None:
+            assert name is None, "Payload must be initialised with either values or a bytestream"
+            self.set_bytes(bytes)
+
+        else:
+            assert name is not None, "Payload must be initialised with either values or a bytestream"
+            self.name = name
+
+    def set_bytes(self, raw_bytes):
+        self.name = raw_bytes.decode('ascii')
+
+    def get_bytes(self):
+        return bytes(map(ord, self.name))
+
+    def get_dict(self):
+        return {"msgtype": "name_reply",
+                "name": self.name}
+
+
 class StateResponsePayload:
-    def __init__(self, button_state=list(), slider_state=list()):
-        self.button_state = button_state
-        self.slider_state = slider_state
+    def __init__(self, button_state=None, slider_state=None, bytes=None):
+        if bytes is not None:
+            assert button_state is None and slider_state is None,\
+                "Payload must be initialised with either values or a bytestream"
+            self.set_bytes(bytes)
+
+        else:
+            assert button_state is not None and slider_state is not None, \
+                "Payload must be initialised with either values or a bytestream"
+            self.button_state = button_state
+            self.slider_state = slider_state
 
     def set_bytes(self, raw_bytes):
         assert len(raw_bytes <= 2), \
@@ -110,35 +153,52 @@ class StateResponsePayload:
 
         return state_bytes
 
+    def get_dict(self):
+        return {"msgtype": "state_reply",
+                "slider_state": self.slider_state,
+                "button_state": self.button_state}
 
-class StatePacketHandler:
+
+class CommPacketHandler:
     def __init__(self):
         self.available_packets = []
-        self.buffer = list()
-        self.header = StatePacketHeader()
+        self.buffer = bytearray()
+        self.header = None
 
     def add_bytes(self, new_bytes):
         for new_byte in new_bytes:
             self.buffer.append(new_byte)
 
-            if len(self.buffer) == StatePacketHeader.header_len:
-                self.header.set_bytes(self.buffer)
+            if self.header is None and len(self.buffer) == CommHeader.header_len:
+                self.header = CommHeader(bytes=self.buffer)
 
                 # delete as we go for easier indexing
-                del(self.buffer[0:StatePacketHeader.header_len])
+                del(self.buffer[0:CommHeader.header_len])
 
             if self.header is not None and len(self.buffer) == self.header.payload_len:
-                if StatePacketHeader.ops_by_byte[self.header.opcode] == "state_reply":
-                    payload = StateResponsePayload()
-                    payload.set_bytes(self.buffer)
+                if CommHeader.ops_by_byte[self.header.opcode] == "name_request":
+                    print("received name request")
+                    self.available_packets.append(self.header.get_dict())
 
-                    self.available_packets.append("state_reply", payload)
+                elif CommHeader.ops_by_byte[self.header.opcode] == "name_reply":
+                    print("received name reply")
+                    payload = NameResponsePayload(bytes=self.buffer)
+                    self.available_packets.append(payload.get_dict())
+
+                elif CommHeader.ops_by_byte[self.header.opcode] == "state_request":
+                    print("received state request")
+                    self.available_packets.append(self.header.get_dict())
+
+                elif CommHeader.ops_by_byte[self.header.opcode] == "state_reply":
+                    print("received state reply")
+                    payload = StateResponsePayload(bytes=self.buffer)
+                    self.available_packets.append(payload.get_dict())
 
                 else:
                     raise Exception("StatePacketHandler: unhandled opcode {}".format(self.header.opcode))
 
-                self.header = StatePacketHeader
+                self.header = None
 
     def clear(self):
-        self.buffer = list()
-        self.header = StatePacketHeader
+        self.buffer = bytearray()
+        self.header = None
