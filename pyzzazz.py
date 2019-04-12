@@ -1,10 +1,15 @@
-from configparser import ConfigParser
-from usb_serial_sender import UsbSerialSender
-from opc_sender import OpcSender
-from palette import Palette
-from dodecahedron import Dodecahedron
+from common.configparser import ConfigParser
+from senders.usb_serial_sender_handler import UsbSerialSenderHandler
+from controllers.usb_serial_controller_handler import UsbSerialControllerHandler
+from senders.opc_sender_handler import OpcSenderHandler
+from common.palette import Palette
+from fixtures.dodecahedron import Dodecahedron
 import signal
 import time
+import re
+import traceback
+
+start_pattern = "make_me_one_with_everything"
 
 
 class Pyzzazz:
@@ -16,30 +21,75 @@ class Pyzzazz:
         self.last_update = time.time()
         self.subprocesses = list()
 
-        # TODO multiple palettes, pass dict to fixtures
-        #      controllers
-        #      add target type for commands (fixtures, master, etc)
-        #      modulators? overlays?
-        #      set from image/video
-
-        controllers = self.config_parser.get_controllers()
-
         self.senders = []
+        self.fixtures = []
+        self.controllers = []
+
+        # TODO multiple palettes, pass dict to fixtures
+        # TODO add target type for commands (fixtures, master, etc)
+        # TODO modulators? overlays?
+        # TODO set from image/video
+        # TODO video players should be a different type
+
+        # these must be done in this order
+        self.init_senders()
+        self.init_fixtures()
+        self.init_controllers()
+        self.generate_opc_layout_files()
+
+        # FIXME how to do startup command?
+        for fixture in self.fixtures:
+            command = {'type': 'pattern', 'name': 'sparkle', 'args': {}}
+            # command = {'type': 'pattern', 'name': 'make_me_one_with_everything', 'args': {}}
+            fixture.register_command(command)
+            fixture.receive_command(command, 1)
+
+    def update(self):
+        self.effective_time += (time.time() - self.last_update) * self.speed
+        self.last_update = time.time()
+
+        for controller in self.controllers:
+            if not controller.is_connected():
+                controller.try_connect()
+
+            if controller.is_connected():
+                events = controller.get_events()
+
+                for event in events:
+                    matching_fixtures = list(fixture for fixture in self.fixtures if re.search(event.target_regex, fixture.name))
+
+                    for fixture in matching_fixtures:
+                        fixture.receive_command(event.command, event.state)
+
+        smoothness = 0.5
+
+        for sender in self.senders:
+            if not sender.is_connected():
+                sender.try_connect()
+
+        for fixture in self.fixtures:
+            fixture.update(self.effective_time, self.palette, smoothness)
+            fixture.send()
+
+    def init_senders(self):
         for sender_conf in self.config_parser.get_senders():
             # check for duplicate names
             self.sanity_check_sender_conf(sender_conf)
 
             if sender_conf.get("type", "") == "usb_serial":
                 print("Creating usb serial sender {} on port {}".format(sender_conf.get("name", ""), sender_conf.get("port", "")))
-                self.senders.append(UsbSerialSender(sender_conf))
+                self.senders.append(UsbSerialSenderHandler(sender_conf))
 
             elif sender_conf.get("type", "") == "opc":
                 print("Creating opc sender {} on port {}".format(sender_conf.get("name", ""), sender_conf.get("port", "")))
-                self.senders.append(OpcSender(sender_conf))
+                self.senders.append(OpcSenderHandler(sender_conf))
+
+            else:
+                raise Exception("Unknown sender type {}".format(sender_conf.get("type", "")))
 
         print("\n")
 
-        self.fixtures = []
+    def init_fixtures(self):
         for fixture_conf in self.config_parser.get_fixtures():
             self.sanity_check_fixture_conf(fixture_conf)
 
@@ -48,19 +98,21 @@ class Pyzzazz:
                 fixture_senders = list(sender for sender in self.senders if sender.name in fixture_conf.get("senders", []))
                 self.fixtures.append(Dodecahedron(fixture_conf, fixture_senders))
 
+            else:
+                raise Exception("Unknown fixture type {}".format(fixture_conf.get("type", "")))
+
         print("\n")
 
+    def init_controllers(self):
+        for controller_conf in self.config_parser.get_controllers():
+            # check for duplicate names
+            self.sanity_check_controller_conf(controller_conf)
+
+    def generate_opc_layout_files(self):
         for sender in self.senders:
             if sender.type == "opc":
                 sender.generate_layout_files(self.fixtures)
                 self.subprocesses.append(sender.start())
-
-        # FIXME do controllers here
-        print ("{} fixtures initialised".format(len(self.fixtures)))
-        for fixture in self.fixtures:
-            print("{} with {} leds".format(fixture.name, len(fixture.leds)))
-            fixture.register_command("pattern smooth")
-            fixture.parse_command("pattern smooth")
 
     def sanity_check_sender_conf(self, sender_conf):
         sender_names = tuple(sender.name for sender in self.senders)
@@ -87,20 +139,9 @@ class Pyzzazz:
             if sender_name not in list(sender.name for sender in self.senders):
                 raise Exception("Pyzzazz: Fixture {} specified with undefined sender {}".format(fixture_conf.get("name", ""), sender_name))
 
-
-    def update(self):
-        self.effective_time += (time.time() - self.last_update) * self.speed
-        self.last_update = time.time()
-
-        smoothness = 0.5
-
-        for sender in self.senders:
-            if not sender.is_connected():
-                sender.try_connect()
-
-        for fixture in self.fixtures:
-            fixture.update(self.effective_time, self.palette, smoothness)
-            fixture.send()
+    def sanity_check_controller_conf(self, controller_conf):
+        pass
+        #FIXME do this
 
     def shut_down(self):
         print("Shutting down...")
@@ -123,8 +164,14 @@ class GracefulKiller:
 if __name__ == "__main__":
     killer = GracefulKiller()
 
+    pyzzazz = None
+
     try:
         print("Initialising...")
+        # FIXME backup last used conf
+        # FIXME check for conf on usb stick
+        # FIXME multiple palettes
+        # FIXME grab palettes off usb stick
         pyzzazz = Pyzzazz("conf/conf.json", "conf/auto.bmp")
 
         print("Running...")
@@ -132,8 +179,14 @@ if __name__ == "__main__":
             pyzzazz.update()
 
             if killer.kill_now:
-                pyzzazz.shut_down()
+                if pyzzazz:
+                    pyzzazz.shut_down()
+
                 break
+
+    except Exception as e:
+        # FIXME output to file, print to screen if we're doing that?
+        traceback.print_exc()
 
     finally:
         pyzzazz.shut_down()
