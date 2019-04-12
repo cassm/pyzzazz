@@ -1,4 +1,4 @@
-class Sender:
+class SenderHandler:
     def __init__(self, config):
         self.validate_config(config)
 

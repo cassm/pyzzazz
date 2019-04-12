@@ -26,7 +26,7 @@ class Event:
         self.value = value
 
 
-class Controller():
+class ControllerHandler():
     def __init__(self, config):
         self.validate_config(config)
         self.name = config.get("name", "")

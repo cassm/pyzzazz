@@ -1,10 +1,10 @@
-from senders.sender import Sender
+from senders.sender_handler import SenderHandler
 from common.usb_serial_port import UsbSerialPort
 
 
-class UsbSerialSender(Sender):
+class UsbSerialSenderHandler(SenderHandler):
     def __init__(self, config):
-        Sender.__init__(self, config)
+        SenderHandler.__init__(self, config)
         self.validate_config(config)
         self.port = config.get("port", "")
 
