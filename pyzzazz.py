@@ -20,8 +20,10 @@ default_port = 48945
 class Pyzzazz:
     def __init__(self, conf_path, palette_path):
         self._src_dir = Path(__file__).parent
-        self.config_parser = ConfigParser(conf_path)
-        self.palette = Palette(palette_path)
+        self._conf_path = self._src_dir.joinpath(conf_path)
+        self._palette_path = self._src_dir.joinpath(palette_path)
+        self.config_parser = ConfigParser(self._conf_path)
+        self.palette = Palette(self._palette_path)
         self.effective_time = 0.0
         self.last_update = time.time()
         self.subprocesses = list()
