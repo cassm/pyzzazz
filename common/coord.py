@@ -1,6 +1,7 @@
 import math
 
 
+# Disclaimer: this is ugly because we want all the coordinate representations cached at each stage
 def nonzero(val):
     epsilon = 0.00001
 
