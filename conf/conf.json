@@ -18,6 +18,7 @@
   "Fixtures": [
     {
       "name": "icosahedron_0",
+      "type": "led",
       "geometry": "dodecahedron",
       "location": [-2, 0, -1.9],
       "radius": 0.20,
@@ -26,6 +27,7 @@
     },
     {
       "name": "icosahedron_1",
+      "type": "led",
       "geometry": "dodecahedron",
       "location": [-1.25, 0, -0.9],
       "radius": 0.25,
@@ -34,6 +36,7 @@
     },
     {
       "name": "icosahedron_2",
+      "type": "led",
       "geometry": "dodecahedron",
       "location": [0, 0, -0.15],
       "radius": 0.30,
@@ -42,6 +45,7 @@
     },
     {
       "name": "icosahedron_3",
+      "type": "led",
       "geometry": "dodecahedron",
       "location": [1.25, 0, -0.9],
       "radius": 0.25,
@@ -50,6 +54,7 @@
     },
     {
       "name": "icosahedron_4",
+      "type": "led",
       "geometry": "dodecahedron",
       "location": [2, 0, -1.9],
       "radius": 0.2,

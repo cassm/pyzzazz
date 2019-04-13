@@ -109,10 +109,11 @@ class Pyzzazz:
         for fixture_conf in self.config_parser.get_fixtures():
             self.sanity_check_fixture_conf(fixture_conf)
 
-            if fixture_conf.get("geometry", "") == "dodecahedron":
-                print("Creating dodecahedron {} with senders {}".format(fixture_conf.get("name", ""), fixture_conf.get("senders", [])))
-                fixture_senders = list(sender for sender in self.senders if sender.name in fixture_conf.get("senders", []))
-                self.fixtures.append(Dodecahedron(fixture_conf, fixture_senders))
+            if fixture_conf.get("type", "") == "led":
+                if fixture_conf.get("geometry", "") == "dodecahedron":
+                    print("Creating dodecahedron {} with senders {}".format(fixture_conf.get("name", ""), fixture_conf.get("senders", [])))
+                    fixture_senders = list(sender for sender in self.senders if sender.name in fixture_conf.get("senders", []))
+                    self.fixtures.append(Dodecahedron(fixture_conf, fixture_senders))
 
             else:
                 raise Exception("Unknown fixture type {}".format(fixture_conf.get("type", "")))
