@@ -18,6 +18,9 @@ class Sparkle(Pattern):
         self._sparkle_probability = 0.2
         self._background_brightness = 0.5
 
+        self._last_refresh = 0
+        self._nominal_fps = 30
+
         self._time_divisor = -250
         self._space_divisor = 2
 
@@ -29,8 +32,14 @@ class Sparkle(Pattern):
     def update(self, leds, time, palette):
         max_sparkles = int(self._max_sparkles_percent / 100.0 * len(leds))
 
+        # normalise probability in relation to frame interval, so we get more sparkles when time is moving faster
+        frame_interval = time - self._last_refresh
+        nominal_normal_frame_interval = 1.0 / self._nominal_fps
+        frame_duration_proportion = frame_interval / nominal_normal_frame_interval
+        normalised_sparkle_probability = self._sparkle_probability * frame_duration_proportion
+
         for i in range(max_sparkles):
-            if random.random() < self._sparkle_probability:
+            if random.random() < normalised_sparkle_probability:
                 index = random.randrange(0, len(leds))
                 self._sparkle_info[index].time = time - 0.5 # hack to reduce time at full brightness
                 self._sparkle_info[index].colour = palette.sample_radial(leds[index].coord.get_delta("global"), time, self._space_divisor, self._time_divisor)
