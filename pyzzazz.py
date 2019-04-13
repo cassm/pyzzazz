@@ -29,7 +29,6 @@ class Pyzzazz:
         self.controllers = []
 
         self.socket_server = SocketServer(port=default_port)
-
         # TODO multiple palettes, pass dict to fixtures
         # TODO add target type for commands (fixtures, master, etc)
         # TODO modulators? overlays?
