@@ -14,7 +14,7 @@ class Sparkle(Pattern):
         self._sparkle_info = [SparkleRecord() for _ in range(num_leds)]
 
         # sane defaults
-        self._max_sparkles = 1
+        self._max_sparkles_percent = 1
         self._sparkle_probability = 0.2
         self._background_brightness = 0.5
 
@@ -22,12 +22,14 @@ class Sparkle(Pattern):
         self._space_divisor = 2
 
     def set_vars(self, command):
-        self._max_sparkles = command.get("max_sparkles", self._max_sparkles)
+        self._max_sparkles_percent = command.get("max_sparkles_percent", self._max_sparkles_percent)
         self._sparkle_probability = command.get("sparkle_probability", self._sparkle_probability)
         self._background_brightness = command.get("background_brightness", self._background_brightness)
 
     def update(self, leds, time, palette):
-        for i in range(self._max_sparkles):
+        max_sparkles = int(self._max_sparkles_percent / 100.0 * len(leds))
+
+        for i in range(max_sparkles):
             if random.random() < self._sparkle_probability:
                 index = random.randrange(0, len(leds))
                 self._sparkle_info[index].time = time - 0.5 # hack to reduce time at full brightness
