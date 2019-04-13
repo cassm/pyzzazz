@@ -57,6 +57,17 @@ class PaletteHandler:
     def colour_correct(self, factors):
         self.rgb_buffer = list(list(cha * factors[i] for i, cha in enumerate(pix)) for pix in self.rgb_buffer)
 
+    def sample_positional(self, position, palette_name):
+        palette_to_use = palette_name
+
+        if not palette_name:
+            palette_to_use = self.master_palette_name
+
+        assert 0.0 <= position <= 1.0, "sample_positional: position must be between 0 and 1"
+
+        index = int(position * (len(self.palettes[palette_to_use]) - 1))
+        return Colour(*self.palettes[palette_to_use][index])
+
     def sample_radial(self, space_delta, time_delta, space_divisor, time_divisor, palette_name):
         palette_to_use = palette_name
 
