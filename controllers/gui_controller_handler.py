@@ -1,4 +1,5 @@
 from controllers.controller_handler import ControllerHandler
+import time
 
 
 class GuiControllerHandler(ControllerHandler):
@@ -9,6 +10,8 @@ class GuiControllerHandler(ControllerHandler):
 
         self.name = config.get("name")
         self._socket_server = socket_server
+        self._request_timeout = 0.5
+        self._last_request = 0
         self._waiting_reply = False
         self._connected = False
 
@@ -18,6 +21,9 @@ class GuiControllerHandler(ControllerHandler):
     def update(self):
         if self._socket_server.is_connected(self.name):
             self._connected = True
+
+            if self._waiting_reply and self._last_request + self._request_timeout < time.time():
+                self._waiting_reply = False
 
             if not self._waiting_reply:
                 self._socket_server.send_request(self.name, "state_request")
