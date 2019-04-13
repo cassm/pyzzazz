@@ -1,8 +1,10 @@
 from common.configparser import ConfigParser
 from senders.usb_serial_sender_handler import UsbSerialSenderHandler
+from controllers.gui_controller_handler import GuiControllerHandler
 from controllers.usb_serial_controller_handler import UsbSerialControllerHandler
 from senders.opc_sender_handler import OpcSenderHandler
 from common.palette import Palette
+from common.socket_server import SocketServer
 from fixtures.dodecahedron import Dodecahedron
 import signal
 import time
@@ -10,6 +12,7 @@ import re
 import traceback
 
 start_pattern = "make_me_one_with_everything"
+default_port = 48945
 
 
 class Pyzzazz:
@@ -24,6 +27,8 @@ class Pyzzazz:
         self.senders = []
         self.fixtures = []
         self.controllers = []
+
+        self.socket_server = SocketServer(port=default_port)
 
         # TODO multiple palettes, pass dict to fixtures
         # TODO add target type for commands (fixtures, master, etc)
@@ -45,6 +50,8 @@ class Pyzzazz:
             fixture.receive_command(command, 1)
 
     def update(self):
+        self.socket_server.poll()
+
         self.effective_time += (time.time() - self.last_update) * self.speed
         self.last_update = time.time()
 
@@ -53,13 +60,14 @@ class Pyzzazz:
                 controller.try_connect()
 
             if controller.is_connected():
-                events = controller.get_events()
+                controller.update()
 
+                events = controller.get_events()
                 for event in events:
                     matching_fixtures = list(fixture for fixture in self.fixtures if re.search(event.target_regex, fixture.name))
 
                     for fixture in matching_fixtures:
-                        fixture.receive_command(event.command, event.state)
+                        fixture.receive_command(event.command, event.value)
 
         smoothness = 0.5
 
@@ -107,6 +115,25 @@ class Pyzzazz:
         for controller_conf in self.config_parser.get_controllers():
             # check for duplicate names
             self.sanity_check_controller_conf(controller_conf)
+
+            if controller_conf.get("type", "") == "usb_serial":
+                print("Creating usb serial controller {} on port {}".format(controller_conf.get("name", ""), controller_conf.get("port", "")))
+                self.controllers.append(UsbSerialControllerHandler(controller_conf))
+
+            elif controller_conf.get("type", "") == "gui":
+                print("Creating gui controller {} on port {}".format(controller_conf.get("name", ""), controller_conf.get("port", "")))
+                self.controllers.append(GuiControllerHandler(controller_conf, self.socket_server))
+
+            else:
+                raise Exception("Unknown controller type {}".format(controller_conf.get("type", "")))
+
+            for control in self.controllers[-1].get_controls():
+                matching_fixtures = list(fixture for fixture in self.fixtures if re.search(control.target_regex, fixture.name))
+
+                for fixture in matching_fixtures:
+                    fixture.register_command(control.command)
+
+        print("\n")
 
     def generate_opc_layout_files(self):
         for sender in self.senders:
