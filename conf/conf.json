@@ -17,7 +17,7 @@
 
   "Fixtures": [
     {
-      "name": "icosahedron_0",
+      "name": "led_fix_icosahedron_0",
       "type": "led",
       "geometry": "dodecahedron",
       "location": [-2, 0, -1.9],
@@ -26,7 +26,7 @@
       "line": 0
     },
     {
-      "name": "icosahedron_1",
+      "name": "led_fix_icosahedron_1",
       "type": "led",
       "geometry": "dodecahedron",
       "location": [-1.25, 0, -0.9],
@@ -35,7 +35,7 @@
       "line": 1
     },
     {
-      "name": "icosahedron_2",
+      "name": "led_fix_icosahedron_2",
       "type": "led",
       "geometry": "dodecahedron",
       "location": [0, 0, -0.15],
@@ -44,7 +44,7 @@
       "line": 2
     },
     {
-      "name": "icosahedron_3",
+      "name": "led_fix_icosahedron_3",
       "type": "led",
       "geometry": "dodecahedron",
       "location": [1.25, 0, -0.9],
@@ -53,13 +53,73 @@
       "line": 3
     },
     {
-      "name": "icosahedron_4",
+      "name": "led_fix_icosahedron_4",
       "type": "led",
       "geometry": "dodecahedron",
       "location": [2, 0, -1.9],
       "radius": 0.2,
       "senders": ["sim_0", "rgbw_sender_0"],
       "line": 4
+    },
+    {
+      "name": "led_fix_cylinder_0",
+      "type": "led",
+      "geometry": "cylinder",
+      "location": [-2, 1, -3.5],
+      "radius": 0.20,
+      "height": 0.5,
+      "num_leds": 150,
+      "num_turns": 10,
+      "senders": ["sim_0", "rgbw_sender_0"],
+      "line": 5
+    },
+    {
+      "name": "led_fix_cylinder_1",
+      "type": "led",
+      "geometry": "cylinder",
+      "location": [-1, 1, -3.5],
+      "radius": 0.20,
+      "height": 0.5,
+      "num_leds": 150,
+      "num_turns": 10,
+      "senders": ["sim_0", "rgbw_sender_0"],
+      "line": 6
+    },
+    {
+      "name": "led_fix_cylinder_2",
+      "type": "led",
+      "geometry": "cylinder",
+      "location": [0, 1, -3.5],
+      "radius": 0.20,
+      "height": 0.5,
+      "num_leds": 150,
+      "num_turns": 10,
+      "senders": ["sim_0", "rgbw_sender_0"],
+      "line": 7
+    },
+    {
+      "name": "led_fix_cylinder_3",
+      "type": "led",
+      "geometry": "cylinder",
+      "location": [1, 1, -3.5],
+      "radius": 0.20,
+      "height": 0.5,
+      "num_leds": 150,
+      "num_turns": 10,
+      "senders": ["sim_0", "rgbw_sender_0"],
+      "line": 8
+    },
+    {
+      "name": "led_fix_cylinder_4",
+      "type": "led",
+      "geometry": "cylinder",
+      "location": [2, 1, -3.5],
+      "radius": 0.20,
+      "height": 0.5,
+      "num_leds": 150,
+      "num_turns": 10,
+      "senders": ["sim_0"],
+      "line": 9
     }
   ],
 
@@ -73,19 +133,19 @@
         {
           "name": "smooth",
           "id": 0,
-          "target_regex": "icosahedron_*",
+          "target_regex": "led_fix_*",
           "command": "{'type': 'pattern', 'name': 'smooth', 'args': {}}"
         },
         {
           "name": "make_me_one_with_everything",
           "id": 1,
-          "target_regex": "icosahedron_*",
+          "target_regex": "led_fix_*",
           "command": "{'type': 'pattern', 'name': 'make_me_one_with_everything', 'args': {}}"
         },
         {
           "name": "sparkle",
           "id": 2,
-          "target_regex": "icosahedron_*",
+          "target_regex": "led_fix_*",
           "command": "{'type': 'pattern', 'name': 'sparkle', 'args': {'max_sparkles': 3, 'sparkle_probability': 0.05, 'background_brightness': 0.5}}"
         }
       ],
@@ -123,7 +183,7 @@
         {
           "name": "sparkle",
           "id": 0,
-          "target_regex": "icosahedron_*",
+          "target_regex": "led_fix_*",
           "command": "{'type': 'pattern', 'name': 'sparkle', 'args': {'max_sparkles': 3, 'sparkle_probability': 0.05, 'background_brightness': 0.5}}"
         }
       ],
