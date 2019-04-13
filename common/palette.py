@@ -13,14 +13,20 @@ class Palette:
         self.rgb_buffer = []
         self.parse_file(palette_path)
 
-        self.space_per_palette = 3
-        self.time_per_palette = 1
+        self.space_per_palette = 3.0
+        self.time_per_palette = 1.0
+
+    def nonzero(self, value):
+        if value == 0.0:
+            value += 0.0001
+
+        return value
 
     def set_space_per_palette(self, value):
-        self.space_per_palette = value * 5  # expect 0 to 1
+        self.space_per_palette = value * 6.0  # expect 0 to 1
 
     def set_time_per_palette(self, value):
-        self.time_per_palette = value * 3  # expect 0 to 1
+        self.time_per_palette = value * 2.0  # expect 0 to 1
 
     def parse_file(self, palette_path):
         try:
@@ -41,14 +47,14 @@ class Palette:
         while time_delta < 0:
             time_delta += self.time_per_palette
 
-        space_delta /= max(space_divisor, 0.0001)
-        time_delta /= max(time_divisor, 0.0001)
+        space_delta /= self.nonzero(space_divisor)
+        time_delta /= self.nonzero(time_divisor)
 
         # move forwards not backwards
         time_delta = 1-time_delta
 
-        space_progress = space_delta / self.space_per_palette
-        time_progress = time_delta / self.time_per_palette
+        space_progress = space_delta / self.nonzero(self.space_per_palette)
+        time_progress = time_delta / self.nonzero(self.time_per_palette)
         total_progress = (space_progress + time_progress) % 1.0
 
         total_index = int(total_progress * len(self.rgb_buffer))
