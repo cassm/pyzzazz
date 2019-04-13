@@ -9,7 +9,7 @@ from common.packet_handler import NameReplyPayload
 
 
 class SocketClient:
-    def __init__(self, name, port, host='127.0.0.1', timeout=1):
+    def __init__(self, name, port, host='127.0.0.1', timeout=0.05):
         self.name = name
         self._packet_handler = CommPacketHandler()
         self._socket = socket.socket()
@@ -66,7 +66,7 @@ class SocketClient:
         readable, writeable, errored = select.select(list(self._inout),
                                                      list(self._inout),
                                                      list(self._inout),
-                                                     0.5)
+                                                     self._timeout)
 
         if len(readable) > 0:
             try:
@@ -78,6 +78,12 @@ class SocketClient:
                     self._inout.clear()
                     self._connected = False
                     print("Lost connection on {}".format(self._address))
+
+            except Exception as e:
+                self._socket.close()
+                self._inout.clear()
+                self._connected = False
+                print("Lost connection on {}".format(self._address))
 
         if len(writeable) > 0:
                 if len(self._outbound_byte_buffer) > 0:
@@ -93,6 +99,12 @@ class SocketClient:
                             print("Lost connection on {}".format(self._address))
 
                         print('Blocking with', len(self._outbound_byte_buffer), 'remaining')
+
+                    except Exception as e:
+                        self._socket.close()
+                        self._inout.clear()
+                        self._connected = False
+                        print("Lost connection on {}".format(self._address))
 
         if len(errored) > 0:
             self._socket.close()
