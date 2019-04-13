@@ -6,6 +6,7 @@ from senders.opc_sender_handler import OpcSenderHandler
 from common.palette import Palette
 from common.socket_server import SocketServer
 from fixtures.dodecahedron import Dodecahedron
+from fixtures.cylinder import Cylinder
 from common.setting_handler import SettingHandler
 import signal
 import time
@@ -129,6 +130,14 @@ class Pyzzazz:
                     print("Creating dodecahedron {} with senders {}".format(fixture_conf.get("name", ""), fixture_conf.get("senders", [])))
                     fixture_senders = list(sender for sender in self.senders if sender.name in fixture_conf.get("senders", []))
                     self.fixtures.append(Dodecahedron(fixture_conf, fixture_senders))
+
+                elif fixture_conf.get("geometry", "") == "cylinder":
+                    print("Creating cylinder {} with senders {}".format(fixture_conf.get("name", ""), fixture_conf.get("senders", [])))
+                    fixture_senders = list(sender for sender in self.senders if sender.name in fixture_conf.get("senders", []))
+                    self.fixtures.append(Cylinder(fixture_conf, fixture_senders))
+
+                else:
+                    raise Exception("Unknown fixture geometry {}".format(fixture_conf.get("geometry", "")))
 
             else:
                 raise Exception("Unknown fixture type {}".format(fixture_conf.get("type", "")))
