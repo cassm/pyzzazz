@@ -28,7 +28,8 @@ class Pyzzazz:
         self.fixtures = []
         self.controllers = []
 
-        self.socket_server = SocketServer(port=default_port)
+        if self.needs_socket_server():
+            self.socket_server = SocketServer(port=default_port)
 
         # TODO multiple palettes, pass dict to fixtures
         # TODO add target type for commands (fixtures, master, etc)
@@ -48,6 +49,13 @@ class Pyzzazz:
             # command = {'type': 'pattern', 'name': 'make_me_one_with_everything', 'args': {}}
             fixture.register_command(command)
             fixture.receive_command(command, 1)
+
+    def needs_socket_server(self):
+        for controller_conf in self.config_parser.get_controllers():
+            if controller_conf["type"] == "gui":
+                return True
+
+        return False
 
     def update(self):
         self.socket_server.poll()
