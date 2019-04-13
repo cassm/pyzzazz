@@ -4,6 +4,7 @@ class Fixture:
 
         self.name = config.get("name")
         self.location = config.get("location")
+        self.palette_name = None
 
     def validate_config(self, config):
         if "name" not in config.keys():

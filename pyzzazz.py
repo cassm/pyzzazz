@@ -3,7 +3,7 @@ from senders.usb_serial_sender_handler import UsbSerialSenderHandler
 from controllers.gui_controller_handler import GuiControllerHandler
 from controllers.usb_serial_controller_handler import UsbSerialControllerHandler
 from senders.opc_sender_handler import OpcSenderHandler
-from common.palette import Palette
+from common.palette_handler import PaletteHandler
 from common.socket_server import SocketServer
 from fixtures.dodecahedron import Dodecahedron
 from fixtures.cylinder import Cylinder
@@ -15,6 +15,7 @@ import traceback
 from pathlib import Path
 
 start_pattern = "sparkle"
+start_palette = "auto"
 default_port = 48945
 
 
@@ -22,7 +23,7 @@ class Pyzzazz:
     def __init__(self, conf_path, palette_path):
         self._src_dir = Path(__file__).parent
         self.config_parser = ConfigParser(conf_path)
-        self.palette = Palette(palette_path)
+        self.palette_handler = PaletteHandler(palette_path)
         self.effective_time = 0.0
         self.last_update = time.time()
         self.subprocesses = list()
@@ -71,8 +72,9 @@ class Pyzzazz:
         brightness = self.setting_handlers["master_settings"].get_value("brightness", 1.0)
         speed = self.setting_handlers["master_settings"].get_value("speed", 0.5)
 
-        self.palette.set_space_per_palette(self.setting_handlers["master_settings"].get_value("space_per_palette", 0.5))
-        self.palette.set_time_per_palette(self.setting_handlers["master_settings"].get_value("time_per_palette", 0.5))
+        self.palette_handler.set_master_palette_name(self.setting_handlers["master_settings"].get_value("palette", start_palette))
+        self.palette_handler.set_space_per_palette(self.setting_handlers["master_settings"].get_value("space_per_palette", 0.5))
+        self.palette_handler.set_time_per_palette(self.setting_handlers["master_settings"].get_value("time_per_palette", 0.5))
 
         self.effective_time += (time.time() - self.last_update) * speed * 3  # we want to go from 0 to triple speed
         self.last_update = time.time()
@@ -101,7 +103,7 @@ class Pyzzazz:
                 sender.try_connect()
 
         for fixture in self.fixtures:
-            fixture.update(self.effective_time, self.palette, smoothness, brightness)
+            fixture.update(self.effective_time, self.palette_handler, smoothness, brightness)
             fixture.send()
 
     def init_senders(self):
@@ -216,8 +218,13 @@ class Pyzzazz:
                 raise Exception("Pyzzazz: Fixture {} specified with undefined sender {}".format(fixture_conf.get("name", ""), sender_name))
 
     def sanity_check_controller_conf(self, controller_conf):
-        pass
-        #FIXME do this
+        button_ids = list(button["id"] for button in controller_conf.get("buttons", []))
+        if len(button_ids) != len(set(button_ids)):
+            raise Exception("Pyzzazz: Controller {} specified with one or more duplicate button IDs".format(controller_conf.get("name", "")))
+
+        slider_ids = list(slider["id"] for slider in controller_conf.get("sliders", []))
+        if len(slider_ids) != len(set(slider_ids)):
+            raise Exception("Pyzzazz: Controller {} specified with one or more duplicate slider IDs".format(controller_conf.get("name", "")))
 
     def shut_down(self):
         print("Shutting down...")
@@ -248,7 +255,7 @@ if __name__ == "__main__":
         # FIXME check for conf on usb stick
         # FIXME multiple palettes
         # FIXME grab palettes off usb stick
-        pyzzazz = Pyzzazz("conf/conf.json", "conf/auto.bmp")
+        pyzzazz = Pyzzazz("conf/conf.json", "palettes/")
 
         print("Running...")
         while True:

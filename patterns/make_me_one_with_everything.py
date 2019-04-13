@@ -20,7 +20,7 @@ class MakeMeOneWithEverything(Pattern):
         self._white_level = command.get("white_level", self._white_level)
         self._swoosh_interval = command.get("swoosh_interval", self._swoosh_interval)
 
-    def update(self, leds, time, palette):
+    def update(self, leds, time, palette_handler, palette_name):
         if time > self._next_swoosh:
             self._next_swoosh = time + random.gauss(self._swoosh_interval, self._swoosh_interval / 4)
 
@@ -31,7 +31,7 @@ class MakeMeOneWithEverything(Pattern):
         self._active_swooshes = list(swoosh for swoosh in self._active_swooshes if time - swoosh[0] < 500)
         pass
 
-    def get_pixel_colour(self, pixels, index, time, palette, master_brightness):
+    def get_pixel_colour(self, pixels, index, time, palette_handler, palette_name, master_brightness):
         pixel = pixels[index]
         origin_delta = pixel.coord.get_delta("global")
 

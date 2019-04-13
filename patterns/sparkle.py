@@ -29,7 +29,7 @@ class Sparkle(Pattern):
         self._sparkle_probability = command.get("sparkle_probability", self._sparkle_probability)
         self._background_brightness = command.get("background_brightness", self._background_brightness)
 
-    def update(self, leds, time, palette):
+    def update(self, leds, time, palette_handler, palette_name):
         max_sparkles = int(self._max_sparkles_percent / 100.0 * len(leds))
 
         # normalise probability in relation to frame interval, so we get more sparkles when time is moving faster
@@ -42,16 +42,16 @@ class Sparkle(Pattern):
             if random.random() < normalised_sparkle_probability:
                 index = random.randrange(0, len(leds))
                 self._sparkle_info[index].time = time - 0.5 # hack to reduce time at full brightness
-                self._sparkle_info[index].colour = palette.sample_radial(leds[index].coord.get_delta("global"), time, self._space_divisor, self._time_divisor)
+                self._sparkle_info[index].colour = palette_handler.sample_radial(leds[index].coord.get_delta("global"), time, self._space_divisor, self._time_divisor, palette_name)
 
-    def get_pixel_colour(self, pixels, index, time, palette, master_brightness):
+    def get_pixel_colour(self, pixels, index, time, palette_handler, palette_name, master_brightness):
         # do not allow zero, because we divide by this
         time_delta = max(time - self._sparkle_info[index].time, 0.001)
 
         # do not allow brightness to exceed 1 to avoid distortion
         sparkle_brightness = min(1.0 / time_delta, 1.0)
         sparkle_value = self._sparkle_info[index].colour * sparkle_brightness
-        background_colour = palette.sample_radial(pixels[index].coord.get_delta("global"), time, self._space_divisor, self._time_divisor)
+        background_colour = palette_handler.sample_radial(pixels[index].coord.get_delta("global"), time, self._space_divisor, self._time_divisor, palette_name)
         background_colour *= self._background_brightness
 
         return sparkle_value.channelwise_max(background_colour) * master_brightness
