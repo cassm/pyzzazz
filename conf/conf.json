@@ -92,11 +92,25 @@
 
       "sliders": [
         {
-          "name": "master brightness",
+          "name": "master smoothness",
           "id": 0,
-          "target_regex": "master",
-          "command": "{'type': 'brightness', 'name': 'master'}",
-          "command_string": "brightness"
+          "target_regex": "master_settings",
+          "command": "{'type': 'slider', 'name': 'smoothness'}",
+          "default_value": 50
+        },
+        {
+          "name": "master brightness",
+          "id": 1,
+          "target_regex": "master_settings",
+          "command": "{'type': 'slider', 'name': 'brightness'}",
+          "default_value": 100
+        },
+        {
+          "name": "master speed",
+          "id": 2,
+          "target_regex": "master_settings",
+          "command": "{'type': 'slider', 'name': 'speed'}",
+          "default_value": 33
         }
       ]
     },
@@ -116,11 +130,22 @@
 
       "sliders": [
         {
-          "name": "master brightness",
+          "name": "master smoothness",
           "id": 0,
-          "target_regex": "master",
-          "command": "{'type': 'brightness', 'name': 'master'}",
-          "command_string": "brightness"
+          "target_regex": "master_settings",
+          "command": "{'type': 'slider', 'name': 'smoothness'}"
+        },
+        {
+          "name": "master brightness",
+          "id": 1,
+          "target_regex": "master_settings",
+          "command": "{'type': 'slider', 'name': 'brightness'}"
+        },
+        {
+          "name": "master speed",
+          "id": 2,
+          "target_regex": "master_settings",
+          "command": "{'type': 'slider', 'name': 'speed'}"
         }
       ]
     }

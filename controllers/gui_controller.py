@@ -32,6 +32,8 @@ class GuiControllerWindow:
             new_slider = Scale(self._window, from_=0, to=100, fg='#FFFFFF', bg=self._bg_colour, orient="horizontal",
                                command=lambda value, id=slider["id"]: self.slider_moved(value, id))
 
+            new_slider.set(slider.get("default_value", 0))
+
             new_slider.pack({'fill': 'x', 'expand': 1, 'padx': 5, 'pady': 3})
 
     def start(self):
