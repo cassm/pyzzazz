@@ -60,7 +60,7 @@ class CommHeader:
                 "payload_len": self.payload_len}
 
 
-class NameResponsePayload:
+class NameReplyPayload:
     def __init__(self, name=None, bytes=None):
         if bytes is not None:
             assert name is None, "Payload must be initialised with either values or a bytestream"
@@ -81,11 +81,13 @@ class NameResponsePayload:
                 "name": self.name}
 
 
-class StateResponsePayload:
+class StateReplyPayload:
     def __init__(self, button_state=None, slider_state=None, bytes=None):
         if bytes is not None:
             assert button_state is None and slider_state is None,\
                 "Payload must be initialised with either values or a bytestream"
+            self.slider_state = []
+            self.button_state = []
             self.set_bytes(bytes)
 
         else:
@@ -95,40 +97,40 @@ class StateResponsePayload:
             self.slider_state = slider_state
 
     def set_bytes(self, raw_bytes):
-        assert len(raw_bytes <= 2), \
+        assert len(raw_bytes) >= 2, \
             "remaining length of packet is less than button bitfield width field"
 
-        button_bitfield_width = raw_bytes[0] << 8 & raw_bytes[1]
+        button_bitfield_width = int.from_bytes(raw_bytes[:2], byteorder='big', signed=False)
 
         del(raw_bytes[0:2])
 
-        assert len(raw_bytes <= button_bitfield_width), \
+        assert len(raw_bytes) >= button_bitfield_width, \
             "remaining length of packet is less than specified button bitfield width"
 
         for chunk in raw_bytes[0:button_bitfield_width]:
             for bit in range(8):
-                self.button_state.append((chunk >> bit) & 1)
+                self.button_state.append((chunk >> (7-bit)) & 1)
 
         del(raw_bytes[0:button_bitfield_width])
 
-        assert len(raw_bytes <= 2), \
+        assert len(raw_bytes) >= 2, \
             "remaining length of packet is less than num sliders field"
 
-        num_sliders = raw_bytes[0] << 8 & raw_bytes[1]
+        num_sliders = int.from_bytes(raw_bytes[:2], byteorder='big', signed=False)
 
-        assert len(raw_bytes <= num_sliders*2), \
+        assert len(raw_bytes) >= num_sliders*2, \
             "remaining length of packet is less than specified button bitfield width"
 
         del(raw_bytes[0:2])
 
         for _ in range(num_sliders):
-            self.slider_state.append(raw_bytes[0] << 8 & raw_bytes[1])
+            self.slider_state.append(raw_bytes[0] << 8 | raw_bytes[1])
             del(raw_bytes[0:2])
 
     def get_bytes(self):
         state_bytes = bytearray()
 
-        button_bitfield = bitarray(endian='little')
+        button_bitfield = bitarray(endian='big')
 
         for state in self.button_state:
             button_bitfield.append(state)
@@ -138,13 +140,14 @@ class StateResponsePayload:
         #     button_bitfield.append(False)
 
         # button bitfield width
-        state_bytes.append(len(button_bitfield.tobytes()))
+        bitfield_width = int(len(button_bitfield.tobytes()))
+        state_bytes.extend(bitfield_width.to_bytes(2, byteorder='big', signed=False))
 
         # button bitfield
         state_bytes.extend(button_bitfield.tobytes())
 
         # number of slider vals
-        state_bytes.append(len(self.slider_state))
+        state_bytes.extend(len(self.slider_state).to_bytes(2, byteorder='big', signed=False))
 
         # slider vals
         for slider_val in self.slider_state:
@@ -177,25 +180,27 @@ class CommPacketHandler:
 
             if self.header is not None and len(self.buffer) == self.header.payload_len:
                 if CommHeader.ops_by_byte[self.header.opcode] == "name_request":
-                    print("received name request")
+                    # print("received name request")
                     self.available_packets.append(self.header.get_dict())
 
                 elif CommHeader.ops_by_byte[self.header.opcode] == "name_reply":
-                    print("received name reply")
-                    payload = NameResponsePayload(bytes=self.buffer)
+                    # print("received name reply")
+                    payload = NameReplyPayload(bytes=self.buffer)
                     self.available_packets.append(payload.get_dict())
 
                 elif CommHeader.ops_by_byte[self.header.opcode] == "state_request":
-                    print("received state request")
+                    # print("received state request")
                     self.available_packets.append(self.header.get_dict())
 
                 elif CommHeader.ops_by_byte[self.header.opcode] == "state_reply":
-                    print("received state reply")
-                    payload = StateResponsePayload(bytes=self.buffer)
+                    # print("received state reply")
+                    payload = StateReplyPayload(bytes=self.buffer)
                     self.available_packets.append(payload.get_dict())
 
                 else:
                     raise Exception("StatePacketHandler: unhandled opcode {}".format(self.header.opcode))
+
+                del(self.buffer[0:self.header.payload_len])
 
                 self.header = None
 
