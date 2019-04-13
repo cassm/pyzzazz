@@ -1,5 +1,6 @@
 from patterns.pattern import Pattern
 from common.colour import Colour
+from common.colour import channelwise_max
 import random
 
 
@@ -21,7 +22,7 @@ class Sparkle(Pattern):
         self._last_refresh = 0
         self._nominal_fps = 30
 
-        self._time_divisor = -250
+        self._time_divisor = 125
         self._space_divisor = 2
 
     def set_vars(self, command):
@@ -54,5 +55,5 @@ class Sparkle(Pattern):
         background_colour = palette_handler.sample_radial(pixels[index].coord.get_delta("global"), time, self._space_divisor, self._time_divisor, palette_name)
         background_colour *= self._background_brightness
 
-        return sparkle_value.channelwise_max(background_colour) * master_brightness
+        return channelwise_max(sparkle_value, background_colour) * master_brightness
 
