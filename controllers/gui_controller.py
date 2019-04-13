@@ -11,7 +11,6 @@ class GuiControllerWindow:
         self._bg_colour = '#181819'
         self._window = Tk()
         self._window.title(name)
-        self._window.geometry('350x200')
         self._window.configure(background=self._bg_colour)
         self._buttons = dict()
         self._sliders = dict()
