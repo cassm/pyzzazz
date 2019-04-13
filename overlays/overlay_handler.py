@@ -40,7 +40,7 @@ class OverlayHandler:
     def receive_command(self, command, time):
         if command["type"] == "overlay":
             if command["name"] == "flash":
-                self.active_overlays.append(OverlayInfo(time, Flash()))
+                self.active_overlays.append(OverlayInfo(time, Flash(command["args"])))
 
             else:
                 raise Exception("OverlayHandler: unknown overlay {}".format(command["name"]))

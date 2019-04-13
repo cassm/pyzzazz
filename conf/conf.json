@@ -200,7 +200,7 @@
           "name": "flash",
           "id": 11,
           "target_regex": "",
-          "command": "{'type': 'overlay', 'name': 'flash'}"
+          "command": "{'type': 'overlay', 'name': 'flash', 'args': {'decay_factor': 1.0}}"
         }
       ],
 
