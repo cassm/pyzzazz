@@ -1,5 +1,6 @@
 import os
 import imageio
+from common.utils import nonzero
 from common.colour import Colour
 
 
@@ -18,13 +19,6 @@ class PaletteHandler:
         self.space_per_palette = 3.0
         self.time_per_palette = 1.0
         self.master_palette_name = list(self.palettes.keys())[0]
-
-    @staticmethod
-    def nonzero(value):
-        if value == 0.0:
-            value += 0.0001
-
-        return value
 
     def set_master_palette_name(self, name):
         self.master_palette_name = name
@@ -80,14 +74,14 @@ class PaletteHandler:
         while time_delta < 0:
             time_delta += self.time_per_palette
 
-        space_delta /= self.nonzero(space_divisor)
-        time_delta /= self.nonzero(time_divisor)
+        space_delta /= nonzero(space_divisor)
+        time_delta /= nonzero(time_divisor)
 
         # move forwards not backwards
         time_delta = 1-time_delta
 
-        space_progress = space_delta / self.nonzero(self.space_per_palette)
-        time_progress = time_delta / self.nonzero(self.time_per_palette)
+        space_progress = space_delta / nonzero(self.space_per_palette)
+        time_progress = time_delta / nonzero(self.time_per_palette)
         total_progress = (space_progress + time_progress) % 1.0
 
         total_index = int(total_progress * len(self.palettes[palette_to_use]))

@@ -1,16 +1,8 @@
+from common.utils import nonzero
 import math
 
 
 # Disclaimer: this is ugly because we want all the coordinate representations cached at each stage
-def nonzero(val):
-    epsilon = 0.00001
-
-    if val == 0:
-        return val + epsilon
-    else:
-        return val
-
-
 class Cartesian:
     def __init__(self, x, y, z):
         self.x = x
