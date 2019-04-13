@@ -182,7 +182,7 @@ class Pyzzazz:
                 matching_setts = list(sett for sett in self.setting_handlers.keys() if re.search(control.target_regex, sett))
 
                 for sett in matching_setts:
-                    self.setting_handlers[sett].register_command(control.command)
+                    self.setting_handlers[sett].register_command(control.command, control.default)
 
     def generate_opc_layout_files(self):
         for sender in self.senders:

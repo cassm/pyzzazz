@@ -156,28 +156,28 @@
           "id": 0,
           "target_regex": "master_settings",
           "command": "{'type': 'slider', 'name': 'smoothness'}",
-          "default_value": 50
+          "default": 50
         },
         {
           "name": "master brightness",
           "id": 1,
           "target_regex": "master_settings",
           "command": "{'type': 'slider', 'name': 'brightness'}",
-          "default_value": 100
+          "default": 100
         },
         {
           "name": "master speed",
           "id": 2,
           "target_regex": "master_settings",
           "command": "{'type': 'slider', 'name': 'speed'}",
-          "default_value": 33
+          "default": 33
         },
         {
           "name": "space_per_palette",
           "id": 3,
           "target_regex": "master_settings",
           "command": "{'type': 'slider', 'name': 'space_per_palette'}",
-          "default_value": 50
+          "default": 50
         }
       ]
     },
@@ -200,19 +200,22 @@
           "name": "master smoothness",
           "id": 0,
           "target_regex": "master_settings",
-          "command": "{'type': 'slider', 'name': 'smoothness'}"
+          "command": "{'type': 'slider', 'name': 'smoothness'}",
+          "default": 50
         },
         {
           "name": "master brightness",
           "id": 1,
           "target_regex": "master_settings",
-          "command": "{'type': 'slider', 'name': 'brightness'}"
+          "command": "{'type': 'slider', 'name': 'brightness'}",
+          "default": 100
         },
         {
           "name": "master speed",
           "id": 2,
           "target_regex": "master_settings",
-          "command": "{'type': 'slider', 'name': 'speed'}"
+          "command": "{'type': 'slider', 'name': 'speed'}",
+          "default": 33
         }
       ]
     }

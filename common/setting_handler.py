@@ -3,11 +3,12 @@ class SettingHandler:
         self.name = name
         self.settings = dict()
 
-    def register_command(self, command):
+    def register_command(self, command, default):
         if command["type"] == "slider":
             if command["name"] not in self.settings.keys():
                 # start everything in the middle
-                self.settings[command["name"]] = 0.5
+                self.settings[command["name"]] = default
+                print("SettingHandler {} registering slider {} with default {}".format(self.name, command["name"], default))
 
         else:
             raise Exception("MasterSettingsFixture: unhandled command type {}".format(command["type"]))
