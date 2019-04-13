@@ -174,7 +174,7 @@ class Coordinate:
         self._global_cartesian = self._local_cartesian + self._local_origin
         self._global_spherical = self._global_cartesian.to_spherical()
         self._global_cylindrical = self._global_cartesian.to_cylindrical()
-        self._global_delta = self._local_cartesian.get_magnitude()
+        self._global_delta = self._global_cartesian.get_magnitude()
 
         self.access_dict = {"global":
                                  {"cartesian": self._global_cartesian,
@@ -208,7 +208,7 @@ class Coordinate:
             self._local_cartesian = self._global_cartesian - self._local_origin
             self._local_spherical = self._local_cartesian.to_spherical()
             self._local_cylindrical = self._local_cartesian.to_cylindrical()
-            self._global_delta = self._local_cartesian.get_magnitude()
+            self._global_delta = self._global_cartesian.get_magnitude()
 
         elif variable == "global_spherical":
             self._global_cartesian = self._global_spherical.to_cartesian()
@@ -216,7 +216,7 @@ class Coordinate:
             self._local_cartesian = self._global_cartesian - self._local_origin
             self._local_spherical = self._local_cartesian.to_spherical()
             self._local_cylindrical = self._local_cartesian.to_cylindrical()
-            self._global_delta = self._local_cartesian.get_magnitude()
+            self._global_delta = self._global_cartesian.get_magnitude()
 
         elif variable == "global_cylindrical":
             self._global_cartesian = self._global_cylindrical.to_cartesian()
@@ -224,7 +224,7 @@ class Coordinate:
             self._local_cartesian = self._global_cartesian - self._local_origin
             self._local_spherical = self._local_cartesian.to_spherical()
             self._local_cylindrical = self._local_cartesian.to_cylindrical()
-            self._global_delta = self._local_cartesian.get_magnitude()
+            self._global_delta = self._global_cartesian.get_magnitude()
 
         elif variable == "local_cartesian":
             self._local_spherical = self._local_cartesian.to_spherical()
@@ -232,7 +232,7 @@ class Coordinate:
             self._global_cartesian = self._local_cartesian + self._local_origin
             self._global_spherical = self._global_cartesian.to_spherical()
             self._global_cylindrical = self._global_cartesian.to_cylindrical()
-            self._global_delta = self._local_cartesian.get_magnitude()
+            self._global_delta = self._global_cartesian.get_magnitude()
 
         elif variable == "local_spherical":
             self._local_cartesian = self._local_spherical.to_cartesian()
@@ -240,7 +240,7 @@ class Coordinate:
             self._global_cartesian = self._local_cartesian + self._local_origin
             self._global_spherical = self._global_cartesian.to_spherical()
             self._global_cylindrical = self._global_cartesian.to_cylindrical()
-            self._global_delta = self._local_cartesian.get_magnitude()
+            self._global_delta = self._global_cartesian.get_magnitude()
 
         elif variable == "local_cylindrical":
             self._local_cartesian = self._local_cylindrical.to_cartesian()
@@ -248,7 +248,7 @@ class Coordinate:
             self._global_cartesian = self._local_cartesian + self._local_origin
             self._global_spherical = self._global_cartesian.to_spherical()
             self._global_cylindrical = self._global_cartesian.to_cylindrical()
-            self._global_delta = self._local_cartesian.get_magnitude()
+            self._global_delta = self._global_cartesian.get_magnitude()
         else:
             raise Exception("invalid variables {}".format(variable))
 
@@ -263,7 +263,7 @@ class Coordinate:
 
             self._global_cartesian = self._local_cartesian + self._local_origin
             self._global_spherical = self._global_cartesian.to_spherical()
-            self._global_delta = self._local_cartesian.get_magnitude()
+            self._global_delta = self._global_cartesian.get_magnitude()
 
         elif reference_frame == "local":
             self._local_spherical.add_angle(axis, angle)
@@ -275,7 +275,7 @@ class Coordinate:
         self._local_spherical = self._local_cartesian.to_spherical()
         self._global_cartesian = self._local_cartesian + self._local_origin
         self._global_spherical = self._global_cartesian.to_spherical()
-        self._global_delta = self._local_cartesian.get_magnitude()
+        self._global_delta = self._global_cartesian.get_magnitude()
 
     def get_delta(self, reference_frame):
         if reference_frame == "global":
@@ -291,7 +291,7 @@ class Coordinate:
         self._local_origin = o
         self._global_cartesian = self._local_cartesian + self._local_origin
         self._global_spherical = self._global_cartesian.to_spherical()
-        self._global_delta = self._local_cartesian.get_magnitude()
+        self._global_delta = self._global_cartesian.get_magnitude()
 
     # changes the local origin and leaves the point static in the GLOBAL frame
     def make_relative_to(self, local_origin):
