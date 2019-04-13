@@ -1,13 +1,13 @@
 import serial
 import time
-from sender import Sender
 
 
-class UsbSerialSender(Sender):
+class UsbSerialPort:
     def __init__(self, config):
-        Sender.__init__(self, config)
-
         self.validate_config(config)
+
+        self.port = config.get("port")
+        self.name = config.get("name"+"_serial")
 
         self.connected = False
         self.serial = serial.Serial()
@@ -20,7 +20,11 @@ class UsbSerialSender(Sender):
         self.send_interval = 0.005  # seconds
 
     def validate_config(self, config):
-        return
+        if "name" not in config.keys():
+            raise Exception("UsbSerialPort: config contains no name")
+
+        if "port" not in config.keys():
+            raise Exception("UsbSerialPort: config contains no port")
 
     # check for connection and handle logging
     def is_connected(self):
@@ -62,10 +66,7 @@ class UsbSerialSender(Sender):
             # Assume we can keep trying
             pass
 
-    def send(self, line, pixels):
-        if line > self.num_lines or line < 0:
-            raise Exception("Sender: send called on invalid line {}".format(line))
-
+    def send_bytes(self, packet):
         # don't retry if interval hasn't passed
         if time.time() - self.last_send_time < self.send_interval:
             return
@@ -74,37 +75,29 @@ class UsbSerialSender(Sender):
 
         # if not connected, drop frame
         if self.is_connected():
-
-            payload = list(channel for pixel in pixels for channel in pixel)
-
             try:
-                self.serial.write(self.encapsulate(line, payload))
+                self.serial.write(packet)
 
             except Exception as e:
-                print (e)
+                print(e)
                 # if something's wrong, drop the frame and hope it fixes itself
                 pass
 
-    def encapsulate(self, line, payload):
-        header = [ord('~'), line]
-        footer = [ord('|')]
-
-        # avoid sentinel value
-        for char in payload:
-            if char == 126:
-                char += 1
-
-        return bytearray(header + payload + footer)
-
-    def receive(self):
-        buffer = b""
+    def get_bytes(self):
+        buffer = list()
 
         bytes_received = 1
 
-        while bytes_received > 0:
-            char = self.serial.read()
-            bytes_received = len(char)
-            buffer += char
+        # if not connected, drop frame
+        if self.is_connected():
+            try:
+                while bytes_received > 0:
+                    char = self.serial.read()
+                    bytes_received = len(char)
+                    buffer.append(char)
+            except Exception as e:
+                print(e)
+                # if something's wrong, drop the frame and hope it fixes itself
+                pass
 
-        if len(buffer) > 0:
-            print(str(buffer))
+        return buffer

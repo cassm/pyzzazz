@@ -1,4 +1,4 @@
-from pattern import Pattern
+from patterns.pattern import Pattern
 import math
 
 

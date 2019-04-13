@@ -21,8 +21,8 @@ class Fixture:
     def register_command(self, command):
         pass
 
-    def receive_command(self, command):
+    def receive_command(self, command, value):
         pass
 
-    def update(self, time, palette):
+    def update(self, time, palette, smoothness):
         pass

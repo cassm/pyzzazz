@@ -1,5 +1,5 @@
-from pattern import Pattern
-from colour import Colour
+from patterns.pattern import Pattern
+from common.colour import Colour
 import openpixelcontrol.python.color_utils as color_utils
 import math
 

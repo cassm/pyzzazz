@@ -1,9 +1,9 @@
-from fixture import Fixture
-from sparkle import Sparkle
-from fizzy_lifting_drink import FizzyLiftingDrink
-from make_me_one_with_everything import MakeMeOneWithEverything
-from smooth import Smooth
-from colour import Colour
+from fixtures.fixture import Fixture
+from patterns.sparkle import Sparkle
+from patterns.fizzy_lifting_drink import FizzyLiftingDrink
+from patterns.make_me_one_with_everything import MakeMeOneWithEverything
+from patterns.smooth import Smooth
+from common.colour import Colour
 
 
 class Led:
@@ -34,7 +34,7 @@ class LedFixture(Fixture):
         if "line" not in config.keys():
             raise Exception("LedFixture: config contains no line")
 
-    def receive_command(self, command):
+    def receive_command(self, command, value):
         if command["type"] == "pattern":
             self.pattern = command["name"]
             self.patterns[self.pattern].set_vars(command["args"])
@@ -43,21 +43,22 @@ class LedFixture(Fixture):
             raise Exception("LedFixture: unknown command type {}".format(command["type"]))
 
     def register_command(self, command):
-        if command["type"] == "pattern" and command["name"] not in self.patterns:
-            if command["name"] == "smooth":
-                self.patterns["smooth"] = Smooth()
+        if command["type"] == "pattern":
+            if command["name"] not in self.patterns:
+                if command["name"] == "smooth":
+                    self.patterns["smooth"] = Smooth()
 
-            elif command["name"] == "sparkle":
-                self.patterns["sparkle"] = Sparkle(len(self.leds))
+                elif command["name"] == "sparkle":
+                    self.patterns["sparkle"] = Sparkle(len(self.leds))
 
-            elif command["name"] == "fizzy_lifting_drink":
-                self.patterns["fizzy_lifting_drink"] = FizzyLiftingDrink()
+                elif command["name"] == "fizzy_lifting_drink":
+                    self.patterns["fizzy_lifting_drink"] = FizzyLiftingDrink()
 
-            elif command["name"] == "make_me_one_with_everything":
-                self.patterns["make_me_one_with_everything"] = MakeMeOneWithEverything()
+                elif command["name"] == "make_me_one_with_everything":
+                    self.patterns["make_me_one_with_everything"] = MakeMeOneWithEverything()
 
-            else:
-                raise Exception("LedFixture: unknown pattern {}".format(command["name"]))
+                else:
+                    raise Exception("LedFixture: unknown pattern {}".format(command["name"]))
 
         else:
             raise Exception("LedFixture: unknown command type {}".format(command["type"]))

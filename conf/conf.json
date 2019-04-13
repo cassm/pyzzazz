@@ -61,22 +61,60 @@
   "Controllers": [
     {
       "name": "controller_0",
-      "port": "/dev/tty.usbmodem666420",
+      "type": "gui",
+      "port": 48945,
 
       "buttons": [
         {
+          "name": "smooth",
+          "id": 0,
+          "target_regex": "icosahedron_*",
+          "command": "{'type': 'pattern', 'name': 'smooth', 'args': {}}"
+        },
+        {
+          "name": "make_me_one_with_everything",
+          "id": 1,
+          "target_regex": "icosahedron_*",
+          "command": "{'type': 'pattern', 'name': 'make_me_one_with_everything', 'args': {}}"
+        },
+        {
           "name": "sparkle",
-          "id": "0",
-          "fixture_regex": "icosahedron_*",
+          "id": 2,
+          "target_regex": "icosahedron_*",
           "command": "{'type': 'pattern', 'name': 'sparkle', 'args': {'max_sparkles': 3, 'sparkle_probability': 0.05, 'background_brightness': 0.5}}"
         }
       ],
 
       "sliders": [
         {
-          "name": "master",
-          "id": "0",
-          "fixture_regex": "*",
+          "name": "master brightness",
+          "id": 0,
+          "target_regex": "master",
+          "command": "{'type': 'brightness', 'name': 'master'}",
+          "command_string": "brightness"
+        }
+      ]
+    },
+    {
+      "name": "controller_1",
+      "type": "usb_serial",
+      "port": "/dev/tty.usbmodem666420",
+
+      "buttons": [
+        {
+          "name": "sparkle",
+          "id": 0,
+          "target_regex": "icosahedron_*",
+          "command": "{'type': 'pattern', 'name': 'sparkle', 'args': {'max_sparkles': 3, 'sparkle_probability': 0.05, 'background_brightness': 0.5}}"
+        }
+      ],
+
+      "sliders": [
+        {
+          "name": "master brightness",
+          "id": 0,
+          "target_regex": "master",
+          "command": "{'type': 'brightness', 'name': 'master'}",
           "command_string": "brightness"
         }
       ]

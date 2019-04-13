@@ -1,13 +1,13 @@
-from sender import Sender
+from senders.sender_handler import SenderHandler
 import openpixelcontrol.python.opc as opc
 import subprocess
 import json
 import os
 
 
-class OpcSender(Sender):
+class OpcSenderHandler(SenderHandler):
     def __init__(self, config):
-        Sender.__init__(self, config)
+        SenderHandler.__init__(self, config)
 
         self.validate_config(config)
 
