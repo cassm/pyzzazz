@@ -24,5 +24,5 @@ class Fixture:
     def receive_command(self, command, value):
         pass
 
-    def update(self, time, palette):
+    def update(self, time, palette, smoothness):
         pass

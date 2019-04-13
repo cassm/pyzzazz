@@ -35,7 +35,6 @@ class LedFixture(Fixture):
             raise Exception("LedFixture: config contains no line")
 
     def receive_command(self, command, value):
-        print (command["type"])
         if command["type"] == "pattern":
             self.pattern = command["name"]
             self.patterns[self.pattern].set_vars(command["args"])
