@@ -195,6 +195,12 @@
           "id": 10,
           "target_regex": "led_fix_icosahedron_*",
           "command": "{'type': 'palette', 'name': 'unicornBarf'}"
+        },
+        {
+          "name": "flash",
+          "id": 11,
+          "target_regex": "",
+          "command": "{'type': 'overlay', 'name': 'flash'}"
         }
       ],
 

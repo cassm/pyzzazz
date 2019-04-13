@@ -1,10 +1,11 @@
 class Fixture:
-    def __init__(self, config):
+    def __init__(self, config, overlay_handler):
         self.validate_config(config)
 
         self.name = config.get("name")
         self.location = config.get("location")
         self.palette_name = None
+        self.overlay_handler = overlay_handler
 
     def validate_config(self, config):
         if "name" not in config.keys():

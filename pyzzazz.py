@@ -8,6 +8,8 @@ from common.socket_server import SocketServer
 from fixtures.dodecahedron import Dodecahedron
 from fixtures.cylinder import Cylinder
 from common.setting_handler import SettingHandler
+from overlays.overlay_handler import OverlayHandler
+
 import signal
 import time
 import re
@@ -36,6 +38,8 @@ class Pyzzazz:
 
         if self.needs_socket_server():
             self.socket_server = SocketServer(port=default_port)
+
+        self.overlay_handler = OverlayHandler()
 
         # TODO multiple palettes, pass dict to fixtures
         # TODO add target type for commands (fixtures, master, etc)
@@ -88,15 +92,20 @@ class Pyzzazz:
 
                 events = controller.get_events()
                 for event in events:
-                    matching_fixtures = list(fixture for fixture in self.fixtures if re.search(event.target_regex, fixture.name))
+                    # FIXME this is hacky
+                    if event.command["type"] == "overlay":
+                        self.overlay_handler.receive_command(event.command, self.effective_time)
 
-                    for fixture in matching_fixtures:
-                        fixture.receive_command(event.command, event.value)
+                    else:
+                        matching_fixtures = list(fixture for fixture in self.fixtures if re.search(event.target_regex, fixture.name))
 
-                    matching_setts = list(sett for sett in self.setting_handlers.keys() if re.search(event.target_regex, sett))
+                        for fixture in matching_fixtures:
+                            fixture.receive_command(event.command, event.value)
 
-                    for sett in matching_setts:
-                        self.setting_handlers[sett].receive_command(event.command, event.value)
+                        matching_setts = list(sett for sett in self.setting_handlers.keys() if re.search(event.target_regex, sett))
+
+                        for sett in matching_setts:
+                            self.setting_handlers[sett].receive_command(event.command, event.value)
 
         for sender in self.senders:
             if not sender.is_connected():
@@ -134,12 +143,12 @@ class Pyzzazz:
                 if fixture_conf.get("geometry", "") == "dodecahedron":
                     print("Creating dodecahedron {} with senders {}".format(fixture_conf.get("name", ""), fixture_conf.get("senders", [])))
                     fixture_senders = list(sender for sender in self.senders if sender.name in fixture_conf.get("senders", []))
-                    self.fixtures.append(Dodecahedron(fixture_conf, fixture_senders))
+                    self.fixtures.append(Dodecahedron(fixture_conf, fixture_senders, self.overlay_handler))
 
                 elif fixture_conf.get("geometry", "") == "cylinder":
                     print("Creating cylinder {} with senders {}".format(fixture_conf.get("name", ""), fixture_conf.get("senders", [])))
                     fixture_senders = list(sender for sender in self.senders if sender.name in fixture_conf.get("senders", []))
-                    self.fixtures.append(Cylinder(fixture_conf, fixture_senders))
+                    self.fixtures.append(Cylinder(fixture_conf, fixture_senders, self.overlay_handler))
 
                 else:
                     raise Exception("Unknown fixture geometry {}".format(fixture_conf.get("geometry", "")))
@@ -176,15 +185,17 @@ class Pyzzazz:
     def register_commands(self):
         for controller in self.controllers:
             for control in controller.get_controls():
-                matching_fixtures = list(fixture for fixture in self.fixtures if re.search(control.target_regex, fixture.name))
+                # FIXME this is hacky also
+                if control.command["type"] != "overlay":
+                    matching_fixtures = list(fixture for fixture in self.fixtures if re.search(control.target_regex, fixture.name))
 
-                for fixture in matching_fixtures:
-                    fixture.register_command(control.command)
+                    for fixture in matching_fixtures:
+                        fixture.register_command(control.command)
 
-                matching_setts = list(sett for sett in self.setting_handlers.keys() if re.search(control.target_regex, sett))
+                    matching_setts = list(sett for sett in self.setting_handlers.keys() if re.search(control.target_regex, sett))
 
-                for sett in matching_setts:
-                    self.setting_handlers[sett].register_command(control.command, control.default)
+                    for sett in matching_setts:
+                        self.setting_handlers[sett].register_command(control.command, control.default)
 
     def generate_opc_layout_files(self):
         for sender in self.senders:

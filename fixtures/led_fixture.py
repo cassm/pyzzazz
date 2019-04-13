@@ -5,19 +5,22 @@ from patterns.make_me_one_with_everything import MakeMeOneWithEverything
 from patterns.fire import Fire
 from patterns.smooth import Smooth
 from common.colour import Colour
+from common.colour import channelwise_min
+from operator import add
 
 
 class Led:
     def __init__(self, coord, colour=Colour()):
         self.colour = colour
+        self.overlaid_colour = colour
         self.coord = coord
 
 
 class LedFixture(Fixture):
-    def __init__(self, config, senders):
+    def __init__(self, config, senders, overlay_handler):
         self.validate_config(config)
 
-        Fixture.__init__(self, config)
+        Fixture.__init__(self, config, overlay_handler)
 
         self.pattern = ""
         self.patterns = {}
@@ -95,9 +98,10 @@ class LedFixture(Fixture):
             new_value = self.patterns[self.pattern].get_pixel_colour(self.leds, index, time, palette, self.palette_name, master_brightness)
 
             led.colour = old_value * smoothness + new_value * (1.0 - smoothness)
+            led.overlaid_colour = self.overlay_handler.calculate_overlaid_colour(led, time)
 
     def get_pixels(self):
-        return list(led.colour.channelwise_min(Colour(255, 255, 255)) for led in self.leds)
+        return list(channelwise_min(led.overlaid_colour, Colour(255, 255, 255)) for led in self.leds)
 
     def get_coords(self):
         return list(list(led.coord.get("global", "cartesian")) for led in self.leds)
