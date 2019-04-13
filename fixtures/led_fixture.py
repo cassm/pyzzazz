@@ -2,6 +2,7 @@ from fixtures.fixture import Fixture
 from patterns.sparkle import Sparkle
 from patterns.fizzy_lifting_drink import FizzyLiftingDrink
 from patterns.make_me_one_with_everything import MakeMeOneWithEverything
+from patterns.fire import Fire
 from patterns.smooth import Smooth
 from common.colour import Colour
 
@@ -59,6 +60,9 @@ class LedFixture(Fixture):
 
                 elif command["name"] == "make_me_one_with_everything":
                     self.patterns["make_me_one_with_everything"] = MakeMeOneWithEverything()
+
+                elif command["name"] == "fire":
+                    self.patterns["fire"] = Fire(self.leds)
 
                 else:
                     raise Exception("LedFixture: unknown pattern {}".format(command["name"]))

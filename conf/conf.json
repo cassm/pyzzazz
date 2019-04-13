@@ -149,44 +149,50 @@
           "command": "{'type': 'pattern', 'name': 'sparkle', 'args': {'max_sparkles_percent': 8, 'sparkle_probability': 0.05, 'background_brightness': 0.5}}"
         },
         {
-          "name": "master palette auto",
+          "name": "fire",
           "id": 3,
+          "target_regex": "led_fix_*",
+          "command": "{'type': 'pattern', 'name': 'fire', 'args': {}}"
+        },
+        {
+          "name": "master palette auto",
+          "id": 4,
           "target_regex": "master_settings",
           "command": "{'type': 'palette', 'name': 'auto'}"
         },
         {
           "name": "master palette stressTest",
-          "id": 4,
+          "id": 5,
           "target_regex": "master_settings",
           "command": "{'type': 'palette', 'name': 'stressTest'}"
         },
         {
           "name": "master palette unicornBarf",
-          "id": 5,
+          "id": 6,
           "target_regex": "master_settings",
           "command": "{'type': 'palette', 'name': 'unicornBarf'}"
         },
         {
           "name": "icosahedron palette from master",
-          "id": 6,
+          "id": 7,
           "target_regex": "led_fix_icosahedron_*",
           "command": "{'type': 'palette', 'name': None}"
         },
         {
           "name": "icosahedron palette auto",
-          "id": 7,
+          "id": 8,
           "target_regex": "led_fix_icosahedron_*",
           "command": "{'type': 'palette', 'name': 'auto'}"
         },
         {
           "name": "icosahedron palette stressTest",
-          "id": 8,
+          "id": 9,
           "target_regex": "led_fix_icosahedron_*",
           "command": "{'type': 'palette', 'name': 'stressTest'}"
         },
         {
           "name": "icosahedron palette unicornBarf",
-          "id": 9,
+          "id": 10,
           "target_regex": "led_fix_icosahedron_*",
           "command": "{'type': 'palette', 'name': 'unicornBarf'}"
         }
