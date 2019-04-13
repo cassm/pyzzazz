@@ -3,10 +3,12 @@ import openpixelcontrol.python.opc as opc
 import subprocess
 import json
 import os
+from pathlib import Path
 
 
 class OpcSenderHandler(SenderHandler):
-    def __init__(self, config):
+
+    def __init__(self, config, src_dir):
         SenderHandler.__init__(self, config)
 
         self.validate_config(config)
@@ -18,8 +20,7 @@ class OpcSenderHandler(SenderHandler):
         self._client = opc.Client(":".join([self.ip, self.port]))
         self._previously_connected = False
 
-        #FIXME this is stupid
-        self._src_dir = os.path.expanduser("~/PycharmProjects/pyzzazz")
+        self._src_dir = src_dir
         self._layouts_dir = "{}/layouts".format(self._src_dir)
 
         if not os.path.isdir(self._layouts_dir):

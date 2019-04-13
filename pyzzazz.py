@@ -11,6 +11,7 @@ import signal
 import time
 import re
 import traceback
+from pathlib import Path
 
 start_pattern = "make_me_one_with_everything"
 default_port = 48945
@@ -18,6 +19,7 @@ default_port = 48945
 
 class Pyzzazz:
     def __init__(self, conf_path, palette_path):
+        self._src_dir = Path(__file__).parent
         self.config_parser = ConfigParser(conf_path)
         self.palette = Palette(palette_path)
         self.effective_time = 0.0
@@ -109,7 +111,7 @@ class Pyzzazz:
 
             elif sender_conf.get("type", "") == "opc":
                 print("Creating opc sender {} on port {}".format(sender_conf.get("name", ""), sender_conf.get("port", "")))
-                self.senders.append(OpcSenderHandler(sender_conf))
+                self.senders.append(OpcSenderHandler(sender_conf, self._src_dir))
 
             else:
                 raise Exception("Unknown sender type {}".format(sender_conf.get("type", "")))
