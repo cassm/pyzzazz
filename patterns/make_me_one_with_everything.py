@@ -25,8 +25,8 @@ class MakeMeOneWithEverything(Pattern):
             self._next_swoosh = time + random.gauss(self._swoosh_interval, self._swoosh_interval / 4)
 
             # TODO add starting angle
-            # time, direction (r, phi or theta), swoosh speed between 2 and 5
-            self._active_swooshes.append((time, random.randrange(3), random.random()*3 + 2))
+            # time, direction (phi or theta), swoosh speed between 2 and 5
+            self._active_swooshes.append((time, random.randrange(1, 3), random.random()*3 + 2))
 
         self._active_swooshes = list(swoosh for swoosh in self._active_swooshes if time - swoosh[0] < 500)
         pass
