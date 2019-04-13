@@ -59,8 +59,8 @@ class ControllerHandler():
     def update(self):
         pass
 
-    def _add_event(self, control, value):
-        self._events.append(Event(target_regex=control["target_regex"], command=control["command"], value=value))
+    def _add_event(self, control):
+        self._events.append(Event(target_regex=control.target_regex, command=control.command, value=control.state))
 
     def get_events(self):
         result = deepcopy(self._events)
