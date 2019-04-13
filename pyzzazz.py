@@ -71,6 +71,9 @@ class Pyzzazz:
         brightness = self.setting_handlers["master_settings"].get_value("brightness", 0.5)
         speed = self.setting_handlers["master_settings"].get_value("speed", 0.5)
 
+        self.palette.set_space_per_palette(self.setting_handlers["master_settings"].get_value("space_per_palette", 0.5))
+        self.palette.set_time_per_palette(self.setting_handlers["master_settings"].get_value("time_per_palette", 0.5))
+
         self.effective_time += (time.time() - self.last_update) * speed * 3  # we want to go from 0 to triple speed
         self.last_update = time.time()
 

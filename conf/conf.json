@@ -171,6 +171,13 @@
           "target_regex": "master_settings",
           "command": "{'type': 'slider', 'name': 'speed'}",
           "default_value": 33
+        },
+        {
+          "name": "space_per_palette",
+          "id": 3,
+          "target_regex": "master_settings",
+          "command": "{'type': 'slider', 'name': 'space_per_palette'}",
+          "default_value": 33
         }
       ]
     },

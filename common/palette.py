@@ -16,6 +16,12 @@ class Palette:
         self.space_per_palette = 3
         self.time_per_palette = 1
 
+    def set_space_per_palette(self, value):
+        self.space_per_palette = value * 5  # expect 0 to 1
+
+    def set_time_per_palette(self, value):
+        self.time_per_palette = value * 3  # expect 0 to 1
+
     def parse_file(self, palette_path):
         try:
             image = imageio.imread(palette_path)
@@ -35,8 +41,8 @@ class Palette:
         while time_delta < 0:
             time_delta += self.time_per_palette
 
-        space_delta /= space_divisor
-        time_delta /= time_divisor
+        space_delta /= max(space_divisor, 0.0001)
+        time_delta /= max(time_divisor, 0.0001)
 
         # move forwards not backwards
         time_delta = 1-time_delta
