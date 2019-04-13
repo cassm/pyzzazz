@@ -39,7 +39,7 @@ class Pyzzazz:
 
         # FIXME how to do startup command?
         for fixture in self.fixtures:
-            command = {'type': 'pattern', 'name': 'sparkle', 'args': {}}
+            command = {'type': 'pattern', 'name': start_pattern, 'args': {}}
             # command = {'type': 'pattern', 'name': 'make_me_one_with_everything', 'args': {}}
             fixture.register_command(command)
             fixture.receive_command(command, 1)
