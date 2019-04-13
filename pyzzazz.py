@@ -6,6 +6,7 @@ from senders.opc_sender_handler import OpcSenderHandler
 from common.palette import Palette
 from common.socket_server import SocketServer
 from fixtures.dodecahedron import Dodecahedron
+from common.setting_handler import SettingHandler
 import signal
 import time
 import re
@@ -21,7 +22,6 @@ class Pyzzazz:
         self._src_dir = Path(__file__).parent
         self.config_parser = ConfigParser(conf_path)
         self.palette = Palette(palette_path)
-        self.speed = 1.0
         self.effective_time = 0.0
         self.last_update = time.time()
         self.subprocesses = list()
@@ -30,7 +30,11 @@ class Pyzzazz:
         self.fixtures = []
         self.controllers = []
 
-        self.socket_server = SocketServer(port=default_port)
+        self.setting_handlers = {}
+
+        if self.needs_socket_server():
+            self.socket_server = SocketServer(port=default_port)
+
         # TODO multiple palettes, pass dict to fixtures
         # TODO add target type for commands (fixtures, master, etc)
         # TODO modulators? overlays?
@@ -38,9 +42,11 @@ class Pyzzazz:
         # TODO video players should be a different type
 
         # these must be done in this order
+        self.init_setting_handlers()
         self.init_senders()
         self.init_fixtures()
         self.init_controllers()
+        self.register_commands()
         self.generate_opc_layout_files()
 
         # FIXME how to do startup command?
@@ -50,10 +56,21 @@ class Pyzzazz:
             fixture.register_command(command)
             fixture.receive_command(command, 1)
 
+    def needs_socket_server(self):
+        for controller_conf in self.config_parser.get_controllers():
+            if controller_conf["type"] == "gui":
+                return True
+
+        return False
+
     def update(self):
         self.socket_server.poll()
 
-        self.effective_time += (time.time() - self.last_update) * self.speed
+        smoothness = self.setting_handlers["master_settings"].get_value("smoothness", 0.5)
+        brightness = self.setting_handlers["master_settings"].get_value("brightness", 0.5)
+        speed = self.setting_handlers["master_settings"].get_value("speed", 0.5)
+
+        self.effective_time += (time.time() - self.last_update) * speed * 3  # we want to go from 0 to triple speed
         self.last_update = time.time()
 
         for controller in self.controllers:
@@ -70,14 +87,17 @@ class Pyzzazz:
                     for fixture in matching_fixtures:
                         fixture.receive_command(event.command, event.value)
 
-        smoothness = 0.5
+                    matching_setts = list(sett for sett in self.setting_handlers.keys() if re.search(event.target_regex, sett))
+
+                    for sett in matching_setts:
+                        self.setting_handlers[sett].receive_command(event.command, event.value)
 
         for sender in self.senders:
             if not sender.is_connected():
                 sender.try_connect()
 
         for fixture in self.fixtures:
-            fixture.update(self.effective_time, self.palette, smoothness)
+            fixture.update(self.effective_time, self.palette, smoothness, brightness)
             fixture.send()
 
     def init_senders(self):
@@ -99,13 +119,16 @@ class Pyzzazz:
         print("\n")
 
     def init_fixtures(self):
+        # TODO create extra settings fixtures in the conf, specify them in led fixtures, and pass them in
+
         for fixture_conf in self.config_parser.get_fixtures():
             self.sanity_check_fixture_conf(fixture_conf)
 
-            if fixture_conf.get("geometry", "") == "dodecahedron":
-                print("Creating dodecahedron {} with senders {}".format(fixture_conf.get("name", ""), fixture_conf.get("senders", [])))
-                fixture_senders = list(sender for sender in self.senders if sender.name in fixture_conf.get("senders", []))
-                self.fixtures.append(Dodecahedron(fixture_conf, fixture_senders))
+            if fixture_conf.get("type", "") == "led":
+                if fixture_conf.get("geometry", "") == "dodecahedron":
+                    print("Creating dodecahedron {} with senders {}".format(fixture_conf.get("name", ""), fixture_conf.get("senders", [])))
+                    fixture_senders = list(sender for sender in self.senders if sender.name in fixture_conf.get("senders", []))
+                    self.fixtures.append(Dodecahedron(fixture_conf, fixture_senders))
 
             else:
                 raise Exception("Unknown fixture type {}".format(fixture_conf.get("type", "")))
@@ -128,13 +151,26 @@ class Pyzzazz:
             else:
                 raise Exception("Unknown controller type {}".format(controller_conf.get("type", "")))
 
-            for control in self.controllers[-1].get_controls():
+        print("\n")
+
+    def init_setting_handlers(self):
+        # always create a master settings fixture
+        self.setting_handlers["master_settings"] = SettingHandler("master_settings")
+
+        # TODO add configurable ones here
+
+    def register_commands(self):
+        for controller in self.controllers:
+            for control in controller.get_controls():
                 matching_fixtures = list(fixture for fixture in self.fixtures if re.search(control.target_regex, fixture.name))
 
                 for fixture in matching_fixtures:
                     fixture.register_command(control.command)
 
-        print("\n")
+                matching_setts = list(sett for sett in self.setting_handlers.keys() if re.search(control.target_regex, sett))
+
+                for sett in matching_setts:
+                    self.setting_handlers[sett].register_command(control.command)
 
     def generate_opc_layout_files(self):
         for sender in self.senders:

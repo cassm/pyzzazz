@@ -29,9 +29,11 @@ class ClientHandler:
 
 
 class SocketServer:
-    def __init__(self, port, host='127.0.0.1'):
+    def __init__(self, port, host='127.0.0.1', timeout=0.01):
+        self._timeout = timeout
         self._server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self._server_socket.settimeout(self._timeout)
         self._server_socket.bind((host, port))
         self._server_socket.listen()
 
@@ -73,7 +75,7 @@ class SocketServer:
         readable, writeable, errored = select.select(list(self._client_dict.keys()) + [self._server_socket],
                                                      list(self._client_dict.keys()),
                                                      list(self._client_dict.keys()),
-                                                     0.5)
+                                                     self._timeout)
 
         for s in readable:
             if s is self._server_socket:
@@ -83,10 +85,23 @@ class SocketServer:
 
             else:
                 if s in self._client_dict.keys():
-                    new_bytes = bytearray(s.recv(4096))
-                    self._client_dict[s].packet_handler.add_bytes(new_bytes)
-                    self._client_dict[s].inbound_packet_buffer.extend(deepcopy(self._client_dict[s].packet_handler.available_packets))
-                    self._client_dict[s].packet_handler.available_packets.clear()
+                    try:
+                        new_bytes = bytearray(s.recv(4096))
+                        self._client_dict[s].packet_handler.add_bytes(new_bytes)
+                        self._client_dict[s].inbound_packet_buffer.extend(deepcopy(self._client_dict[s].packet_handler.available_packets))
+                        self._client_dict[s].packet_handler.available_packets.clear()
+
+                    except socket.error as e:
+                        if e.errno != errno.EAGAIN:
+                            print("Lost connection with client {}".format(self._client_dict[s].name))
+                            s.close()
+                            self._client_dict.pop(s)
+
+                    except Exception as e:
+                        print("Lost connection with client {}".format(self._client_dict[s].name))
+                        s.close()
+                        self._client_dict.pop(s)
+
                 else:
                     print("ignoring bytes read from unknown client {}".format(s))
 
@@ -105,11 +120,16 @@ class SocketServer:
 
                     except socket.error as e:
                         if e.errno != errno.EAGAIN:
+                            print("Lost connection with client {}".format(self._client_dict[s].name))
                             s.close()
                             self._client_dict.pop(s)
-                            raise e
 
                         print('Blocking with', len(self._client_dict[s].outbound_byte_buffer), 'remaining')
+
+                    except Exception as e:
+                        print("Lost connection with client {}".format(self._client_dict[s].name))
+                        s.close()
+                        self._client_dict.pop(s)
 
             else:
                 print("ignoring bytes read from unknown client {}".format(s))

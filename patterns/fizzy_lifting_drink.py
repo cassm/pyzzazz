@@ -6,7 +6,7 @@ import math
 
 # this is lifted from opc's raver_plaid example
 class FizzyLiftingDrink(Pattern):
-    def get_pixel_colour(self, pixels, index, time, palette):
+    def get_pixel_colour(self, pixels, index, time, palette, master_brightness):
         # how many sine wave cycles are squeezed into our n_pixels
         # 24 happens to create nice diagonal stripes on the wall layout
         freq_r = 24
@@ -34,4 +34,4 @@ class FizzyLiftingDrink(Pattern):
         g = blackstripes * color_utils.remap(math.cos((t / speed_g + pct * freq_g) * math.pi * 2), -1, 1, 0, 256)
         b = blackstripes * color_utils.remap(math.cos((t / speed_b + pct * freq_b) * math.pi * 2), -1, 1, 0, 256)
 
-        return Colour(r, g, b)
+        return Colour(r, g, b) * master_brightness

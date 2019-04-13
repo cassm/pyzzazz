@@ -33,7 +33,7 @@ class Sparkle(Pattern):
                 self._sparkle_info[index].time = time - 0.5 # hack to reduce time at full brightness
                 self._sparkle_info[index].colour = palette.sample_radial(leds[index].coord.get_delta("global"), time, self._space_divisor, self._time_divisor)
 
-    def get_pixel_colour(self, pixels, index, time, palette):
+    def get_pixel_colour(self, pixels, index, time, palette, master_brightness):
         # do not allow zero, because we divide by this
         time_delta = max(time - self._sparkle_info[index].time, 0.001)
 
@@ -43,5 +43,5 @@ class Sparkle(Pattern):
         background_colour = palette.sample_radial(pixels[index].coord.get_delta("global"), time, self._space_divisor, self._time_divisor)
         background_colour *= self._background_brightness
 
-        return sparkle_value.channelwise_max(background_colour)
+        return sparkle_value.channelwise_max(background_colour) * master_brightness
 
