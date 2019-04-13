@@ -24,7 +24,7 @@ class Cylinder(LedFixture):
 
         for i in range(num_pixels):
             theta = (i * theta_per_pixel) % (2*math.pi)
-            z = i * z_per_pixel
+            z = i * z_per_pixel - height/2
             led_local_cylindrical = Cylindrical(r=radius, theta=theta, z=z)
             led_coord = Coordinate(local_origin=fixture_origin, local_cylindrical=led_local_cylindrical)
             self.leds.append(Led(led_coord))
