@@ -14,7 +14,7 @@ import re
 import traceback
 from pathlib import Path
 
-start_pattern = "make_me_one_with_everything"
+start_pattern = "sparkle"
 default_port = 48945
 
 
@@ -68,7 +68,7 @@ class Pyzzazz:
         self.socket_server.poll()
 
         smoothness = self.setting_handlers["master_settings"].get_value("smoothness", 0.5)
-        brightness = self.setting_handlers["master_settings"].get_value("brightness", 0.5)
+        brightness = self.setting_handlers["master_settings"].get_value("brightness", 1.0)
         speed = self.setting_handlers["master_settings"].get_value("speed", 0.5)
 
         self.palette.set_space_per_palette(self.setting_handlers["master_settings"].get_value("space_per_palette", 0.5))

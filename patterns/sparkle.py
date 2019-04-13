@@ -14,8 +14,8 @@ class Sparkle(Pattern):
         self._sparkle_info = [SparkleRecord() for _ in range(num_leds)]
 
         # sane defaults
-        self._max_sparkles_percent = 1
-        self._sparkle_probability = 0.2
+        self._max_sparkles_percent = 8
+        self._sparkle_probability = 0.05
         self._background_brightness = 0.5
 
         self._last_refresh = 0
