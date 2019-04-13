@@ -1,6 +1,7 @@
 import socket
 import select
 import errno
+from copy import deepcopy
 from common.packet_handler import CommPacketHandler
 from common.packet_handler import CommHeader
 from enum import Enum
@@ -50,11 +51,17 @@ class SocketServer:
         # just drop bytes for unknown clients for now
         for client in self._client_dict.values():
             if client.name == client_name:
-                packets = client.inbound_packet_buffer
+                packets = deepcopy(client.inbound_packet_buffer)
                 client.inbound_packet_buffer.clear()
                 return packets
 
         return list()
+
+    def send_request(self, client_name, request):
+        # just drop request for unknown clients for now
+        for client in self._client_dict.values():
+            if client.name == client_name:
+                client.send_bytes(CommHeader(msgtype=request).get_bytes())
 
     def send_bytes(self, client_name, bytes):
         # just drop bytes for unknown clients for now
@@ -78,7 +85,7 @@ class SocketServer:
                 if s in self._client_dict.keys():
                     new_bytes = bytearray(s.recv(4096))
                     self._client_dict[s].packet_handler.add_bytes(new_bytes)
-                    self._client_dict[s].inbound_packet_buffer += self._client_dict[s].packet_handler.available_packets
+                    self._client_dict[s].inbound_packet_buffer.extend(deepcopy(self._client_dict[s].packet_handler.available_packets))
                     self._client_dict[s].packet_handler.available_packets.clear()
                 else:
                     print("ignoring bytes read from unknown client {}".format(s))
@@ -95,7 +102,6 @@ class SocketServer:
                     try:
                         sent = s.send(self._client_dict[s].outbound_byte_buffer)
                         self._client_dict[s].outbound_byte_buffer = self._client_dict[s].outbound_byte_buffer[sent:]
-                        print("Sent {} bytes".format(sent))
 
                     except socket.error as e:
                         if e.errno != errno.EAGAIN:
@@ -126,6 +132,7 @@ class SocketServer:
                     if client.state == ClientState.AWAITING_NAME:
                         client.name = packet["name"]
                         print("Client at {} identified as {}".format(client.address, client.name))
+                        client.state = ClientState.INITIALISED
 
                     else:
                         if packet["name"] == client.name:
