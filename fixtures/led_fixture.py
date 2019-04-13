@@ -42,6 +42,7 @@ class LedFixture(Fixture):
         else:
             raise Exception("LedFixture: unknown command type {}".format(command["type"]))
 
+
     def register_command(self, command):
         if command["type"] == "pattern":
             if command["name"] not in self.patterns:
@@ -68,7 +69,7 @@ class LedFixture(Fixture):
             for sender in self.senders:
                 sender.send(self.line, self.get_pixels())
 
-    def update(self, time, palette, smoothness):
+    def update(self, time, palette, smoothness, master_brightness):
         if self.pattern not in self.patterns.keys():
             raise Exception("LedFixture: unknown pattern {}".format(self.pattern))
 
@@ -80,8 +81,10 @@ class LedFixture(Fixture):
             raise Exception("illegal smoothness value of {}".format(smoothness))
 
         for index, led in enumerate(self.leds):
-            led.colour *= smoothness
-            led.colour += self.patterns[self.pattern].get_pixel_colour(self.leds, index, time, palette) * (1.0 - smoothness)
+            old_value = led.colour
+            new_value = self.patterns[self.pattern].get_pixel_colour(self.leds, index, time, palette, master_brightness)
+
+            led.colour = old_value * smoothness + new_value * (1.0 - smoothness)
 
     def get_pixels(self):
         return list(led.colour.channelwise_min(Colour(255, 255, 255)) for led in self.leds)

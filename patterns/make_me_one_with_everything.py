@@ -31,7 +31,7 @@ class MakeMeOneWithEverything(Pattern):
         self._active_swooshes = list(swoosh for swoosh in self._active_swooshes if time - swoosh[0] < 500)
         pass
 
-    def get_pixel_colour(self, pixels, index, time, palette):
+    def get_pixel_colour(self, pixels, index, time, palette, master_brightness):
         pixel = pixels[index]
         origin_delta = pixel.coord.get_delta("global")
 
@@ -54,7 +54,7 @@ class MakeMeOneWithEverything(Pattern):
 
         w = max(w, swoosh_level * 255)
 
-        return Colour(r+w, g+w, b+w)
+        return Colour(r+w, g+w, b+w) * master_brightness
 
     @staticmethod
     def inverse_square(x, y, exponent):

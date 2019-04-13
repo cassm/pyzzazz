@@ -10,7 +10,7 @@ class Smooth(Pattern):
     def update(self, leds, time, palette):
         return
 
-    def get_pixel_colour(self, pixels, index, time, palette):
+    def get_pixel_colour(self, pixels, index, time, palette, master_brightness):
         space_delta = pixels[index].coord.get_delta("global")
 
         offset_phi_component = (math.sin(pixels[index].coord.get("global", "spherical").phi + time/6) / 2 + 0.9)
@@ -24,5 +24,5 @@ class Smooth(Pattern):
         offset /= 4
         space_delta += offset
 
-        return palette.sample_radial(space_delta, time, self._space_divisor, self._time_divisor)
+        return palette.sample_radial(space_delta, time, self._space_divisor, self._time_divisor) * master_brightness
 
