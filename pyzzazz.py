@@ -201,7 +201,10 @@ class Pyzzazz:
         for sender in self.senders:
             if sender.type == "opc":
                 sender.generate_layout_files(self.fixtures)
-                self.subprocesses.append(sender.start())
+                opc_server_started = sender.start()
+
+                if opc_server_started:
+                    self.subprocesses.append(opc_server_started)
 
     def sanity_check_sender_conf(self, sender_conf):
         sender_names = tuple(sender.name for sender in self.senders)

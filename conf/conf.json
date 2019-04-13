@@ -9,6 +9,7 @@
     {
       "name": "sim_0",
       "type": "opc",
+      "simulate": true,
       "ip": "127.0.0.1",
       "port": "7890",
       "num_lines": 10
