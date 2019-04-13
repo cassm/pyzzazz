@@ -8,7 +8,7 @@ from pathlib import Path
 
 class OpcSenderHandler(SenderHandler):
 
-    def __init__(self, config):
+    def __init__(self, config, src_dir):
         SenderHandler.__init__(self, config)
 
         self.validate_config(config)
@@ -20,12 +20,11 @@ class OpcSenderHandler(SenderHandler):
         self._client = opc.Client(":".join([self.ip, self.port]))
         self._previously_connected = False
 
-        # NB Path is dependent on this file being in "senders" folder:
-        self._src_dir = "/".join(Path(__file__)._parts[1:-2])
-        self._layouts_dir = "/{}/layouts".format(self._src_dir)
+        self._src_dir = src_dir
+        self._layouts_dir = "{}/layouts".format(self._src_dir)
 
         if not os.path.isdir(self._layouts_dir):
-            Path.mkdir(Path(self._layouts_dir))
+            os.mkdir(self._layouts_dir)
 
     def validate_config(self, config):
         if "ip" not in config.keys():
@@ -49,7 +48,7 @@ class OpcSenderHandler(SenderHandler):
 
     def start(self):
         args = list()
-        args.append("/{}/openpixelcontrol/bin/gl_server".format(self._src_dir))
+        args.append("{}/openpixelcontrol/bin/gl_server".format(self._src_dir))
 
         for i in range(self.num_lines):
             args.append("-l{}/{}_{}.json".format(self._layouts_dir, self.name, i))
