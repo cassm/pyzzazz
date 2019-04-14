@@ -11,6 +11,7 @@ class PaletteHandler:
         if not os.path.isdir(palette_path):
             raise Exception("ERROR: the directory {} does not exist".format(palette_path))
 
+        self.standard_palette_len = 1000
         self.parse_palette_files()
 
         assert len(self.palettes.keys()) > 0, "No parsable palette files present!"
@@ -28,11 +29,19 @@ class PaletteHandler:
             if filename.endswith(".bmp"):
                 try:
                     image = imageio.imread(os.path.join(self.palette_path, filename))
+                    palette_pixels_per_image_pixel = float(self.standard_palette_len) / float(len(image[0]))
 
                     rgb_buffer = list()
 
-                    for pixel in image[0]:
-                        rgb_buffer.append(pixel.tolist())
+                    # ensure all palettes are exactly the same len
+                    for index, pixel in enumerate(image[0]):
+                        if index*palette_pixels_per_image_pixel >= len(rgb_buffer):
+                            rgb_buffer.append(pixel.tolist())
+
+                    while len(rgb_buffer) < self.standard_palette_len:
+                        rgb_buffer.append(rgb_buffer[-1])
+
+                    rgb_buffer = rgb_buffer[:self.standard_palette_len]
 
                     print("Palette: parsed palette file {} of length {}".format(filename, len(rgb_buffer)))
 
@@ -47,9 +56,6 @@ class PaletteHandler:
     def set_time_per_palette(self, value):
         self.time_per_palette = value * 2.0  # expect 0 to 1
 
-    def colour_correct(self, factors):
-        self.rgb_buffer = list(list(cha * factors[i] for i, cha in enumerate(pix)) for pix in self.rgb_buffer)
-
     def sample_positional(self, position, palette_name):
         palette_to_use = palette_name
 
@@ -58,7 +64,7 @@ class PaletteHandler:
 
         assert 0.0 <= position <= 1.0, "sample_positional: position must be between 0 and 1"
 
-        index = int(position * (len(self.palettes[palette_to_use]) - 1))
+        index = int(position * self.standard_palette_len-1)
         return self.palettes[palette_to_use][index]
 
     def sample_radial(self, space_delta, time_delta, space_divisor, time_divisor, palette_name):
@@ -81,8 +87,9 @@ class PaletteHandler:
 
         space_progress = space_delta / nonzero(self.space_per_palette)
         time_progress = time_delta / nonzero(self.time_per_palette)
-        total_progress = (space_progress + time_progress) % 1.0
+        total_progress = (space_progress + time_progress) * self.standard_palette_len
+        total_progress %= self.standard_palette_len
 
-        total_index = int(total_progress * len(self.palettes[palette_to_use]))
+        total_index = int(total_progress)
 
         return self.palettes[palette_to_use][total_index]
