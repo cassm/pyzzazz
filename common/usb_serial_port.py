@@ -52,7 +52,6 @@ class UsbSerialPort:
 
         try:
             self.serial = serial.Serial(self.port,
-                                        baudrate=57600,
                                         parity=serial.PARITY_NONE,
                                         stopbits=serial.STOPBITS_ONE,
                                         bytesize=serial.EIGHTBITS,
