@@ -1,6 +1,5 @@
 from overlays.overlay import Overlay
 from common.utils import nonzero
-from common.colour import channelwise_max
 
 
 class Flash(Overlay):

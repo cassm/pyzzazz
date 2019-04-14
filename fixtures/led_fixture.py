@@ -4,7 +4,6 @@ from patterns.fizzy_lifting_drink import FizzyLiftingDrink
 from patterns.make_me_one_with_everything import MakeMeOneWithEverything
 from patterns.fire import Fire
 from patterns.smooth import Smooth
-from common.colour import channelwise_min
 from operator import add
 
 
