@@ -81,10 +81,6 @@ void loop() {
     }
 
     else if (symbol == frame_end_char) {
-      for (int i = 0; i < led_index; i++) {
-          ;
-      }
-      
       led_index = 0;
       pixel_index = 0;
       stripid = BETWEEN_FRAMES;
