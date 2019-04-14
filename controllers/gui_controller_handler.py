@@ -52,7 +52,7 @@ class GuiControllerHandler(ControllerHandler):
                 else:
                     raise Exception("GuiControllerHandler: unhandled packet type")
 
-            self._socket_server.clear_packets()
+            self._socket_server.clear_packets(self.name)
 
         else:
             self._connected = False
