@@ -29,7 +29,7 @@ class ClientHandler:
 
 
 class SocketServer:
-    def __init__(self, port, host='', timeout=0.01):
+    def __init__(self, port, host='', timeout=0.001):
         self._timeout = timeout
         self._server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
