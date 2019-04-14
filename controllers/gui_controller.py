@@ -79,8 +79,8 @@ class GuiControllerWindow:
 
 
 class GuiController:
-    def __init__(self, config):
-        self.socket = SocketClient(name=config.get("name"), port=config.get("port"))
+    def __init__(self, config, host):
+        self.socket = SocketClient(name=config.get("name"), port=config.get("port"), host=host)
         self.window = GuiControllerWindow(config.get("name"), config.get("buttons"), config.get("sliders"))
         self.window.set_after(5, self.poll)
 
