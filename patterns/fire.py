@@ -33,7 +33,7 @@ class Fire(Pattern):
             spark.last_sparked = time
             spark.intensity = random.gauss(1.0/8.0, 1.0/16.0)
 
-    def get_pixel_colour(self, pixels, index, time, palette_handler, master_brightness, palette_name):
+    def get_pixel_colour(self, pixels, index, time, palette_handler, palette_name, master_brightness):
         assert index < len(self.pixel_info), "out of bounds led index"
         time_since_spark = nonzero(time - self.pixel_info[index].last_sparked)
 
@@ -48,4 +48,4 @@ class Fire(Pattern):
 
         palette_position = max(0, min(1, self.pixel_info[index].normalised_z + spark_val + total_sine_val))
 
-        return palette_handler.sample_positional(palette_position, "fire")
+        return list(channel * master_brightness for channel in palette_handler.sample_positional(palette_position, "fire"))
