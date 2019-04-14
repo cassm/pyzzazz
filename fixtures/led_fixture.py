@@ -4,13 +4,12 @@ from patterns.fizzy_lifting_drink import FizzyLiftingDrink
 from patterns.make_me_one_with_everything import MakeMeOneWithEverything
 from patterns.fire import Fire
 from patterns.smooth import Smooth
-from common.colour import Colour
 from common.colour import channelwise_min
 from operator import add
 
 
 class Led:
-    def __init__(self, coord, colour=Colour()):
+    def __init__(self, coord, colour=[0.0, 0.0, 0.0]):
         self.colour = colour
         self.overlaid_colour = colour
         self.coord = coord
@@ -97,11 +96,12 @@ class LedFixture(Fixture):
             old_value = led.colour
             new_value = self.patterns[self.pattern].get_pixel_colour(self.leds, index, time, palette, self.palette_name, master_brightness)
 
-            led.colour = old_value * smoothness + new_value * (1.0 - smoothness)
+            led.colour = [old_value[i] * smoothness + new_value[i] * (1.0 - smoothness) for i in range(3)]
+            # led.colour = old_value * smoothness + new_value * (1.0 - smoothness)
             led.overlaid_colour = self.overlay_handler.calculate_overlaid_colour(led, time)
 
     def get_pixels(self):
-        return list(channelwise_min(led.overlaid_colour, Colour(255, 255, 255)) for led in self.leds)
+        return list(map(max, [0.0, 0.0, 0.0], map(min, led.overlaid_colour, [255.0, 255.0, 255.0])) for led in self.leds)
 
     def get_coords(self):
         return list(list(led.coord.get("global", "cartesian")) for led in self.leds)

@@ -1,4 +1,3 @@
-from common.colour import Colour
 from operator import add
 from overlays.flash import Flash
 import math

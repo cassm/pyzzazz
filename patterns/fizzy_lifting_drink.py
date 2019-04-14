@@ -1,5 +1,4 @@
 from patterns.pattern import Pattern
-from common.colour import Colour
 import openpixelcontrol.python.color_utils as color_utils
 import math
 
@@ -34,4 +33,4 @@ class FizzyLiftingDrink(Pattern):
         g = blackstripes * color_utils.remap(math.cos((t / speed_g + pct * freq_g) * math.pi * 2), -1, 1, 0, 256)
         b = blackstripes * color_utils.remap(math.cos((t / speed_b + pct * freq_b) * math.pi * 2), -1, 1, 0, 256)
 
-        return Colour(r, g, b) * master_brightness
+        return list(channel * master_brightness for channel in [r, g, b])

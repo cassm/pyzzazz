@@ -1,13 +1,11 @@
 from patterns.pattern import Pattern
-from common.colour import Colour
-from common.colour import channelwise_max
 import random
 
 
 class SparkleRecord:
     def __init__(self):
         self.time = 0
-        self.colour = Colour(0, 0, 0)
+        self.colour = [0.0, 0.0, 0.0]
 
 
 class Sparkle(Pattern):
@@ -51,9 +49,10 @@ class Sparkle(Pattern):
 
         # do not allow brightness to exceed 1 to avoid distortion
         sparkle_brightness = min(1.0 / time_delta, 1.0)
-        sparkle_value = self._sparkle_info[index].colour * sparkle_brightness
+        sparkle_value = list(channel * sparkle_brightness for channel in self._sparkle_info[index].colour)
         background_colour = palette_handler.sample_radial(pixels[index].coord.get_delta("global"), time, self._space_divisor, self._time_divisor, palette_name)
-        background_colour *= self._background_brightness
+        background_colour = list(channel * self._background_brightness for channel in background_colour)
 
-        return channelwise_max(sparkle_value, background_colour) * master_brightness
+        total_value = list(map(max, sparkle_value, background_colour))
+        return list(channel * master_brightness for channel in total_value)
 

@@ -1,5 +1,4 @@
 from patterns.pattern import Pattern
-from common.colour import Colour
 import random
 import math
 
@@ -54,7 +53,7 @@ class MakeMeOneWithEverything(Pattern):
 
         w = max(w, swoosh_level * 255)
 
-        return Colour(r+w, g+w, b+w) * master_brightness
+        return list(channel * master_brightness for channel in [r+w, g+w, b+w])
 
     @staticmethod
     def inverse_square(x, y, exponent):

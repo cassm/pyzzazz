@@ -1,6 +1,5 @@
 from fixtures.led_fixture import LedFixture
 from fixtures.led_fixture import Led
-from common.colour import Colour
 from common.coord import Coordinate
 from common.coord import Cartesian
 from common.coord import Cylindrical

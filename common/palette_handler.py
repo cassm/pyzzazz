@@ -1,7 +1,6 @@
 import os
 import imageio
 from common.utils import nonzero
-from common.colour import Colour
 
 
 class PaletteHandler:
@@ -60,8 +59,9 @@ class PaletteHandler:
         assert 0.0 <= position <= 1.0, "sample_positional: position must be between 0 and 1"
 
         index = int(position * (len(self.palettes[palette_to_use]) - 1))
-        return Colour(*self.palettes[palette_to_use][index])
+        return self.palettes[palette_to_use][index]
 
+    @profile
     def sample_radial(self, space_delta, time_delta, space_divisor, time_divisor, palette_name):
         palette_to_use = palette_name
 
@@ -86,4 +86,4 @@ class PaletteHandler:
 
         total_index = int(total_progress * len(self.palettes[palette_to_use]))
 
-        return Colour(*self.palettes[palette_to_use][total_index])
+        return self.palettes[palette_to_use][total_index]
