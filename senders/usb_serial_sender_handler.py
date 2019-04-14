@@ -9,6 +9,8 @@ class UsbSerialSenderHandler(SenderHandler):
         self.port = config.get("port", "")
 
         self._serial = UsbSerialPort(config)
+        self._last_send = [0.0 for _ in range(self.num_lines)]
+        self._send_interval = 1.0 / 30.0 / self.num_lines # 30 frames per second for n lines
 
     def validate_config(self, config):
         if "port" not in config.keys():
@@ -20,14 +22,26 @@ class UsbSerialSenderHandler(SenderHandler):
     def try_connect(self):
         self._serial.try_connect()
 
-    def send(self, line, pixels):
-        if line > self.num_lines or line < 0:
+    def send(self, line, byte_values):
+        if line > self.num_lines - 1 or line < 0:
             raise Exception("Sender: send called on invalid line {}".format(line))
 
         # if not connected, drop frame
         if self.is_connected():
+            while len(byte_values) % 3:
+                byte_values.append(0)
 
-            packet  = self.encapsulate(line, list(int(channel) for pixel in pixels for channel in pixel))
+            # packet = [ord('~'), line, len(byte_values)/3]
+            sentinels = [ord('~'), ord('|')]
+
+            packet = [ord('~'), line]
+
+            for value in byte_values:
+                if value in sentinels:
+                    value += 1
+                packet.append(value)
+
+            packet.append(ord('|'))
 
             self._serial.send_bytes(packet)
 

@@ -48,7 +48,7 @@ class OpcSenderHandler(SenderHandler):
         print("\n")
 
     def start(self):
-        if self._simulate:
+        if self.is_simulator:
             args = list()
             args.append("{}/openpixelcontrol/bin/gl_server".format(self._src_dir))
 
@@ -79,9 +79,11 @@ class OpcSenderHandler(SenderHandler):
     def try_connect(self):
         return
 
-    def send(self, line, pixels):
+    def send(self, line, byte_values):
         if line > self.num_lines or line < 0:
             raise Exception("Sender: send called on invalid line {}".format(line))
+
+        pixels = list(byte_values[i:i+3] for i in range(0, len(byte_values), 3))
 
         if self.is_connected():
             self._client.put_pixels(pixels, channel=line+1)

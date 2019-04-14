@@ -25,11 +25,15 @@ class LedFixture(Fixture):
         self.leds = []
 
         self.geometry = config.get("geometry", "No geometry present in fixture definition")
+        self.pixel_type = config.get("pixel_type", "No pixel_type present in fixture definition")
         self.num_pixels = config.get("num_pixels", "No num_pixels present in fixture definition")
         self.senders = senders
         self.line = config.get("line", "No line present in fixture definition")
 
     def validate_config(self, config):
+        if "pixel_type" not in config.keys():
+            raise Exception("LedFixture: config contains no pixel_type")
+
         if "geometry" not in config.keys():
             raise Exception("LedFixture: config contains no geometry")
 
@@ -78,7 +82,7 @@ class LedFixture(Fixture):
     def send(self):
         if len(self.leds) > 0:
             for sender in self.senders:
-                sender.send(self.line, self.get_pixels())
+                sender.send(self.line, self.get_pixels(force_rgb=sender.is_simulator))
 
     def update(self, time, palette, smoothness, master_brightness):
         if self.pattern not in self.patterns.keys():
@@ -99,8 +103,36 @@ class LedFixture(Fixture):
             # led.colour = old_value * smoothness + new_value * (1.0 - smoothness)
             led.overlaid_colour = self.overlay_handler.calculate_overlaid_colour(led, time)
 
-    def get_pixels(self):
-        return list(map(max, [0.0, 0.0, 0.0], map(min, led.overlaid_colour, [255.0, 255.0, 255.0])) for led in self.leds)
+    def get_pixels(self, force_rgb=False):
+        if force_rgb or self.pixel_type == "rgb":
+            return self.get_byte_values("rgb", list(led.overlaid_colour for led in self.leds))
+        else:
+            return self.get_byte_values("grbw", list(led.overlaid_colour for led in self.leds))
+
+    def get_byte_values(self, format, pixels):
+        byte_value_buffer = list()
+
+        for pixel in pixels:
+            current_pixel = list()
+
+            for channel in pixel:
+                current_pixel.append(max(0, min(255, int(channel))))
+
+            if format == "grbw":
+                w = min(current_pixel)
+
+                byte_value_buffer.append(current_pixel[1])
+                byte_value_buffer.append(current_pixel[0])
+                byte_value_buffer.append(current_pixel[2])
+                byte_value_buffer.append(w)
+
+            else:
+                byte_value_buffer.extend(current_pixel)
+
+        while len(byte_value_buffer) % 3:
+            byte_value_buffer.append(0)
+
+        return byte_value_buffer
 
     def get_coords(self):
         return list(list(led.coord.get("global", "cartesian")) for led in self.leds)

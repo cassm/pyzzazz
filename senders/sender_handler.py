@@ -5,6 +5,7 @@ class SenderHandler:
         self.name = config.get("name")
         self.type = config.get("type")
         self.num_lines = config.get("num_lines")
+        self.is_simulator = config.get("is_simulator", False)
 
     def validate_config(self, config):
         if "name" not in config.keys():
@@ -22,5 +23,5 @@ class SenderHandler:
     def try_connect(self):
         pass
 
-    def send(self, line, pixels):
+    def send(self, line, byte_values):
         pass
