@@ -61,7 +61,6 @@ class PaletteHandler:
         index = int(position * (len(self.palettes[palette_to_use]) - 1))
         return self.palettes[palette_to_use][index]
 
-    @profile
     def sample_radial(self, space_delta, time_delta, space_divisor, time_divisor, palette_name):
         palette_to_use = palette_name
 
