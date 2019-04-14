@@ -27,7 +27,7 @@ class UsbSerialSenderHandler(SenderHandler):
         # if not connected, drop frame
         if self.is_connected():
 
-            packet  = self.encapsulate(line, list(channel for pixel in pixels for channel in pixel))
+            packet  = self.encapsulate(line, list(int(channel) for pixel in pixels for channel in pixel))
 
             self._serial.send_bytes(packet)
 
