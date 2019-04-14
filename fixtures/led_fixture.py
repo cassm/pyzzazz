@@ -25,7 +25,7 @@ class LedFixture(Fixture):
         self.leds = []
 
         self.geometry = config.get("geometry", "No geometry present in fixture definition")
-        self.pixel_type = config.get("pixel_type", "No pixel_type present in fixture definition")
+        self.channel_order = config.get("channel_order", "No channel_order present in fixture definition")
         self.num_pixels = config.get("num_pixels", "No num_pixels present in fixture definition")
         self.senders = senders
         self.line = config.get("line", "No line present in fixture definition")
@@ -33,8 +33,8 @@ class LedFixture(Fixture):
         self.power_budget = config.get("power_budget", None) # watts
 
     def validate_config(self, config):
-        if "pixel_type" not in config.keys():
-            raise Exception("LedFixture: config contains no pixel_type")
+        if "channel_order" not in config.keys():
+            raise Exception("LedFixture: config contains no channel_order")
 
         if "geometry" not in config.keys():
             raise Exception("LedFixture: config contains no geometry")
@@ -106,47 +106,50 @@ class LedFixture(Fixture):
             led.overlaid_colour = self.overlay_handler.calculate_overlaid_colour(led, time)
 
     def get_pixels(self, force_rgb=False):
-        if force_rgb or self.pixel_type == "rgb":
+        if force_rgb:
             return self.get_byte_values("rgb", list(led.overlaid_colour for led in self.leds))
         else:
-            return self.get_byte_values("grbw", list(led.overlaid_colour for led in self.leds))
+            return self.get_byte_values(self.channel_order, list(led.overlaid_colour for led in self.leds))
 
-    def get_byte_values(self, format, pixels):
+    def get_byte_values(self, channel_order, pixels):
         byte_value_buffer = list()
 
         for pixel in pixels:
-            current_pixel = list()
+            # currently only handles combinations of r, g, b, and w
+            current_pixel = dict()
 
-            for channel in pixel:
-                current_pixel.append(max(0, min(255, int(channel))))
+            input_channel_order = ["r", "g", "b"]
 
-            if format == "grbw":
-                w = min(current_pixel)
+            for i in range(3):
+                current_pixel[input_channel_order[i]] = max(0, min(255, int(pixel[i])))
 
-                byte_value_buffer.append(current_pixel[1])
-                byte_value_buffer.append(current_pixel[0])
-                byte_value_buffer.append(current_pixel[2])
-                byte_value_buffer.append(w)
+            if "w" in channel_order:
+                w = min(current_pixel.values())
 
-            else:
-                byte_value_buffer.extend(current_pixel)
+                for channel, value in current_pixel.items():
+                    current_pixel[channel] = value - w
+
+                current_pixel["w"] = w
+
+            for char in channel_order:
+                byte_value_buffer.append(current_pixel[char])
 
         while len(byte_value_buffer) % 3:
             byte_value_buffer.append(0)
 
         if self.power_budget:
-            return self.power_limit(format, byte_value_buffer)
+            return self.power_limit(channel_order, byte_value_buffer)
 
         return byte_value_buffer
 
-    def power_limit(self, format, byte_values):
+    def power_limit(self, channel_order, byte_values):
         total_draw = 0.0
 
         watts_per_rgb_bit = 0.00015  # watts per bit per rgb channel
         watts_per_w_bit = 0.00029  # watts per bit per w channel
 
         for index, value in enumerate(byte_values):
-            if format == "grbw" and index % 4 == 3:
+            if channel_order[index % len(channel_order)] == "w":
                 total_draw += value * watts_per_w_bit
 
             else:
@@ -158,7 +161,6 @@ class LedFixture(Fixture):
             return (int(value * downscale_factor) for value in byte_values)
 
         return byte_values
-
 
     def get_coords(self):
         return list(list(led.coord.get("global", "cartesian")) for led in self.leds)

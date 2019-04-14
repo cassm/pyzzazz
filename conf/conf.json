@@ -20,7 +20,7 @@
     {
       "name": "led_fix_icosahedron_0",
       "type": "led",
-      "pixel_type": "rgbw",
+      "channel_order": "rgbw",
       "power_budget": 25,
       "geometry": "dodecahedron",
       "location": [-2, 0, -1.9],
@@ -31,7 +31,7 @@
     {
       "name": "led_fix_icosahedron_1",
       "type": "led",
-      "pixel_type": "rgbw",
+      "channel_order": "rgbw",
       "power_budget": 25,
       "geometry": "dodecahedron",
       "location": [-1.25, 0, -0.9],
@@ -42,7 +42,7 @@
     {
       "name": "led_fix_icosahedron_2",
       "type": "led",
-      "pixel_type": "rgbw",
+      "channel_order": "rgbw",
       "power_budget": 25,
       "geometry": "dodecahedron",
       "location": [0, 0, -0.15],
@@ -53,7 +53,7 @@
     {
       "name": "led_fix_icosahedron_3",
       "type": "led",
-      "pixel_type": "rgbw",
+      "channel_order": "rgbw",
       "power_budget": 25,
       "geometry": "dodecahedron",
       "location": [1.25, 0, -0.9],
@@ -64,7 +64,7 @@
     {
       "name": "led_fix_icosahedron_4",
       "type": "led",
-      "pixel_type": "rgbw",
+      "channel_order": "rgbw",
       "power_budget": 25,
       "geometry": "dodecahedron",
       "location": [2, 0, -1.9],
