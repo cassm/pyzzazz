@@ -9,7 +9,7 @@ class MakeMeOneWithEverything(Pattern):
 
         # sane defaults
         self._shimmer_level = 128
-        self._white_level = 64
+        self._white_level = 192
         self._swoosh_interval = 15
 
         self._next_swoosh = random.gauss(self._swoosh_interval, self._swoosh_interval / 4)
