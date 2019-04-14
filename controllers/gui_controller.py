@@ -80,7 +80,7 @@ class GuiControllerWindow:
 
 class GuiController:
     def __init__(self, config):
-        self.socket = SocketClient(name=config.get("name"), port=config.get("port"))
+        self.socket = SocketClient(name=config.get("name"), host="192.168.1.102", port=config.get("port"))
         self.window = GuiControllerWindow(config.get("name"), config.get("buttons"), config.get("sliders"))
         self.window.set_after(5, self.poll)
 

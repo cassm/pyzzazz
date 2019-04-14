@@ -52,6 +52,8 @@ class GuiControllerHandler(ControllerHandler):
                 else:
                     raise Exception("GuiControllerHandler: unhandled packet type")
 
+            self._socket_server.clear_packets()
+
         else:
             self._connected = False
             self._waiting_reply = False

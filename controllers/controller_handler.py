@@ -66,9 +66,11 @@ class ControllerHandler():
         self._events.append(Event(target_regex=control.target_regex, command=control.command, value=control.state))
 
     def get_events(self):
-        result = deepcopy(self._events)
+        return self._events
+
+    def clear_events(self):
         self._events.clear()
-        return result
 
     def get_controls(self):
         return list(self._buttons.values()) + list(self._sliders.values())
+

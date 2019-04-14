@@ -53,11 +53,16 @@ class SocketServer:
         # just drop bytes for unknown clients for now
         for client in self._client_dict.values():
             if client.name == client_name:
-                packets = deepcopy(client.inbound_packet_buffer)
-                client.inbound_packet_buffer.clear()
-                return packets
+                return client.inbound_packet_buffer
 
         return list()
+
+    def clear_packets(self, client_name):
+        # just drop bytes for unknown clients for now
+        for client in self._client_dict.values():
+            if client.name == client_name:
+                client.inbound_packet_buffer.clear()
+                break
 
     def send_request(self, client_name, request):
         # just drop request for unknown clients for now
@@ -88,7 +93,10 @@ class SocketServer:
                     try:
                         new_bytes = bytearray(s.recv(4096))
                         self._client_dict[s].packet_handler.add_bytes(new_bytes)
-                        self._client_dict[s].inbound_packet_buffer.extend(deepcopy(self._client_dict[s].packet_handler.available_packets))
+
+                        for packet in self._client_dict[s].packet_handler.available_packets:
+                            self._client_dict[s].inbound_packet_buffer.append(packet)
+
                         self._client_dict[s].packet_handler.available_packets.clear()
 
                     except socket.error as e:

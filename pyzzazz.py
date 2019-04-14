@@ -107,6 +107,8 @@ class Pyzzazz:
                         for sett in matching_setts:
                             self.setting_handlers[sett].receive_command(event.command, event.value)
 
+                controller.clear_events()
+
         for sender in self.senders:
             if not sender.is_connected():
                 sender.try_connect()
