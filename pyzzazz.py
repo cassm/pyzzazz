@@ -38,6 +38,8 @@ class Pyzzazz:
 
         if self.needs_socket_server():
             self.socket_server = SocketServer(port=default_port)
+        else:
+            self.socket_server = None
 
         self.overlay_handler = OverlayHandler()
 
@@ -70,7 +72,8 @@ class Pyzzazz:
         return False
 
     def update(self):
-        self.socket_server.poll()
+        if self.socket_server:
+            self.socket_server.poll()
 
         smoothness = self.setting_handlers["master_settings"].get_value("smoothness", 0.5)
         brightness = self.setting_handlers["master_settings"].get_value("brightness", 1.0)
