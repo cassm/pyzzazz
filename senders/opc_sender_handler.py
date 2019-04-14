@@ -19,7 +19,6 @@ class OpcSenderHandler(SenderHandler):
         self.num_lines = config.get("num_lines")
         self._client = opc.Client(":".join([self.ip, self.port]))
         self._previously_connected = False
-        self._simulate = config.get("simulate", False)
 
         self._src_dir = src_dir
         self._layouts_dir = "{}/layouts".format(self._src_dir)

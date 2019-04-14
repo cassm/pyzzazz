@@ -21,5 +21,5 @@ class Smooth(Pattern):
         offset /= 4
         space_delta += offset
 
-        return palette_handler.sample_radial(space_delta, time, self._space_divisor, self._time_divisor, palette_name) * master_brightness
+        return list( channel * master_brightness for channel in palette_handler.sample_radial(space_delta, time, self._space_divisor, self._time_divisor, palette_name))
 

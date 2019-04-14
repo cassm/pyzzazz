@@ -17,7 +17,7 @@ class UsbSerialPort:
         self.previously_connected = False
 
         self.last_send_time = time.time()
-        self.send_interval = 0.005  # seconds
+        self.send_interval = 0.0005  # seconds
 
     def validate_config(self, config):
         if "name" not in config.keys():

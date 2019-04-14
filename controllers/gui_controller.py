@@ -66,7 +66,7 @@ class GuiControllerWindow:
         slider_state = list()
         for i in range(len(self._sliders.keys())):
             try:
-                slider_val = int(self._sliders[i].state / 100 * 1024)
+                slider_val = int(self._sliders[i].state / 100.0 * 1024)
                 slider_state.append(slider_val)
             except KeyError:
                 slider_state.append(0)

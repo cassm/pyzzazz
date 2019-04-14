@@ -3,13 +3,13 @@
     {
       "name": "rgbw_sender_0",
       "type": "usb_serial",
-      "port": "/dev/tty.usbmodem364420",
+      "port": "/dev/tty.usbmodem3644201",
       "num_lines": 8
     },
     {
       "name": "sim_0",
       "type": "opc",
-      "simulate": true,
+      "is_simulator": true,
       "ip": "127.0.0.1",
       "port": "7890",
       "num_lines": 10
@@ -20,6 +20,7 @@
     {
       "name": "led_fix_icosahedron_0",
       "type": "led",
+      "pixel_type": "rgbw",
       "geometry": "dodecahedron",
       "location": [-2, 0, -1.9],
       "radius": 0.20,
@@ -29,6 +30,7 @@
     {
       "name": "led_fix_icosahedron_1",
       "type": "led",
+      "pixel_type": "rgbw",
       "geometry": "dodecahedron",
       "location": [-1.25, 0, -0.9],
       "radius": 0.25,
@@ -38,6 +40,7 @@
     {
       "name": "led_fix_icosahedron_2",
       "type": "led",
+      "pixel_type": "rgbw",
       "geometry": "dodecahedron",
       "location": [0, 0, -0.15],
       "radius": 0.30,
@@ -47,6 +50,7 @@
     {
       "name": "led_fix_icosahedron_3",
       "type": "led",
+      "pixel_type": "rgbw",
       "geometry": "dodecahedron",
       "location": [1.25, 0, -0.9],
       "radius": 0.25,
@@ -56,71 +60,12 @@
     {
       "name": "led_fix_icosahedron_4",
       "type": "led",
+      "pixel_type": "rgbw",
       "geometry": "dodecahedron",
       "location": [2, 0, -1.9],
       "radius": 0.2,
       "senders": ["sim_0", "rgbw_sender_0"],
       "line": 4
-    },
-    {
-      "name": "led_fix_cylinder_0",
-      "type": "led",
-      "geometry": "cylinder",
-      "location": [-2, 1, -3.5],
-      "radius": 0.20,
-      "height": 0.5,
-      "num_leds": 150,
-      "num_turns": 10,
-      "senders": ["sim_0", "rgbw_sender_0"],
-      "line": 5
-    },
-    {
-      "name": "led_fix_cylinder_1",
-      "type": "led",
-      "geometry": "cylinder",
-      "location": [-1, 1, -3.5],
-      "radius": 0.20,
-      "height": 0.5,
-      "num_leds": 150,
-      "num_turns": 10,
-      "senders": ["sim_0", "rgbw_sender_0"],
-      "line": 6
-    },
-    {
-      "name": "led_fix_cylinder_2",
-      "type": "led",
-      "geometry": "cylinder",
-      "location": [0, 1, -3.5],
-      "radius": 0.20,
-      "height": 0.5,
-      "num_leds": 150,
-      "num_turns": 10,
-      "senders": ["sim_0", "rgbw_sender_0"],
-      "line": 7
-    },
-    {
-      "name": "led_fix_cylinder_3",
-      "type": "led",
-      "geometry": "cylinder",
-      "location": [1, 1, -3.5],
-      "radius": 0.20,
-      "height": 0.5,
-      "num_leds": 150,
-      "num_turns": 10,
-      "senders": ["sim_0", "rgbw_sender_0"],
-      "line": 8
-    },
-    {
-      "name": "led_fix_cylinder_4",
-      "type": "led",
-      "geometry": "cylinder",
-      "location": [2, 1, -3.5],
-      "radius": 0.20,
-      "height": 0.5,
-      "num_leds": 150,
-      "num_turns": 10,
-      "senders": ["sim_0"],
-      "line": 9
     }
   ],
 
@@ -233,44 +178,6 @@
           "target_regex": "master_settings",
           "command": "{'type': 'slider', 'name': 'space_per_palette'}",
           "default": 50
-        }
-      ]
-    },
-    {
-      "name": "controller_1",
-      "type": "usb_serial",
-      "port": "/dev/tty.usbmodem666420",
-
-      "buttons": [
-        {
-          "name": "sparkle",
-          "id": 0,
-          "target_regex": "led_fix_*",
-          "command": "{'type': 'pattern', 'name': 'sparkle', 'args': {'max_sparkles_percent': 8, 'sparkle_probability': 0.05, 'background_brightness': 0.5}}"
-        }
-      ],
-
-      "sliders": [
-        {
-          "name": "master smoothness",
-          "id": 0,
-          "target_regex": "master_settings",
-          "command": "{'type': 'slider', 'name': 'smoothness'}",
-          "default": 50
-        },
-        {
-          "name": "master brightness",
-          "id": 1,
-          "target_regex": "master_settings",
-          "command": "{'type': 'slider', 'name': 'brightness'}",
-          "default": 100
-        },
-        {
-          "name": "master speed",
-          "id": 2,
-          "target_regex": "master_settings",
-          "command": "{'type': 'slider', 'name': 'speed'}",
-          "default": 33
         }
       ]
     }
