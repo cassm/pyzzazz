@@ -19,6 +19,7 @@ class OpcSenderHandler(SenderHandler):
         self.num_lines = config.get("num_lines")
         self._client = opc.Client(":".join([self.ip, self.port]))
         self._previously_connected = False
+        self._simulate = config.get("simulate", False)
 
         self._src_dir = src_dir
         self._layouts_dir = "{}/layouts".format(self._src_dir)
@@ -47,16 +48,17 @@ class OpcSenderHandler(SenderHandler):
         print("\n")
 
     def start(self):
-        args = list()
-        args.append("{}/openpixelcontrol/bin/gl_server".format(self._src_dir))
+        if self._simulate:
+            args = list()
+            args.append("{}/openpixelcontrol/bin/gl_server".format(self._src_dir))
 
-        for i in range(self.num_lines):
-            args.append("-l{}/{}_{}.json".format(self._layouts_dir, self.name, i))
+            for i in range(self.num_lines):
+                args.append("-l{}/{}_{}.json".format(self._layouts_dir, self.name, i))
 
-        args.append("-p{}".format(self.port))
+            args.append("-p{}".format(self.port))
 
-        print("Opening open pixel control simulation server...\n\n")
-        return subprocess.Popen(args)
+            print("Opening open pixel control simulation server...\n\n")
+            return subprocess.Popen(args)
 
     def is_connected(self):
         if self._previously_connected:

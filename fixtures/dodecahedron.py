@@ -1,19 +1,18 @@
 from fixtures.led_fixture import LedFixture
 from fixtures.led_fixture import Led
-from common.colour import Colour
 from common.coord import Coordinate
 from common.coord import Spherical
 from common.coord import Cartesian
 import math
 
 class Dodecahedron(LedFixture):
-    def __init__(self, config, sender):
+    def __init__(self, config, sender, overlay_handler):
         # dodecahedrons always have 60 pixels
         config["num_pixels"] = 60
 
         self.validate_config(config)
 
-        LedFixture.__init__(self, config, sender)
+        LedFixture.__init__(self, config, sender, overlay_handler)
 
         led_spherical_local_coords = ((60,   6),  (20,  30),  (45,  48),  (75,  18), (100, 348),
                                      (300,   6), (260, 348), (285,  18), (315,  48), (340,  30),
@@ -33,7 +32,7 @@ class Dodecahedron(LedFixture):
         for coord in led_spherical_local_coords:
             led_local_spherical = Spherical(r=config["radius"], theta=math.radians(coord[0]), phi=math.radians(coord[1]))
             led_coord = Coordinate(local_origin=fixture_origin, local_spherical=led_local_spherical)
-            self.leds.append(Led(led_coord, Colour(128, 0, 128)))
+            self.leds.append(Led(led_coord, [0.0, 0.0, 0.0]))
 
     def validate_config(self, config):
         if "radius" not in config.keys():

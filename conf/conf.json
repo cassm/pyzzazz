@@ -9,6 +9,7 @@
     {
       "name": "sim_0",
       "type": "opc",
+      "simulate": true,
       "ip": "127.0.0.1",
       "port": "7890",
       "num_lines": 10
@@ -17,7 +18,7 @@
 
   "Fixtures": [
     {
-      "name": "icosahedron_0",
+      "name": "led_fix_icosahedron_0",
       "type": "led",
       "geometry": "dodecahedron",
       "location": [-2, 0, -1.9],
@@ -26,7 +27,7 @@
       "line": 0
     },
     {
-      "name": "icosahedron_1",
+      "name": "led_fix_icosahedron_1",
       "type": "led",
       "geometry": "dodecahedron",
       "location": [-1.25, 0, -0.9],
@@ -35,7 +36,7 @@
       "line": 1
     },
     {
-      "name": "icosahedron_2",
+      "name": "led_fix_icosahedron_2",
       "type": "led",
       "geometry": "dodecahedron",
       "location": [0, 0, -0.15],
@@ -44,7 +45,7 @@
       "line": 2
     },
     {
-      "name": "icosahedron_3",
+      "name": "led_fix_icosahedron_3",
       "type": "led",
       "geometry": "dodecahedron",
       "location": [1.25, 0, -0.9],
@@ -53,13 +54,73 @@
       "line": 3
     },
     {
-      "name": "icosahedron_4",
+      "name": "led_fix_icosahedron_4",
       "type": "led",
       "geometry": "dodecahedron",
       "location": [2, 0, -1.9],
       "radius": 0.2,
       "senders": ["sim_0", "rgbw_sender_0"],
       "line": 4
+    },
+    {
+      "name": "led_fix_cylinder_0",
+      "type": "led",
+      "geometry": "cylinder",
+      "location": [-2, 1, -3.5],
+      "radius": 0.20,
+      "height": 0.5,
+      "num_leds": 150,
+      "num_turns": 10,
+      "senders": ["sim_0", "rgbw_sender_0"],
+      "line": 5
+    },
+    {
+      "name": "led_fix_cylinder_1",
+      "type": "led",
+      "geometry": "cylinder",
+      "location": [-1, 1, -3.5],
+      "radius": 0.20,
+      "height": 0.5,
+      "num_leds": 150,
+      "num_turns": 10,
+      "senders": ["sim_0", "rgbw_sender_0"],
+      "line": 6
+    },
+    {
+      "name": "led_fix_cylinder_2",
+      "type": "led",
+      "geometry": "cylinder",
+      "location": [0, 1, -3.5],
+      "radius": 0.20,
+      "height": 0.5,
+      "num_leds": 150,
+      "num_turns": 10,
+      "senders": ["sim_0", "rgbw_sender_0"],
+      "line": 7
+    },
+    {
+      "name": "led_fix_cylinder_3",
+      "type": "led",
+      "geometry": "cylinder",
+      "location": [1, 1, -3.5],
+      "radius": 0.20,
+      "height": 0.5,
+      "num_leds": 150,
+      "num_turns": 10,
+      "senders": ["sim_0", "rgbw_sender_0"],
+      "line": 8
+    },
+    {
+      "name": "led_fix_cylinder_4",
+      "type": "led",
+      "geometry": "cylinder",
+      "location": [2, 1, -3.5],
+      "radius": 0.20,
+      "height": 0.5,
+      "num_leds": 150,
+      "num_turns": 10,
+      "senders": ["sim_0"],
+      "line": 9
     }
   ],
 
@@ -73,20 +134,74 @@
         {
           "name": "smooth",
           "id": 0,
-          "target_regex": "icosahedron_*",
+          "target_regex": "led_fix_*",
           "command": "{'type': 'pattern', 'name': 'smooth', 'args': {}}"
         },
         {
           "name": "make_me_one_with_everything",
           "id": 1,
-          "target_regex": "icosahedron_*",
+          "target_regex": "led_fix_*",
           "command": "{'type': 'pattern', 'name': 'make_me_one_with_everything', 'args': {}}"
         },
         {
           "name": "sparkle",
           "id": 2,
-          "target_regex": "icosahedron_*",
-          "command": "{'type': 'pattern', 'name': 'sparkle', 'args': {'max_sparkles': 3, 'sparkle_probability': 0.05, 'background_brightness': 0.5}}"
+          "target_regex": "led_fix_*",
+          "command": "{'type': 'pattern', 'name': 'sparkle', 'args': {'max_sparkles_percent': 8, 'sparkle_probability': 0.05, 'background_brightness': 0.5}}"
+        },
+        {
+          "name": "fire",
+          "id": 3,
+          "target_regex": "led_fix_*",
+          "command": "{'type': 'pattern', 'name': 'fire', 'args': {}}"
+        },
+        {
+          "name": "master palette auto",
+          "id": 4,
+          "target_regex": "master_settings",
+          "command": "{'type': 'palette', 'name': 'auto'}"
+        },
+        {
+          "name": "master palette stressTest",
+          "id": 5,
+          "target_regex": "master_settings",
+          "command": "{'type': 'palette', 'name': 'stressTest'}"
+        },
+        {
+          "name": "master palette unicornBarf",
+          "id": 6,
+          "target_regex": "master_settings",
+          "command": "{'type': 'palette', 'name': 'unicornBarf'}"
+        },
+        {
+          "name": "icosahedron palette from master",
+          "id": 7,
+          "target_regex": "led_fix_icosahedron_*",
+          "command": "{'type': 'palette', 'name': None}"
+        },
+        {
+          "name": "icosahedron palette auto",
+          "id": 8,
+          "target_regex": "led_fix_icosahedron_*",
+          "command": "{'type': 'palette', 'name': 'auto'}"
+        },
+        {
+          "name": "icosahedron palette stressTest",
+          "id": 9,
+          "target_regex": "led_fix_icosahedron_*",
+          "command": "{'type': 'palette', 'name': 'stressTest'}"
+        },
+        {
+          "name": "icosahedron palette unicornBarf",
+          "id": 10,
+          "target_regex": "led_fix_icosahedron_*",
+          "command": "{'type': 'palette', 'name': 'unicornBarf'}"
+        },
+        {
+          "name": "flash",
+          "id": 11,
+          "target_regex": "",
+          "command": "{'type': 'overlay', 'name': 'flash', 'args': {'decay_factor': 1.0}}"
         }
       ],
 
@@ -96,21 +211,28 @@
           "id": 0,
           "target_regex": "master_settings",
           "command": "{'type': 'slider', 'name': 'smoothness'}",
-          "default_value": 50
+          "default": 50
         },
         {
           "name": "master brightness",
           "id": 1,
           "target_regex": "master_settings",
           "command": "{'type': 'slider', 'name': 'brightness'}",
-          "default_value": 100
+          "default": 100
         },
         {
           "name": "master speed",
           "id": 2,
           "target_regex": "master_settings",
           "command": "{'type': 'slider', 'name': 'speed'}",
-          "default_value": 33
+          "default": 33
+        },
+        {
+          "name": "space_per_palette",
+          "id": 3,
+          "target_regex": "master_settings",
+          "command": "{'type': 'slider', 'name': 'space_per_palette'}",
+          "default": 50
         }
       ]
     },
@@ -123,8 +245,8 @@
         {
           "name": "sparkle",
           "id": 0,
-          "target_regex": "icosahedron_*",
-          "command": "{'type': 'pattern', 'name': 'sparkle', 'args': {'max_sparkles': 3, 'sparkle_probability': 0.05, 'background_brightness': 0.5}}"
+          "target_regex": "led_fix_*",
+          "command": "{'type': 'pattern', 'name': 'sparkle', 'args': {'max_sparkles_percent': 8, 'sparkle_probability': 0.05, 'background_brightness': 0.5}}"
         }
       ],
 
@@ -133,19 +255,22 @@
           "name": "master smoothness",
           "id": 0,
           "target_regex": "master_settings",
-          "command": "{'type': 'slider', 'name': 'smoothness'}"
+          "command": "{'type': 'slider', 'name': 'smoothness'}",
+          "default": 50
         },
         {
           "name": "master brightness",
           "id": 1,
           "target_regex": "master_settings",
-          "command": "{'type': 'slider', 'name': 'brightness'}"
+          "command": "{'type': 'slider', 'name': 'brightness'}",
+          "default": 100
         },
         {
           "name": "master speed",
           "id": 2,
           "target_regex": "master_settings",
-          "command": "{'type': 'slider', 'name': 'speed'}"
+          "command": "{'type': 'slider', 'name': 'speed'}",
+          "default": 33
         }
       ]
     }

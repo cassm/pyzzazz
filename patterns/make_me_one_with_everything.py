@@ -1,5 +1,4 @@
 from patterns.pattern import Pattern
-from common.colour import Colour
 import random
 import math
 
@@ -20,7 +19,7 @@ class MakeMeOneWithEverything(Pattern):
         self._white_level = command.get("white_level", self._white_level)
         self._swoosh_interval = command.get("swoosh_interval", self._swoosh_interval)
 
-    def update(self, leds, time, palette):
+    def update(self, leds, time, palette_handler, palette_name):
         if time > self._next_swoosh:
             self._next_swoosh = time + random.gauss(self._swoosh_interval, self._swoosh_interval / 4)
 
@@ -31,7 +30,7 @@ class MakeMeOneWithEverything(Pattern):
         self._active_swooshes = list(swoosh for swoosh in self._active_swooshes if time - swoosh[0] < 500)
         pass
 
-    def get_pixel_colour(self, pixels, index, time, palette, master_brightness):
+    def get_pixel_colour(self, pixels, index, time, palette_handler, palette_name, master_brightness):
         pixel = pixels[index]
         origin_delta = pixel.coord.get_delta("global")
 
@@ -54,7 +53,7 @@ class MakeMeOneWithEverything(Pattern):
 
         w = max(w, swoosh_level * 255)
 
-        return Colour(r+w, g+w, b+w) * master_brightness
+        return list(channel * master_brightness for channel in [r+w, g+w, b+w])
 
     @staticmethod
     def inverse_square(x, y, exponent):

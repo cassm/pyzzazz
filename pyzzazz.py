@@ -3,27 +3,31 @@ from senders.usb_serial_sender_handler import UsbSerialSenderHandler
 from controllers.gui_controller_handler import GuiControllerHandler
 from controllers.usb_serial_controller_handler import UsbSerialControllerHandler
 from senders.opc_sender_handler import OpcSenderHandler
-from common.palette import Palette
+from common.palette_handler import PaletteHandler
 from common.socket_server import SocketServer
 from fixtures.dodecahedron import Dodecahedron
+from fixtures.cylinder import Cylinder
 from common.setting_handler import SettingHandler
+from overlays.overlay_handler import OverlayHandler
+
 import signal
 import time
 import re
 import traceback
 from pathlib import Path
 
-start_pattern = "make_me_one_with_everything"
+start_pattern = "sparkle"
+start_palette = "auto"
 default_port = 48945
 
 
 class Pyzzazz:
     def __init__(self, conf_path, palette_path):
-        self._src_dir = Path(__file__).parent
+        self._src_dir = Path(__file__).parent)
         self._conf_path = self._src_dir.joinpath(conf_path)
         self._palette_path = self._src_dir.joinpath(palette_path)
         self.config_parser = ConfigParser(self._conf_path)
-        self.palette = Palette(self._palette_path)
+        self.palette_handler = PaletteHandler(palette_path
         self.effective_time = 0.0
         self.last_update = time.time()
         self.subprocesses = list()
@@ -36,6 +40,10 @@ class Pyzzazz:
 
         if self.needs_socket_server():
             self.socket_server = SocketServer(port=default_port)
+        else:
+            self.socket_server = None
+
+        self.overlay_handler = OverlayHandler()
 
         # TODO multiple palettes, pass dict to fixtures
         # TODO add target type for commands (fixtures, master, etc)
@@ -66,11 +74,16 @@ class Pyzzazz:
         return False
 
     def update(self):
-        self.socket_server.poll()
+        if self.socket_server:
+            self.socket_server.poll()
 
         smoothness = self.setting_handlers["master_settings"].get_value("smoothness", 0.5)
-        brightness = self.setting_handlers["master_settings"].get_value("brightness", 0.5)
+        brightness = self.setting_handlers["master_settings"].get_value("brightness", 1.0)
         speed = self.setting_handlers["master_settings"].get_value("speed", 0.5)
+
+        self.palette_handler.set_master_palette_name(self.setting_handlers["master_settings"].get_value("palette", start_palette))
+        self.palette_handler.set_space_per_palette(self.setting_handlers["master_settings"].get_value("space_per_palette", 0.5))
+        self.palette_handler.set_time_per_palette(self.setting_handlers["master_settings"].get_value("time_per_palette", 0.5))
 
         self.effective_time += (time.time() - self.last_update) * speed * 3  # we want to go from 0 to triple speed
         self.last_update = time.time()
@@ -84,22 +97,29 @@ class Pyzzazz:
 
                 events = controller.get_events()
                 for event in events:
-                    matching_fixtures = list(fixture for fixture in self.fixtures if re.search(event.target_regex, fixture.name))
+                    # FIXME this is hacky
+                    if event.command["type"] == "overlay":
+                        self.overlay_handler.receive_command(event.command, self.effective_time)
 
-                    for fixture in matching_fixtures:
-                        fixture.receive_command(event.command, event.value)
+                    else:
+                        matching_fixtures = list(fixture for fixture in self.fixtures if re.search(event.target_regex, fixture.name))
 
-                    matching_setts = list(sett for sett in self.setting_handlers.keys() if re.search(event.target_regex, sett))
+                        for fixture in matching_fixtures:
+                            fixture.receive_command(event.command, event.value)
 
-                    for sett in matching_setts:
-                        self.setting_handlers[sett].receive_command(event.command, event.value)
+                        matching_setts = list(sett for sett in self.setting_handlers.keys() if re.search(event.target_regex, sett))
+
+                        for sett in matching_setts:
+                            self.setting_handlers[sett].receive_command(event.command, event.value)
+
+                controller.clear_events()
 
         for sender in self.senders:
             if not sender.is_connected():
                 sender.try_connect()
 
         for fixture in self.fixtures:
-            fixture.update(self.effective_time, self.palette, smoothness, brightness)
+            fixture.update(self.effective_time, self.palette_handler, smoothness, brightness)
             fixture.send()
 
     def init_senders(self):
@@ -130,7 +150,15 @@ class Pyzzazz:
                 if fixture_conf.get("geometry", "") == "dodecahedron":
                     print("Creating dodecahedron {} with senders {}".format(fixture_conf.get("name", ""), fixture_conf.get("senders", [])))
                     fixture_senders = list(sender for sender in self.senders if sender.name in fixture_conf.get("senders", []))
-                    self.fixtures.append(Dodecahedron(fixture_conf, fixture_senders))
+                    self.fixtures.append(Dodecahedron(fixture_conf, fixture_senders, self.overlay_handler))
+
+                elif fixture_conf.get("geometry", "") == "cylinder":
+                    print("Creating cylinder {} with senders {}".format(fixture_conf.get("name", ""), fixture_conf.get("senders", [])))
+                    fixture_senders = list(sender for sender in self.senders if sender.name in fixture_conf.get("senders", []))
+                    self.fixtures.append(Cylinder(fixture_conf, fixture_senders, self.overlay_handler))
+
+                else:
+                    raise Exception("Unknown fixture geometry {}".format(fixture_conf.get("geometry", "")))
 
             else:
                 raise Exception("Unknown fixture type {}".format(fixture_conf.get("type", "")))
@@ -164,21 +192,26 @@ class Pyzzazz:
     def register_commands(self):
         for controller in self.controllers:
             for control in controller.get_controls():
-                matching_fixtures = list(fixture for fixture in self.fixtures if re.search(control.target_regex, fixture.name))
+                # FIXME this is hacky also
+                if control.command["type"] != "overlay":
+                    matching_fixtures = list(fixture for fixture in self.fixtures if re.search(control.target_regex, fixture.name))
 
-                for fixture in matching_fixtures:
-                    fixture.register_command(control.command)
+                    for fixture in matching_fixtures:
+                        fixture.register_command(control.command)
 
-                matching_setts = list(sett for sett in self.setting_handlers.keys() if re.search(control.target_regex, sett))
+                    matching_setts = list(sett for sett in self.setting_handlers.keys() if re.search(control.target_regex, sett))
 
-                for sett in matching_setts:
-                    self.setting_handlers[sett].register_command(control.command)
+                    for sett in matching_setts:
+                        self.setting_handlers[sett].register_command(control.command, control.default)
 
     def generate_opc_layout_files(self):
         for sender in self.senders:
             if sender.type == "opc":
                 sender.generate_layout_files(self.fixtures)
-                self.subprocesses.append(sender.start())
+                opc_server_started = sender.start()
+
+                if opc_server_started:
+                    self.subprocesses.append(opc_server_started)
 
     def sanity_check_sender_conf(self, sender_conf):
         sender_names = tuple(sender.name for sender in self.senders)
@@ -206,8 +239,13 @@ class Pyzzazz:
                 raise Exception("Pyzzazz: Fixture {} specified with undefined sender {}".format(fixture_conf.get("name", ""), sender_name))
 
     def sanity_check_controller_conf(self, controller_conf):
-        pass
-        #FIXME do this
+        button_ids = list(button["id"] for button in controller_conf.get("buttons", []))
+        if len(button_ids) != len(set(button_ids)):
+            raise Exception("Pyzzazz: Controller {} specified with one or more duplicate button IDs".format(controller_conf.get("name", "")))
+
+        slider_ids = list(slider["id"] for slider in controller_conf.get("sliders", []))
+        if len(slider_ids) != len(set(slider_ids)):
+            raise Exception("Pyzzazz: Controller {} specified with one or more duplicate slider IDs".format(controller_conf.get("name", "")))
 
     def shut_down(self):
         print("Shutting down...")
@@ -238,7 +276,7 @@ if __name__ == "__main__":
         # FIXME check for conf on usb stick
         # FIXME multiple palettes
         # FIXME grab palettes off usb stick
-        pyzzazz = Pyzzazz("conf/conf.json", "conf/auto.bmp")
+        pyzzazz = Pyzzazz("conf/conf.json", "palettes/")
 
         print("Running...")
         while True:

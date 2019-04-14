@@ -3,11 +3,12 @@ import ast
 
 
 class Control:
-    def __init__(self, name, id, target_regex, command):
+    def __init__(self, name, id, target_regex, command, default):
         self.name = name
         self.id = id
         self.target_regex = target_regex
         self.command = command
+        self.default = default
         self.state = 0
         self.last_state = 0
 
@@ -38,13 +39,15 @@ class ControllerHandler():
             self._buttons[button["id"]] = Control(name=button["name"],
                                                   id=button["id"],
                                                   target_regex=button["target_regex"],
-                                                  command=ast.literal_eval(button["command"]))
+                                                  command=ast.literal_eval(button["command"]),
+                                                  default=button.get("default", 0))
 
         for slider in config.get("sliders", ""):
             self._sliders[slider["id"]] = Control(name=slider["name"],
                                                   id=slider["id"],
                                                   target_regex=slider["target_regex"],
-                                                  command=ast.literal_eval(slider["command"]))
+                                                  command=ast.literal_eval(slider["command"]),
+                                                  default=slider.get("default", 50.0) / 100.0)
 
     def validate_config(self, config):
         if "name" not in config.keys():
@@ -63,9 +66,11 @@ class ControllerHandler():
         self._events.append(Event(target_regex=control.target_regex, command=control.command, value=control.state))
 
     def get_events(self):
-        result = deepcopy(self._events)
+        return self._events
+
+    def clear_events(self):
         self._events.clear()
-        return result
 
     def get_controls(self):
         return list(self._buttons.values()) + list(self._sliders.values())
+
