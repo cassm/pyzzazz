@@ -14,6 +14,8 @@ If you have a controller specified with type=gui pyzzazz will launch a TCP serve
 
 If you have a sender specified with type=opc and is_simulator=true, pyzzazz will generate layout files and launch the open pixel control gl_server, which will simulate the led fixtures which send to it
 
+Power limiting is supported for LED fixtures. If the fixture is specified with a "power_budget" argument (in watts), pyzzazz will estimate the power consumption of a given frame and downscale it if necessary to avoid overdraw.
+
 ### Prerequisites
 
 This project runs under Python 3.6 and above

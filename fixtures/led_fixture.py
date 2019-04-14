@@ -30,6 +30,8 @@ class LedFixture(Fixture):
         self.senders = senders
         self.line = config.get("line", "No line present in fixture definition")
 
+        self.power_budget = config.get("power_budget", None) # watts
+
     def validate_config(self, config):
         if "pixel_type" not in config.keys():
             raise Exception("LedFixture: config contains no pixel_type")
@@ -132,7 +134,31 @@ class LedFixture(Fixture):
         while len(byte_value_buffer) % 3:
             byte_value_buffer.append(0)
 
+        if self.power_budget:
+            return self.power_limit(format, byte_value_buffer)
+
         return byte_value_buffer
+
+    def power_limit(self, format, byte_values):
+        total_draw = 0.0
+
+        watts_per_rgb_bit = 0.00015  # watts per bit per rgb channel
+        watts_per_w_bit = 0.00029  # watts per bit per w channel
+
+        for index, value in enumerate(byte_values):
+            if format == "grbw" and index % 4 == 3:
+                total_draw += value * watts_per_w_bit
+
+            else:
+                total_draw += value * watts_per_rgb_bit
+
+        if total_draw > self.power_budget:
+            downscale_factor = self.power_budget / total_draw
+
+            return (int(value * downscale_factor) for value in byte_values)
+
+        return byte_values
+
 
     def get_coords(self):
         return list(list(led.coord.get("global", "cartesian")) for led in self.leds)
