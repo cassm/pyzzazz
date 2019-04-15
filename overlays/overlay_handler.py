@@ -31,11 +31,12 @@ class OverlayInfo:
 
 class OverlayHandler:
     def __init__(self):
-        self.epsilon = 0.1
+        self.epsilon = 10
+        self.min_time = 2
         self.active_overlays = list()
 
-    def update(self):
-        self.active_overlays = list(overlay for overlay in self.active_overlays if overlay.get_max_contribution() > self.epsilon)
+    def update(self, time):
+        self.active_overlays = list(overlay for overlay in self.active_overlays if time - overlay.start_time < self.min_time or overlay.get_max_contribution() > self.epsilon)
 
     def receive_command(self, command, time):
         if command["type"] == "overlay":
