@@ -7,14 +7,14 @@ class UsbSerialPort:
         self.validate_config(config)
 
         self.port = config.get("port")
-        self.name = config.get("name"+"_serial")
+        self.sender_name = config.get("name")
 
         self.connected = False
         self.serial = serial.Serial()
 
         self.last_connection_time = time.time()
         self.connection_retry_interval = 1.0  # seconds
-        self.previously_connected = False
+        self.connected = False
 
         self.last_send_time = time.time()
         self.send_interval = 0.0005  # seconds
@@ -28,19 +28,20 @@ class UsbSerialPort:
 
     # check for connection and handle logging
     def is_connected(self):
-        if self.previously_connected:
+        if self.connected:
             if self.serial.isOpen():
                 return True
             else:
-                print("Sender {} lost connection on port {}".format(self.name, self.port))
-                self.previously_connected = False
+                print("Sender {} lost connection on port {}".format(self.sender_name, self.port))
+                self.connected = False
+                self.serial.close()
                 return False
         else:
             if not self.serial.isOpen():
                 return False
             else:
-                print("Sender {} connected on port {}".format(self.name, self.port))
-                self.previously_connected = True
+                print("Sender {} connected on port {}".format(self.sender_name, self.port))
+                self.connected = True
                 return True
 
     def try_connect(self):
@@ -49,6 +50,7 @@ class UsbSerialPort:
             return
 
         self.last_connection_time = time.time()
+
 
         try:
             self.serial = serial.Serial(self.port,
@@ -79,8 +81,9 @@ class UsbSerialPort:
 
             except Exception as e:
                 print(e)
-                # if something's wrong, drop the frame and hope it fixes itself
-                pass
+                print("Sender {} lost connection on port {}".format(self.sender_name, self.port))
+                self.connected = False
+                self.serial.close()
 
     def get_bytes(self):
         buffer = list()
@@ -94,9 +97,10 @@ class UsbSerialPort:
                     char = self.serial.read()
                     bytes_received = len(char)
                     buffer.append(char)
+
             except Exception as e:
-                print(e)
-                # if something's wrong, drop the frame and hope it fixes itself
-                pass
+                print("Sender {} lost connection on port {}".format(self.sender_name, self.port))
+                self.connected = False
+                self.serial.close()
 
         return buffer
