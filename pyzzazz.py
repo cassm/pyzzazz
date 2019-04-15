@@ -120,6 +120,8 @@ class Pyzzazz:
             fixture.update(self.effective_time, self.palette_handler, smoothness, brightness)
             fixture.send()
 
+        self.overlay_handler.update(self.effective_time)
+
     def init_senders(self):
         for sender_conf in self.config_parser.get_senders():
             # check for duplicate names
