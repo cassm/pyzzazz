@@ -13,15 +13,15 @@ class Sparkle(Pattern):
         self._sparkle_info = [SparkleRecord() for _ in range(num_leds)]
 
         # sane defaults
-        self._max_sparkles_percent = 8
-        self._sparkle_probability = 0.05
-        self._background_brightness = 0.5
+        self._max_sparkles_percent = 4
+        self._sparkle_probability = 0.0005
+        self._background_brightness = 0.25
 
         self._last_refresh = 0
         self._nominal_fps = 30
 
-        self._time_divisor = 125
-        self._space_divisor = 2
+        self._time_divisor = 50
+        self._space_divisor = 1
 
     def set_vars(self, command):
         self._max_sparkles_percent = command.get("max_sparkles_percent", self._max_sparkles_percent)
@@ -45,7 +45,7 @@ class Sparkle(Pattern):
 
     def get_pixel_colour(self, pixels, index, time, palette_handler, palette_name, master_brightness):
         # do not allow zero, because we divide by this
-        time_delta = max(time - self._sparkle_info[index].time, 0.001)
+        time_delta = max(time - self._sparkle_info[index].time, 0.001) * 1.5
 
         # do not allow brightness to exceed 1 to avoid distortion
         sparkle_brightness = min(1.0 / time_delta, 1.0)
