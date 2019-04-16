@@ -1,4 +1,5 @@
 from common.configparser import ConfigParser
+from common.usb_serial_manager import UsbSerialManager
 from senders.usb_serial_sender_handler import UsbSerialSenderHandler
 from controllers.gui_controller_handler import GuiControllerHandler
 from controllers.usb_serial_controller_handler import UsbSerialControllerHandler
@@ -26,6 +27,7 @@ class Pyzzazz:
         self._src_dir = Path(__file__).parent
         self.config_parser = ConfigParser(conf_path)
         self.palette_handler = PaletteHandler(palette_path)
+        self.usb_serial_manager = UsbSerialManager()
         self.effective_time = 0.0
         self.last_update = time.time()
         self.subprocesses = list()
@@ -74,6 +76,8 @@ class Pyzzazz:
     def update(self):
         if self.socket_server:
             self.socket_server.poll()
+
+        self.usb_serial_manager.update()
 
         smoothness = self.setting_handlers["master_settings"].get_value("smoothness", 0.5)
         brightness = self.setting_handlers["master_settings"].get_value("brightness", 1.0)
@@ -128,8 +132,8 @@ class Pyzzazz:
             self.sanity_check_sender_conf(sender_conf)
 
             if sender_conf.get("type", "") == "usb_serial":
-                print("Creating usb serial sender {} on port {}".format(sender_conf.get("name", ""), sender_conf.get("port", "")))
-                self.senders.append(UsbSerialSenderHandler(sender_conf))
+                print("Creating usb serial sender handler {}".format(sender_conf.get("name", "")))
+                self.senders.append(UsbSerialSenderHandler(sender_conf, self.usb_serial_manager))
 
             elif sender_conf.get("type", "") == "opc":
                 print("Creating opc sender {} on port {}".format(sender_conf.get("name", ""), sender_conf.get("port", "")))
@@ -219,9 +223,9 @@ class Pyzzazz:
             raise Exception("Pyzzazz: config specifies one or more senders with identical name {}".format(sender_conf.get("name", "")))
 
         # check for duplicate ports
-        sender_ports = tuple(sender.port for sender in self.senders)
-        if sender_conf.get("port", "") in sender_ports:
-            raise Exception("Pyzzazz: config specifies one or more senders with identical port {}".format(sender_conf.get("port", "")))
+        # sender_ports = tuple(sender.port for sender in self.senders)
+        # if sender_conf.get("port", "") in sender_ports:
+        #     raise Exception("Pyzzazz: config specifies one or more senders with identical port {}".format(sender_conf.get("port", "")))
 
     def sanity_check_fixture_conf(self, fixture_conf):
         # check for duplicate names
