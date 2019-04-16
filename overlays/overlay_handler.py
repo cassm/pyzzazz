@@ -1,6 +1,7 @@
 from operator import add
 from overlays.flash import Flash
 from overlays.star_drive import StarDrive
+from overlays.ripple import Ripple
 import math
 
 
@@ -45,6 +46,9 @@ class OverlayHandler:
 
             elif command["name"] == "star_drive":
                 self.active_overlays.append(OverlayInfo(time, StarDrive(command["args"])))
+
+            elif command["name"] == "ripple":
+                self.active_overlays.append(OverlayInfo(time, Ripple(command["args"])))
 
             else:
                 raise Exception("OverlayHandler: unknown overlay {}".format(command["name"]))
