@@ -15,12 +15,15 @@
 
 #include <OctoWS2811.h>
 
+const char board_id[] = "OCTO_SENDER_000";
+
 const int onboard_led = 13;
 const uint8_t frame_start_char = '~';
 const uint8_t frame_end_char = '|';
 
 #define FPS 30
 
+#define NAME_REQUEST 254
 #define AWAITING_STRIP_ID 253
 #define BETWEEN_FRAMES 252
 #define MAX_STRIP_ID 7
@@ -81,13 +84,29 @@ void loop() {
     }
 
     else if (symbol == frame_end_char) {
+      for (int i = 0; i < led_index; i++) {
+          ;
+      }
+      
       led_index = 0;
       pixel_index = 0;
       stripid = BETWEEN_FRAMES;
     }
     
     else if (stripid == AWAITING_STRIP_ID) {
-      stripid = symbol;
+      if (symbol == NAME_REQUEST) {
+        for (int i = 0; i < 20; i++) {
+          digitalWrite(onboard_led, currentLedState);
+          currentLedState = !currentLedState;
+          delay(20);
+        }
+        Serial.write("~");
+        Serial.write(board_id);
+        Serial.write("|");
+      }
+      else {
+        stripid = symbol;
+      }
     }
 
     else if (stripid <= MAX_STRIP_ID and led_index < ledsPerStrip) {
