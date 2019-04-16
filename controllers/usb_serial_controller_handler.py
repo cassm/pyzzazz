@@ -1,19 +1,15 @@
 from controllers.controller_handler import ControllerHandler
-from common.usb_serial_port import UsbSerialPort
 from common.packet_handler import CommPacketHandler
 
 
 class UsbSerialControllerHandler(ControllerHandler):
-    def __init__(self, config):
-        self.validate_config(config)
-        self.port = config.get("port", "")
+    def __init__(self, config, serial_manager):
+        self._serial_manager = serial_manager
+        self.name = config.get("name")
+        self._packet_handler = CommPacketHandler()
 
         ControllerHandler.__init__(self, config)
 
-        self._serial = UsbSerialPort(config)
-        self._packet_handler = CommPacketHandler()
-
-        self._waiting_for_packet = False
         self.events = list()
 
     def validate_config(self, config):
@@ -21,17 +17,14 @@ class UsbSerialControllerHandler(ControllerHandler):
             raise Exception("LedFixture: config contains no port")
 
     def is_connected(self):
-        return self._serial.is_connected()
-
-    def try_connect(self):
-        self._serial.try_connect()
+        return self._serial_manager.is_connected(self.name)
 
     def update(self):
         # don't accept mangled frames if we can help it
         if not self.is_connected():
             self._packet_handler.clear()
 
-        self._packet_handler.add_bytes(self._serial.get_bytes())
+        self._packet_handler.add_bytes(self._serial_manager.get_bytes(self.name))
 
     def get_events(self):
         for packet in self._packet_handler.available_packets:

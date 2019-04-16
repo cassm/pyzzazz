@@ -1,9 +1,8 @@
 {
   "Senders": [
     {
-      "name": "grbw_sender_0",
+      "name": "OCTO_SENDER_00",
       "type": "usb_serial",
-      "port": "/dev/tty.usbmodem3644201",
       "num_lines": 8
     },
     {
@@ -25,7 +24,7 @@
       "geometry": "dodecahedron",
       "location": [-2, 0, -1.9],
       "radius": 0.20,
-      "senders": ["sim_0", "grbw_sender_0"],
+      "senders": ["sim_0", "OCTO_SENDER_00"],
       "line": 0
     },
     {
@@ -36,7 +35,7 @@
       "geometry": "dodecahedron",
       "location": [-1.25, 0, -0.9],
       "radius": 0.25,
-      "senders": ["sim_0", "grbw_sender_0"],
+      "senders": ["sim_0", "OCTO_SENDER_00"],
       "line": 1
     },
     {
@@ -47,7 +46,7 @@
       "geometry": "dodecahedron",
       "location": [0, 0, -0.15],
       "radius": 0.30,
-      "senders": ["sim_0", "grbw_sender_0"],
+      "senders": ["sim_0", "OCTO_SENDER_00"],
       "line": 2
     },
     {
@@ -58,7 +57,7 @@
       "geometry": "dodecahedron",
       "location": [1.25, 0, -0.9],
       "radius": 0.25,
-      "senders": ["sim_0", "grbw_sender_0"],
+      "senders": ["sim_0", "OCTO_SENDER_00"],
       "line": 3
     },
     {
@@ -69,7 +68,7 @@
       "geometry": "dodecahedron",
       "location": [2, 0, -1.9],
       "radius": 0.2,
-      "senders": ["sim_0", "grbw_sender_0"],
+      "senders": ["sim_0", "OCTO_SENDER_00"],
       "line": 4
     }
   ],
@@ -97,7 +96,7 @@
           "name": "sparkle",
           "id": 2,
           "target_regex": "led_fix_*",
-          "command": "{'type': 'pattern', 'name': 'sparkle', 'args': {'max_sparkles_percent': 8, 'sparkle_probability': 0.05, 'background_brightness': 0.5}}"
+          "command": "{'type': 'pattern', 'name': 'sparkle', 'args': {}}"
         },
         {
           "name": "fire",
@@ -158,6 +157,12 @@
           "id": 12,
           "target_regex": "",
           "command": "{'type': 'overlay', 'name': 'star_drive', 'args': {'decay_factor': 1.0}}"
+        },
+        {
+          "name": "ripple",
+          "id": 13,
+          "target_regex": "",
+          "command": "{'type': 'overlay', 'name': 'ripple', 'args': {'decay_factor': 1.0}}"
         }
       ],
 
