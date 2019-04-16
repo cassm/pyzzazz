@@ -31,9 +31,9 @@ class UsbSerialControllerHandler(ControllerHandler):
             for index, state in enumerate(packet.button_state):
                 if index in self._buttons and state != self._buttons[index].last_state:
                     self._buttons[index].set_state(state)
-                    self._add_event(self._buttons[index], state)
+                    self._add_event(self._buttons[index])
 
             for index, state in enumerate(packet.slider_state):
                 if index in self._sliders and state != self._sliders[index].last_state:
                     self._sliders[index].set_state(state)
-                    self._add_event(self._buttons[index], state)
+                    self._add_event(self._buttons[index])
