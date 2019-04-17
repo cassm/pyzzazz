@@ -61,7 +61,7 @@ class VideoHandler:
             raise Exception("Failed to read video frame")
 
     def receive_command(self, command):
-        if command["type"] == "video" and command["name"] == "map_video":
+        if command["type"] == "pattern" and command["name"] == "map_video":
             name = command["video_name"]
 
             self._switch_to_video(name)
