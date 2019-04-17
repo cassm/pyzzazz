@@ -45,7 +45,7 @@ class VideoHandler:
             self.width_offset = 0
             self.height_offset = 0
 
-        self.scaling_factor = min(width, height)
+        self.scaling_factor = min(width, height) - 1
 
         self.vidcap.set(cv2.CAP_PROP_POS_AVI_RATIO, 1)
         self.vid_length = self.vidcap.get(cv2.CAP_PROP_POS_MSEC)
