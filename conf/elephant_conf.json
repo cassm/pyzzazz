@@ -191,38 +191,44 @@
           "command": "{'type': 'pattern', 'name': 'fire', 'args': {}}"
         },
         {
-          "name": "master palette auto",
+          "name": "map_video",
           "id": 4,
+          "target_regex": "led_fix_*",
+          "command": "{'type': 'pattern', 'name': 'map_video', 'args': {}}"
+        },
+        {
+          "name": "master palette auto",
+          "id": 5,
           "target_regex": "master_settings",
           "command": "{'type': 'palette', 'name': 'auto'}"
         },
         {
           "name": "master palette stressTest",
-          "id": 5,
+          "id": 6,
           "target_regex": "master_settings",
           "command": "{'type': 'palette', 'name': 'stressTest'}"
         },
         {
           "name": "master palette unicornBarf",
-          "id": 6,
+          "id": 7,
           "target_regex": "master_settings",
           "command": "{'type': 'palette', 'name': 'unicornBarf'}"
         },
         {
           "name": "flash",
-          "id": 11,
+          "id": 12,
           "target_regex": "",
           "command": "{'type': 'overlay', 'name': 'flash', 'args': {'decay_factor': 1.0}}"
         },
         {
           "name": "star drive",
-          "id": 12,
+          "id": 13,
           "target_regex": "",
           "command": "{'type': 'overlay', 'name': 'star_drive', 'args': {'decay_factor': 1.0}}"
         },
         {
           "name": "ripple",
-          "id": 13,
+          "id": 14,
           "target_regex": "",
           "command": "{'type': 'overlay', 'name': 'ripple', 'args': {'decay_factor': 1.0}}"
         }
