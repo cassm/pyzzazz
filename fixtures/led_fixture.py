@@ -22,7 +22,8 @@ class LedFixture(Fixture):
 
         Fixture.__init__(self, config, overlay_handler, video_handler)
 
-        self.pattern = ""
+        self.pattern = config.get("default_pattern")
+
         self.patterns = {}
         self.leds = []
 
@@ -37,6 +38,9 @@ class LedFixture(Fixture):
         self.power_budget = config.get("power_budget", None) # watts
 
     def validate_config(self, config):
+        if "default_pattern" not in config.keys():
+            raise Exception("LedFixture: config contains no default_pattern")
+
         if "channel_order" not in config.keys():
             raise Exception("LedFixture: config contains no channel_order")
 
