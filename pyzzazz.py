@@ -41,6 +41,9 @@ class Pyzzazz:
         self.last_update = time.time()
         self.subprocesses = list()
 
+        self.fps = 30.0
+        self.time_per_frame = 1.0 / self.fps
+
         self.senders = []
         self.fixtures = []
         self.controllers = []
@@ -88,9 +91,15 @@ class Pyzzazz:
 
         self.usb_serial_manager.update()
 
+        if self.last_update + self.time_per_frame > time.time():
+            return
+
         smoothness = self.setting_handlers["master_settings"].get_value("smoothness", 0.5)
         brightness = self.setting_handlers["master_settings"].get_value("brightness", 1.0)
         speed = self.setting_handlers["master_settings"].get_value("speed", 0.5)
+
+        self.effective_time += (time.time() - self.last_update) * speed * 3  # we want to go from 0 to triple speed
+        self.last_update = time.time()
 
         self.palette_handler.set_master_palette_name(self.setting_handlers["master_settings"].get_value("palette", start_palette))
         self.palette_handler.set_space_per_palette(self.setting_handlers["master_settings"].get_value("space_per_palette", 0.5))
@@ -98,9 +107,6 @@ class Pyzzazz:
 
         for video_handler in self.video_handlers.values():
             video_handler.update(self.effective_time)
-
-        self.effective_time += (time.time() - self.last_update) * speed * 3  # we want to go from 0 to triple speed
-        self.last_update = time.time()
 
         for controller in self.controllers:
             if not controller.is_connected():
