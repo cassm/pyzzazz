@@ -1,16 +1,16 @@
-from common.configparser import ConfigParser
-from common.usb_serial_manager import UsbSerialManager
+from handlers.config_handler import ConfigHandler
+from handlers.usb_serial_handler import UsbSerialHandler
 from senders.usb_serial_sender_handler import UsbSerialSenderHandler
-from controllers.gui_controller_handler import GuiControllerHandler
-from controllers.usb_serial_controller_handler import UsbSerialControllerHandler
+from handlers.controller.gui_controller_handler import GuiControllerHandler
+from handlers.controller.usb_serial_controller_handler import UsbSerialControllerHandler
 from senders.opc_sender_handler import OpcSenderHandler
-from common.palette_handler import PaletteHandler
-from common.video_handler import VideoHandler
+from handlers.palette_handler import PaletteHandler
+from handlers.video_handler import VideoHandler
 from common.socket_server import SocketServer
 from fixtures.dodecahedron import Dodecahedron
 from fixtures.cylinder import Cylinder
 from fixtures.bunting_polygon import BuntingPolygon
-from common.setting_handler import SettingHandler
+from handlers.setting_handler import SettingHandler
 from overlays.overlay_handler import OverlayHandler
 from common.graceful_killer import GracefulKiller
 
@@ -27,7 +27,7 @@ conf_file = "conf/elephant_conf.json"
 class Pyzzazz:
     def __init__(self, conf_path, palette_path, video_path):
         self._src_dir = Path(__file__).parent
-        self.config_parser = ConfigParser(conf_path)
+        self.config_parser = ConfigHandler(conf_path)
         self.palette_handler = PaletteHandler(palette_path)
 
         self.video_handlers = dict()
@@ -36,7 +36,7 @@ class Pyzzazz:
         self.video_handlers["cylinder"] = VideoHandler(video_path)
         self.video_handlers["bunting"] = VideoHandler(video_path)
 
-        self.usb_serial_manager = UsbSerialManager()
+        self.usb_serial_manager = UsbSerialHandler()
         self.effective_time = 0.0
         self.last_update = time.time()
         self.subprocesses = list()

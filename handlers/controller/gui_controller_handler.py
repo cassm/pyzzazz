@@ -1,4 +1,4 @@
-from controllers.controller_handler import ControllerHandler
+from handlers.controller.controller_handler import ControllerHandler
 import time
 
 

@@ -2,7 +2,7 @@ import json
 import os
 
 
-class ConfigParser:
+class ConfigHandler:
     def __init__(self, conf_path):
         conf_path = os.path.join(os.getcwd(), conf_path)
 

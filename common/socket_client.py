@@ -3,9 +3,9 @@ import socket
 import select
 import time
 from copy import deepcopy
-from common.packet_handler import CommPacketHandler
-from common.packet_handler import CommHeader
-from common.packet_handler import NameReplyPayload
+from handlers.packet_handler import CommPacketHandler
+from handlers.packet_handler import CommHeader
+from handlers.packet_handler import NameReplyPayload
 
 
 class SocketClient:

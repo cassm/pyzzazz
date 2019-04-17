@@ -1,9 +1,8 @@
 import socket
 import select
 import errno
-from copy import deepcopy
-from common.packet_handler import CommPacketHandler
-from common.packet_handler import CommHeader
+from handlers.packet_handler import CommPacketHandler
+from handlers.packet_handler import CommHeader
 from enum import Enum
 
 class ClientState(Enum):

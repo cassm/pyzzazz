@@ -13,7 +13,7 @@ class SerialPortInfo:
         self.last_send_time = 0.0
 
 
-class UsbSerialManager:
+class UsbSerialHandler:
     def __init__(self):
         self.attached_ports = dict()
         self.stale_ports = list()

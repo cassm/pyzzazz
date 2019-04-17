@@ -2,11 +2,11 @@ from senders.sender_handler import SenderHandler
 
 
 class UsbSerialSenderHandler(SenderHandler):
-    def __init__(self, config, serial_manager):
+    def __init__(self, config, serial_handler):
         SenderHandler.__init__(self, config)
         self.validate_config(config)
         self.name = config.get("name", "")
-        self._serial_manager = serial_manager
+        self._serial_handler = serial_handler
 
         self._last_send = [0.0 for _ in range(self.num_lines)]
         self._send_interval = 1.0 / 30.0 / self.num_lines # 30 frames per second for n lines
@@ -16,7 +16,7 @@ class UsbSerialSenderHandler(SenderHandler):
             raise Exception("LedFixture: config contains no name")
 
     def is_connected(self):
-        return self._serial_manager.is_connected(self.name)
+        return self._serial_handler.is_connected(self.name)
 
     def send(self, line, byte_values):
         if line > self.num_lines - 1 or line < 0:
@@ -39,7 +39,7 @@ class UsbSerialSenderHandler(SenderHandler):
 
             packet.append(ord('|'))
 
-            self._serial_manager.send_bytes(self.name, packet)
+            self._serial_handler.send_bytes(self.name, packet)
 
     def encapsulate(self, line, payload):
         header = [ord('~'), line]

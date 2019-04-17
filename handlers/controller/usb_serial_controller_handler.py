@@ -1,5 +1,5 @@
-from controllers.controller_handler import ControllerHandler
-from common.packet_handler import CommPacketHandler
+from handlers.controller.controller_handler import ControllerHandler
+from handlers.packet_handler import CommPacketHandler
 
 
 class UsbSerialControllerHandler(ControllerHandler):

@@ -1,8 +1,8 @@
 from tkinter import *
 from common.socket_client import SocketClient
-from common.packet_handler import CommHeader
-from common.packet_handler import StateReplyPayload
-from controllers.controller_handler import Control
+from handlers.packet_handler import CommHeader
+from handlers.packet_handler import StateReplyPayload
+from handlers.controller.controller_handler import Control
 
 
 class GuiControllerWindow:
@@ -12,6 +12,9 @@ class GuiControllerWindow:
         self._window = Tk()
         self._window.title(name)
         self._window.configure(background=self._bg_colour)
+        self._window.protocol("WM_DELETE_WINDOW", self._on_closing)
+        # self._window.focus_force()
+        self._window.after(1, lambda: self._window.focus_force())
         self._buttons = dict()
         self._sliders = dict()
 
@@ -76,6 +79,9 @@ class GuiControllerWindow:
     def clear_button_state(self):
         for button in self._buttons.values():
             button.set_state(0)
+
+    def _on_closing(self):
+        self._window.destroy()
 
 
 class GuiController:
