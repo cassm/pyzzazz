@@ -75,7 +75,7 @@ class LedFixture(Fixture):
                 elif command["name"] == "fire":
                     self.patterns["fire"] = Fire(self.leds, self.pattern_map_by_polar)
 
-                elif command["name"] == "":
+                elif command["name"] == "map_video":
                     self.patterns["map_video"] = MapVideo(self.video_handler)
 
                 else:
