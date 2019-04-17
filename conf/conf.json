@@ -1,7 +1,7 @@
 {
   "Senders": [
     {
-      "name": "OCTO_SENDER_00",
+      "name": "OCTO_SENDER_001",
       "type": "usb_serial",
       "num_lines": 8
     },
@@ -24,7 +24,7 @@
       "geometry": "dodecahedron",
       "location": [-2, 0, -1.9],
       "radius": 0.20,
-      "senders": ["sim_0", "OCTO_SENDER_00"],
+      "senders": ["sim_0", "OCTO_SENDER_001"],
       "line": 0
     },
     {
@@ -35,7 +35,7 @@
       "geometry": "dodecahedron",
       "location": [-1.25, 0, -0.9],
       "radius": 0.25,
-      "senders": ["sim_0", "OCTO_SENDER_00"],
+      "senders": ["sim_0", "OCTO_SENDER_001"],
       "line": 1
     },
     {
@@ -46,7 +46,7 @@
       "geometry": "dodecahedron",
       "location": [0, 0, -0.15],
       "radius": 0.30,
-      "senders": ["sim_0", "OCTO_SENDER_00"],
+      "senders": ["sim_0", "OCTO_SENDER_001"],
       "line": 2
     },
     {
@@ -57,7 +57,7 @@
       "geometry": "dodecahedron",
       "location": [1.25, 0, -0.9],
       "radius": 0.25,
-      "senders": ["sim_0", "OCTO_SENDER_00"],
+      "senders": ["sim_0", "OCTO_SENDER_001"],
       "line": 3
     },
     {
@@ -68,7 +68,7 @@
       "geometry": "dodecahedron",
       "location": [2, 0, -1.9],
       "radius": 0.2,
-      "senders": ["sim_0", "OCTO_SENDER_00"],
+      "senders": ["sim_0", "OCTO_SENDER_001"],
       "line": 4
     }
   ],
