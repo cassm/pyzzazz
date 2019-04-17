@@ -57,12 +57,6 @@ class Pyzzazz:
 
         self.overlay_handler = OverlayHandler()
 
-        # TODO multiple palettes, pass dict to fixtures
-        # TODO add target type for commands (fixtures, master, etc)
-        # TODO modulators? overlays?
-        # TODO set from image/video
-        # TODO video players should be a different type
-
         # these must be done in this order
         self.init_setting_handlers()
         self.init_senders()
@@ -70,13 +64,6 @@ class Pyzzazz:
         self.init_controllers()
         self.register_commands()
         self.generate_opc_layout_files()
-
-        # FIXME how to do startup command?
-        for fixture in self.fixtures:
-            command = {'type': 'pattern', 'name': start_pattern, 'args': {}}
-            # command = {'type': 'pattern', 'name': 'make_me_one_with_everything', 'args': {}}
-            fixture.register_command(command)
-            fixture.receive_command(command, 1)
 
     def needs_socket_server(self):
         for controller_conf in self.config_parser.get_controllers():
@@ -123,19 +110,19 @@ class Pyzzazz:
                     else:
                         if event.is_video():
                             matching_vid_handlers = list(handler_name for handler_name in self.video_handlers.keys()
-                                                         if handler_name.find(event.target_keyword) != -1)
+                                                         if event.target_keyword in handler_name)
 
                             for handler_name in matching_vid_handlers:
                                 self.video_handlers[handler_name].receive_command(event.command)
 
                         matching_fixtures = list(fixture for fixture in self.fixtures
-                                                 if fixture.name.find(event.target_keyword) != -1)
+                                                 if event.target_keyword in fixture.name)
 
                         for fixture in matching_fixtures:
                             fixture.receive_command(event.command, event.value)
 
                         matching_setts = list(sett for sett in self.setting_handlers.keys()
-                                              if sett.find(event.target_keyword) != -1)
+                                              if event.target_keyword in sett)
 
                         for sett in matching_setts:
                             self.setting_handlers[sett].receive_command(event.command, event.value)
@@ -229,12 +216,12 @@ class Pyzzazz:
             for control in controller.get_controls():
                 # FIXME this is hacky also
                 if control.command["type"] != "overlay":
-                    matching_fixtures = list(fixture for fixture in self.fixtures if fixture.name.find(control.target_keyword) != -1)
+                    matching_fixtures = list(fixture for fixture in self.fixtures if control.target_keyword in fixture.name)
 
                     for fixture in matching_fixtures:
                         fixture.register_command(control.command)
 
-                    matching_setts = list(sett for sett in self.setting_handlers.keys() if sett.find(control.target_keyword) != -1)
+                    matching_setts = list(sett for sett in self.setting_handlers.keys() if control.target_keyword in sett)
 
                     for sett in matching_setts:
                         self.setting_handlers[sett].register_command(control.command, control.default)
@@ -288,7 +275,6 @@ class Pyzzazz:
             p.kill()
 
 
-
 if __name__ == "__main__":
     killer = GracefulKiller()
 
@@ -298,8 +284,8 @@ if __name__ == "__main__":
         print("Initialising...")
         # FIXME backup last used conf
         # FIXME check for conf on usb stick
-        # FIXME multiple palettes
         # FIXME grab palettes off usb stick
+        # FIXME grab videos off usb stick
         pyzzazz = Pyzzazz(conf_file, "palettes/", "videos/")
 
         print("Running...")

@@ -280,7 +280,6 @@ class Coordinate:
         else:
             raise Exception("unknown reference frame {}".format(reference_frame))
 
-    # FIXME change these names?
     # changes the local origin and leaves the point static in the LOCAL frame
     def set_local_origin(self, o):
         self._local_origin = o
