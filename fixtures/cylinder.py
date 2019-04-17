@@ -7,7 +7,7 @@ import math
 
 
 class Cylinder(LedFixture):
-    def __init__(self, config, senders, overlay_handler):
+    def __init__(self, config, senders, overlay_handler, video_handler):
         self.validate_config(config)
 
         num_pixels = config.get("num_leds")
@@ -19,7 +19,7 @@ class Cylinder(LedFixture):
         theta_per_pixel = num_turns * 2*math.pi / num_pixels
         z_per_pixel = height/num_pixels
 
-        LedFixture.__init__(self, config, senders, overlay_handler)
+        LedFixture.__init__(self, config, senders, overlay_handler, video_handler)
 
         for i in range(num_pixels):
             theta = (i * theta_per_pixel) % (2*math.pi)

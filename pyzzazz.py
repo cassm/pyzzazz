@@ -5,6 +5,7 @@ from controllers.gui_controller_handler import GuiControllerHandler
 from controllers.usb_serial_controller_handler import UsbSerialControllerHandler
 from senders.opc_sender_handler import OpcSenderHandler
 from common.palette_handler import PaletteHandler
+from common.video_handler import VideoHandler
 from common.socket_server import SocketServer
 from fixtures.dodecahedron import Dodecahedron
 from fixtures.cylinder import Cylinder
@@ -25,10 +26,11 @@ default_port = 48945
 conf_file = "conf/elephant_conf.json"
 
 class Pyzzazz:
-    def __init__(self, conf_path, palette_path):
+    def __init__(self, conf_path, palette_path, video_path):
         self._src_dir = Path(__file__).parent
         self.config_parser = ConfigParser(conf_path)
         self.palette_handler = PaletteHandler(palette_path)
+        self.video_handler = VideoHandler(video_path)
         self.usb_serial_manager = UsbSerialManager()
         self.effective_time = 0.0
         self.last_update = time.time()
@@ -89,6 +91,8 @@ class Pyzzazz:
         self.palette_handler.set_space_per_palette(self.setting_handlers["master_settings"].get_value("space_per_palette", 0.5))
         self.palette_handler.set_time_per_palette(self.setting_handlers["master_settings"].get_value("time_per_palette", 0.5))
 
+        self.video_handler.update(self.effective_time)
+
         self.effective_time += (time.time() - self.last_update) * speed * 3  # we want to go from 0 to triple speed
         self.last_update = time.time()
 
@@ -104,6 +108,9 @@ class Pyzzazz:
                     # FIXME this is hacky
                     if event.command["type"] == "overlay":
                         self.overlay_handler.receive_command(event.command, self.effective_time)
+
+                    elif event.command["type"] == "video":
+                        self.video_handler.receive_command(event.command)
 
                     else:
                         matching_fixtures = list(fixture for fixture in self.fixtures if re.search(event.target_regex, fixture.name))
@@ -156,17 +163,17 @@ class Pyzzazz:
                 if fixture_conf.get("geometry", "") == "dodecahedron":
                     print("Creating dodecahedron {} with senders {}".format(fixture_conf.get("name", ""), fixture_conf.get("senders", [])))
                     fixture_senders = list(sender for sender in self.senders if sender.name in fixture_conf.get("senders", []))
-                    self.fixtures.append(Dodecahedron(fixture_conf, fixture_senders, self.overlay_handler))
+                    self.fixtures.append(Dodecahedron(fixture_conf, fixture_senders, self.overlay_handler, self.video_handler))
 
                 elif fixture_conf.get("geometry", "") == "cylinder":
                     print("Creating cylinder {} with senders {}".format(fixture_conf.get("name", ""), fixture_conf.get("senders", [])))
                     fixture_senders = list(sender for sender in self.senders if sender.name in fixture_conf.get("senders", []))
-                    self.fixtures.append(Cylinder(fixture_conf, fixture_senders, self.overlay_handler))
+                    self.fixtures.append(Cylinder(fixture_conf, fixture_senders, self.overlay_handler, self.video_handler))
 
                 elif fixture_conf.get("geometry", "") == "bunting":
                     print("Creating bunting {} with senders {}".format(fixture_conf.get("name", ""), fixture_conf.get("senders", [])))
                     fixture_senders = list(sender for sender in self.senders if sender.name in fixture_conf.get("senders", []))
-                    self.fixtures.append(Bunting(fixture_conf, fixture_senders, self.overlay_handler))
+                    self.fixtures.append(Bunting(fixture_conf, fixture_senders, self.overlay_handler, self.video_handler))
 
                 else:
                     raise Exception("Unknown fixture geometry {}".format(fixture_conf.get("geometry", "")))
@@ -287,7 +294,7 @@ if __name__ == "__main__":
         # FIXME check for conf on usb stick
         # FIXME multiple palettes
         # FIXME grab palettes off usb stick
-        pyzzazz = Pyzzazz(conf_file, "palettes/")
+        pyzzazz = Pyzzazz(conf_file, "palettes/", "videos/")
 
         print("Running...")
         while True:

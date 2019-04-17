@@ -7,12 +7,12 @@ import math
 
 
 class Bunting(LedFixture):
-    def __init__(self, config, senders, overlay_handler):
+    def __init__(self, config, senders, overlay_handler, video_handler):
         self.validate_config(config)
 
         config["num_pixels"] = config.get("leds_per_strand") * config.get("num_strands")
 
-        LedFixture.__init__(self, config, senders, overlay_handler)
+        LedFixture.__init__(self, config, senders, overlay_handler, video_handler)
 
         if config.get("arrangement") == "hexagon":
             self.pattern_map_by_polar = True

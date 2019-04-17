@@ -4,6 +4,7 @@ from patterns.fizzy_lifting_drink import FizzyLiftingDrink
 from patterns.make_me_one_with_everything import MakeMeOneWithEverything
 from patterns.fire import Fire
 from patterns.smooth import Smooth
+from patterns.map_video import MapVideo
 from operator import add
 
 
@@ -16,10 +17,10 @@ class Led:
 
 
 class LedFixture(Fixture):
-    def __init__(self, config, senders, overlay_handler):
+    def __init__(self, config, senders, overlay_handler, video_handler):
         self.validate_config(config)
 
-        Fixture.__init__(self, config, overlay_handler)
+        Fixture.__init__(self, config, overlay_handler, video_handler)
 
         self.pattern = ""
         self.patterns = {}
@@ -73,6 +74,9 @@ class LedFixture(Fixture):
 
                 elif command["name"] == "fire":
                     self.patterns["fire"] = Fire(self.leds, self.pattern_map_by_polar)
+
+                elif command["name"] == "":
+                    self.patterns["map_video"] = MapVideo(self.video_handler)
 
                 else:
                     raise Exception("LedFixture: unknown pattern {}".format(command["name"]))
