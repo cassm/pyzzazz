@@ -6,4 +6,4 @@ class MapVideo(Pattern):
         self.video_handler = image_src
 
     def get_pixel_colour(self, pixels, index, time, palette_handler, palette_name, master_brightness):
-        return (value * master_brightness for value in self.video_handler.sample(pixels[index].flat_mapping))
+        return list(value * master_brightness for value in self.video_handler.sample(pixels[index].flat_mapping))
