@@ -3,6 +3,7 @@ from fixtures.led_fixture import Led
 from common.coord import Coordinate
 from common.coord import Spherical
 from common.coord import Cartesian
+from common.utils import nonzero
 import math
 
 class Dodecahedron(LedFixture):
@@ -33,6 +34,16 @@ class Dodecahedron(LedFixture):
             led_local_spherical = Spherical(r=config["radius"], theta=math.radians(coord[0]), phi=math.radians(coord[1]))
             led_coord = Coordinate(local_origin=fixture_origin, local_spherical=led_local_spherical)
             self.leds.append(Led(led_coord, [0.0, 0.0, 0.0]))
+
+        max_x_offset = max((math.fabs(led.coord.get("local", "cartesian").x) for led in self.leds))
+        max_y_offset = max((math.fabs(led.coord.get("local", "cartesian").y) for led in self.leds))
+
+        for led in self.leds:
+            # between 0 and 1
+            map_x = (max_x_offset / nonzero(led.coord.get("local", "cartesian").x)) / 2 + 0.5
+            map_y = (max_y_offset / nonzero(led.coord.get("local", "cartesian").y)) / 2 + 0.5
+
+            led.flat_mapping = (map_x, map_y)
 
     def validate_config(self, config):
         if "radius" not in config.keys():

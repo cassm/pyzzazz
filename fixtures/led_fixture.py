@@ -8,10 +8,11 @@ from operator import add
 
 
 class Led:
-    def __init__(self, coord, colour=[0.0, 0.0, 0.0]):
+    def __init__(self, coord, colour=[0.0, 0.0, 0.0], flat_mapping=[0.0, 0.0]):
         self.colour = colour
         self.overlaid_colour = colour
         self.coord = coord
+        self.flat_mapping = flat_mapping
 
 
 class LedFixture(Fixture):

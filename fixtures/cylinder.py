@@ -25,8 +25,9 @@ class Cylinder(LedFixture):
             theta = (i * theta_per_pixel) % (2*math.pi)
             z = i * z_per_pixel - height/2
             led_local_cylindrical = Cylindrical(r=radius, theta=theta, z=z)
+            flat_mapping=[theta / 2*math.pi, z / height]
             led_coord = Coordinate(local_origin=fixture_origin, local_cylindrical=led_local_cylindrical)
-            self.leds.append(Led(led_coord))
+            self.leds.append(Led(led_coord, flat_mapping=flat_mapping))
 
     def validate_config(self, config):
         if "radius" not in config.keys():

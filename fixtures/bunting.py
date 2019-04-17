@@ -2,6 +2,7 @@ from fixtures.led_fixture import LedFixture
 from fixtures.led_fixture import Led
 from common.coord import Cartesian
 from common.coord import Coordinate
+from common.utils import nonzero
 import math
 
 
@@ -59,6 +60,16 @@ class Bunting(LedFixture):
 
                 led_coord = Coordinate(local_origin=fixture_origin, local_cartesian=Cartesian(x, y, z))
                 self.leds.append(Led(led_coord))
+
+            max_x_offset = max((math.fabs(led.coord.get("local", "cartesian").x) for led in self.leds))
+            max_y_offset = max((math.fabs(led.coord.get("local", "cartesian").y) for led in self.leds))
+
+            for led in self.leds:
+                # between 0 and 1
+                map_x = (max_x_offset / nonzero(led.coord.get("local", "cartesian").x)) / 2 + 0.5
+                map_y = (max_y_offset / nonzero(led.coord.get("local", "cartesian").y)) / 2 + 0.5
+
+                led.flat_mapping = (map_x, map_y)
 
             # add farthest point for sampling purposes
             if "farthest_point" in config.keys():
