@@ -12,8 +12,8 @@ from fixtures.cylinder import Cylinder
 from fixtures.bunting import Bunting
 from common.setting_handler import SettingHandler
 from overlays.overlay_handler import OverlayHandler
+from common.graceful_killer import GracefulKiller
 
-import signal
 import time
 import re
 import traceback
@@ -270,17 +270,6 @@ class Pyzzazz:
         for p in self.subprocesses:
             p.kill()
 
-
-class GracefulKiller:
-    kill_now = False
-
-    def __init__(self):
-        signal.signal(signal.SIGINT, self.exit_gracefully)
-        signal.signal(signal.SIGTERM, self.exit_gracefully)
-
-    def exit_gracefully(self, signum, frame):
-        print("SIGKILL received")
-        self.kill_now = True
 
 
 if __name__ == "__main__":
