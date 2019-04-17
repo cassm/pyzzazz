@@ -1,9 +1,8 @@
-from senders.sender_handler import SenderHandler
+from handlers.senders.sender_handler import SenderHandler
 import openpixelcontrol.python.opc as opc
 import subprocess
 import json
 import os
-from pathlib import Path
 
 
 class OpcSenderHandler(SenderHandler):

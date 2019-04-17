@@ -1,4 +1,4 @@
-from handlers.controller.controller_handler import ControllerHandler
+from handlers.controllers.controller_handler import ControllerHandler
 from handlers.packet_handler import CommPacketHandler
 
 

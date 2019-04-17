@@ -1,4 +1,4 @@
-from senders.sender_handler import SenderHandler
+from handlers.senders.sender_handler import SenderHandler
 
 
 class UsbSerialSenderHandler(SenderHandler):

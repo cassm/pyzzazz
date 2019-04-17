@@ -2,7 +2,7 @@ from tkinter import *
 from common.socket_client import SocketClient
 from handlers.packet_handler import CommHeader
 from handlers.packet_handler import StateReplyPayload
-from handlers.controller.controller_handler import Control
+from handlers.controllers.controller_handler import Control
 
 
 class GuiControllerWindow:

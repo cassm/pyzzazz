@@ -1,9 +1,9 @@
 from handlers.config_handler import ConfigHandler
 from handlers.usb_serial_handler import UsbSerialHandler
-from senders.usb_serial_sender_handler import UsbSerialSenderHandler
-from handlers.controller.gui_controller_handler import GuiControllerHandler
-from handlers.controller.usb_serial_controller_handler import UsbSerialControllerHandler
-from senders.opc_sender_handler import OpcSenderHandler
+from handlers.senders.usb_serial_sender_handler import UsbSerialSenderHandler
+from handlers.controllers.gui_controller_handler import GuiControllerHandler
+from handlers.controllers.usb_serial_controller_handler import UsbSerialControllerHandler
+from handlers.senders.opc_sender_handler import OpcSenderHandler
 from handlers.palette_handler import PaletteHandler
 from handlers.video_handler import VideoHandler
 from common.socket_server import SocketServer
@@ -17,6 +17,8 @@ from common.graceful_killer import GracefulKiller
 import time
 import traceback
 from pathlib import Path
+
+# TODO fixture groups
 
 start_pattern = "sparkle"
 start_palette = "auto"
@@ -196,15 +198,15 @@ class Pyzzazz:
             self.sanity_check_controller_conf(controller_conf)
 
             if controller_conf.get("type", "") == "usb_serial":
-                print("Creating usb serial controller {} on port {}".format(controller_conf.get("name", ""), controller_conf.get("port", "")))
+                print("Creating usb serial controllers {} on port {}".format(controller_conf.get("name", ""), controller_conf.get("port", "")))
                 self.controllers.append(UsbSerialControllerHandler(controller_conf))
 
             elif controller_conf.get("type", "") == "gui":
-                print("Creating gui controller {} on port {}".format(controller_conf.get("name", ""), controller_conf.get("port", "")))
+                print("Creating gui controllers {} on port {}".format(controller_conf.get("name", ""), controller_conf.get("port", "")))
                 self.controllers.append(GuiControllerHandler(controller_conf, self.socket_server))
 
             else:
-                raise Exception("Unknown controller type {}".format(controller_conf.get("type", "")))
+                raise Exception("Unknown controllers type {}".format(controller_conf.get("type", "")))
 
         print("\n")
 
