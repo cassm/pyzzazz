@@ -5,15 +5,15 @@ class UsbSerialSenderHandler(SenderHandler):
     def __init__(self, config, serial_handler):
         SenderHandler.__init__(self, config)
         self.validate_config(config)
-        self.name = config.get("name", "")
+        self.num_lines = config.get("num_lines", "")
         self._serial_handler = serial_handler
 
         self._last_send = [0.0 for _ in range(self.num_lines)]
         self._send_interval = 1.0 / 30.0 / self.num_lines # 30 frames per second for n lines
 
     def validate_config(self, config):
-        if "name" not in config.keys():
-            raise Exception("LedFixture: config contains no name")
+        if "num_lines" not in config.keys():
+            raise Exception("Sender: config contains no num_lines")
 
     def is_connected(self):
         return self._serial_handler.is_connected(self.name)

@@ -4,7 +4,6 @@ class SenderHandler:
 
         self.name = config.get("name")
         self.type = config.get("type")
-        self.num_lines = config.get("num_lines")
         self.is_simulator = config.get("is_simulator", False)
 
     def validate_config(self, config):
@@ -13,9 +12,6 @@ class SenderHandler:
 
         if "type" not in config.keys():
             raise Exception("Sender: config contains no type")
-
-        if "num_lines" not in config.keys():
-            raise Exception("Sender: config contains no num_lines")
 
     def is_connected(self):
         pass

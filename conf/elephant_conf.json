@@ -15,8 +15,7 @@
       "type": "opc",
       "is_simulator": true,
       "ip": "127.0.0.1",
-      "port": "7890",
-      "num_lines": 10
+      "port": "7890"
     }
   ],
 
@@ -146,7 +145,7 @@
       "default_pattern": "sparkle",
       "channel_order": "grb",
       "geometry": "cylinder",
-      "location": [-1.3, -2.25, -0.5],
+      "location": [-2.6, 0.0, -0.5],
       "radius": 0.1,
       "height": 0.35,
       "num_leds": 150,
@@ -160,13 +159,27 @@
       "default_pattern": "sparkle",
       "channel_order": "grb",
       "geometry": "cylinder",
-      "location": [1.3, -2.25, -0.5],
+      "location": [-1.3, -2.25, -0.5],
       "radius": 0.1,
       "height": 0.35,
       "num_leds": 150,
       "num_turns": 13.9,
       "senders": ["sim_0"],
       "line": 9
+    },
+    {
+      "name": "led_fix_cylinder_5",
+      "type": "led",
+      "default_pattern": "sparkle",
+      "channel_order": "grb",
+      "geometry": "cylinder",
+      "location": [1.3, -2.25, -0.5],
+      "radius": 0.1,
+      "height": 0.35,
+      "num_leds": 150,
+      "num_turns": 13.9,
+      "senders": ["sim_0"],
+      "line": 10
     }
   ],
 
