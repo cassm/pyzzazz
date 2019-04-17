@@ -16,6 +16,12 @@ class Led:
         self.flat_mapping = flat_mapping
 
 
+class SenderInfo:
+    def __init__(self, sender, line):
+        self.sender = sender
+        self.line = line
+
+
 class LedFixture(Fixture):
     def __init__(self, config, senders, overlay_handler, video_handler):
         self.validate_config(config)
@@ -32,8 +38,7 @@ class LedFixture(Fixture):
         self.geometry = config.get("geometry", "No geometry present in fixture definition")
         self.channel_order = config.get("channel_order", "No channel_order present in fixture definition")
         self.num_pixels = config.get("num_pixels", "No num_pixels present in fixture definition")
-        self.senders = senders
-        self.line = config.get("line", "No line present in fixture definition")
+        self.senders_info = list(SenderInfo(sender[0], sender[1]) for sender in senders)
 
         self.power_budget = config.get("power_budget", None) # watts
 
@@ -46,9 +51,6 @@ class LedFixture(Fixture):
 
         if "geometry" not in config.keys():
             raise Exception("LedFixture: config contains no geometry")
-
-        if "line" not in config.keys():
-            raise Exception("LedFixture: config contains no line")
 
     def receive_command(self, command, value):
         if command["type"] == "pattern":
@@ -94,8 +96,8 @@ class LedFixture(Fixture):
 
     def send(self):
         if len(self.leds) > 0:
-            for sender in self.senders:
-                sender.send(self.line, self.get_pixels(force_rgb=sender.is_simulator))
+            for sender_info in self.senders_info:
+                sender_info.sender.send(sender_info.line, self.get_pixels(force_rgb=sender_info.sender.is_simulator))
 
     def update(self, time, palette, smoothness, master_brightness):
         if self.pattern not in self.patterns.keys():
@@ -197,4 +199,4 @@ class LedFixture(Fixture):
             led.coord.rotate_theta_local(angle)
 
     def has_sender(self, name):
-        return name in list(sender.name for sender in self.senders)
+        return name in list(sender_info.sender.name for sender_info in self.senders_info)

@@ -44,7 +44,7 @@ class Pyzzazz:
         self.fps = 30.0
         self.time_per_frame = 1.0 / self.fps
 
-        self.senders = []
+        self.senders = dict()
         self.fixtures = []
         self.controllers = []
 
@@ -129,7 +129,7 @@ class Pyzzazz:
 
                 controller.clear_events()
 
-        for sender in self.senders:
+        for sender in self.senders.values():
             if not sender.is_connected():
                 sender.try_connect()
 
@@ -144,13 +144,15 @@ class Pyzzazz:
             # check for duplicate names
             self.sanity_check_sender_conf(sender_conf)
 
+            name = sender_conf.get("name")
+
             if sender_conf.get("type", "") == "usb_serial":
-                print("Creating usb serial sender handler {}".format(sender_conf.get("name", "")))
-                self.senders.append(UsbSerialSenderHandler(sender_conf, self.usb_serial_manager))
+                print("Creating usb serial sender handler {}".format(name))
+                self.senders[name] = UsbSerialSenderHandler(sender_conf, self.usb_serial_manager)
 
             elif sender_conf.get("type", "") == "opc":
-                print("Creating opc sender {} on port {}".format(sender_conf.get("name", ""), sender_conf.get("port", "")))
-                self.senders.append(OpcSenderHandler(sender_conf, self._src_dir))
+                print("Creating opc sender {} on port {}".format(name, sender_conf.get("port", "")))
+                self.senders[name] = OpcSenderHandler(sender_conf, self._src_dir)
 
             else:
                 raise Exception("Unknown sender type {}".format(sender_conf.get("type", "")))
@@ -164,19 +166,20 @@ class Pyzzazz:
             self.sanity_check_fixture_conf(fixture_conf)
 
             if fixture_conf.get("type", "") == "led":
+                fixture_senders = list()
+                for sender_info in fixture_conf.get("senders", []):
+                    fixture_senders.append((self.senders[sender_info[0]], sender_info[1]))
+
                 if fixture_conf.get("geometry", "") == "dodecahedron":
                     print("Creating dodecahedron {} with senders {}".format(fixture_conf.get("name", ""), fixture_conf.get("senders", [])))
-                    fixture_senders = list(sender for sender in self.senders if sender.name in fixture_conf.get("senders", []))
                     self.fixtures.append(Dodecahedron(fixture_conf, fixture_senders, self.overlay_handler, self.video_handlers["icosahedron"]))
 
                 elif fixture_conf.get("geometry", "") == "cylinder":
                     print("Creating cylinder {} with senders {}".format(fixture_conf.get("name", ""), fixture_conf.get("senders", [])))
-                    fixture_senders = list(sender for sender in self.senders if sender.name in fixture_conf.get("senders", []))
                     self.fixtures.append(Cylinder(fixture_conf, fixture_senders, self.overlay_handler, self.video_handlers["cylinder"]))
 
                 elif fixture_conf.get("geometry", "") == "bunting_polygon":
                     print("Creating bunting polygon {} with senders {}".format(fixture_conf.get("name", ""), fixture_conf.get("senders", [])))
-                    fixture_senders = list(sender for sender in self.senders if sender.name in fixture_conf.get("senders", []))
                     self.fixtures.append(BuntingPolygon(fixture_conf, fixture_senders, self.overlay_handler, self.video_handlers["bunting"]))
 
                 else:
@@ -227,7 +230,7 @@ class Pyzzazz:
                         self.setting_handlers[sett].register_command(control.command, control.default)
 
     def generate_opc_layout_files(self):
-        for sender in self.senders:
+        for sender in self.senders.values():
             if sender.type == "opc":
                 sender.generate_layout_files(self.fixtures)
                 opc_server_started = sender.start()
@@ -236,7 +239,7 @@ class Pyzzazz:
                     self.subprocesses.append(opc_server_started)
 
     def sanity_check_sender_conf(self, sender_conf):
-        sender_names = tuple(sender.name for sender in self.senders)
+        sender_names = tuple(self.senders.keys())
         if sender_conf.get("name", "") in sender_names:
             raise Exception("Pyzzazz: config specifies one or more senders with identical name {}".format(sender_conf.get("name", "")))
 
@@ -251,14 +254,15 @@ class Pyzzazz:
             if fixture_conf.get("name", "") == fixture.name:
                 raise Exception("Pyzzazz: config specifies one or more fixtures with identical name {}".format(fixture_conf.get("name", "")))
 
-            for sender_name in fixture_conf.get("senders", []):
-                if fixture.has_sender(sender_name) and fixture_conf.get("line", "") == fixture.line:
-                    raise Exception("Pyzzazz: config specifies one or more fixtures with identical senders {} and lines {}".format(sender_name, fixture_conf.get("line", "")))
+            for new_sender_info in fixture_conf.get("senders", []):
+                for existing_sender_info in fixture.senders_info:
+                    if new_sender_info[0] == existing_sender_info.sender.name and new_sender_info[1] == existing_sender_info.line:
+                        raise Exception("Pyzzazz: config specifies one or more fixtures with identical senders {} and lines {}".format(new_sender_info[0], new_sender_info[1]))
 
         # check sender exists
-        for sender_name in fixture_conf.get("senders", []):
-            if sender_name not in list(sender.name for sender in self.senders):
-                raise Exception("Pyzzazz: Fixture {} specified with undefined sender {}".format(fixture_conf.get("name", ""), sender_name))
+        for sender_info in fixture_conf.get("senders", []):
+            if sender_info[0] not in list(sender.name for sender in self.senders.values()):
+                raise Exception("Pyzzazz: Fixture {} specified with undefined sender {}".format(fixture_conf.get("name", ""), sender_info[0]))
 
     def sanity_check_controller_conf(self, controller_conf):
         button_ids = list(button["id"] for button in controller_conf.get("buttons", []))

@@ -34,8 +34,7 @@
       "radius": 1.245,
       "location": [0.0, 0.0, 0.4],
       "farthest_point": [2.457, 0.0, 0.4],
-      "senders": ["sim_0", "OCTO_SENDER_000"],
-      "line": 0
+      "senders": [["sim_0", 0], ["OCTO_SENDER_000", 0]]
     },
     {
       "name": "led_fix_bunting_1",
@@ -50,8 +49,7 @@
       "radius": 1.65,
       "location": [0.0, 0.0, 0.3],
       "farthest_point": [2.457, 0.0, 0.4],
-      "senders": ["sim_0", "OCTO_SENDER_000"],
-      "line": 1
+      "senders": [["sim_0", 1], ["OCTO_SENDER_000", 1]]
     },
     {
       "name": "led_fix_bunting_2",
@@ -66,8 +64,7 @@
       "radius": 2.075,
       "location": [0.0, 0.0, 0.2],
       "farthest_point": [2.457, 0.0, 0.4],
-      "senders": ["sim_0", "OCTO_SENDER_000"],
-      "line": 2
+      "senders": [["sim_0", 2], ["OCTO_SENDER_000", 2]]
     },
     {
       "name": "led_fix_bunting_3",
@@ -82,8 +79,7 @@
       "radius": 2.475,
       "location": [0.0, 0.0, 0.1],
       "farthest_point": [2.457, 0.0, 0.4],
-      "senders": ["sim_0", "OCTO_SENDER_000"],
-      "line": 3
+      "senders": [["sim_0", 3], ["OCTO_SENDER_000", 3]]
     },
     {
       "name": "led_fix_icosahedron_0",
@@ -94,8 +90,7 @@
       "geometry": "dodecahedron",
       "location": [0.0, 0.0, 0.3],
       "radius": 0.45,
-      "senders": ["sim_0", "OCTO_SENDER_001"],
-      "line": 4
+      "senders": [["sim_0", 4], ["OCTO_SENDER_001", 0]]
     },
     {
       "name": "led_fix_cylinder_0",
@@ -108,8 +103,7 @@
       "height": 0.35,
       "num_leds": 150,
       "num_turns": 13.9,
-      "senders": ["sim_0", "OCTO_SENDER_001"],
-      "line": 5
+      "senders": [["sim_0", 5], ["OCTO_SENDER_001", 1]]
     },
     {
       "name": "led_fix_cylinder_1",
@@ -122,8 +116,7 @@
       "height": 0.35,
       "num_leds": 150,
       "num_turns": 13.9,
-      "senders": ["sim_0", "OCTO_SENDER_001"],
-      "line": 6
+      "senders": [["sim_0", 6], ["OCTO_SENDER_001", 2]]
     },
     {
       "name": "led_fix_cylinder_2",
@@ -136,8 +129,7 @@
       "height": 0.35,
       "num_leds": 150,
       "num_turns": 13.9,
-      "senders": ["sim_0", "OCTO_SENDER_001"],
-      "line": 7
+      "senders": [["sim_0", 7], ["OCTO_SENDER_001", 3]]
     },
     {
       "name": "led_fix_cylinder_3",
@@ -150,8 +142,7 @@
       "height": 0.35,
       "num_leds": 150,
       "num_turns": 13.9,
-      "senders": ["sim_0"],
-      "line": 8
+      "senders": [["sim_0", 8], ["OCTO_SENDER_001", 4]]
     },
     {
       "name": "led_fix_cylinder_4",
@@ -164,8 +155,7 @@
       "height": 0.35,
       "num_leds": 150,
       "num_turns": 13.9,
-      "senders": ["sim_0"],
-      "line": 9
+      "senders": [["sim_0", 9], ["OCTO_SENDER_001", 5]]
     },
     {
       "name": "led_fix_cylinder_5",
@@ -178,8 +168,7 @@
       "height": 0.35,
       "num_leds": 150,
       "num_turns": 13.9,
-      "senders": ["sim_0"],
-      "line": 10
+      "senders": [["sim_0", 10], ["OCTO_SENDER_001", 6]]
     }
   ],
 

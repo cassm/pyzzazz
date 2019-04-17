@@ -34,7 +34,12 @@ class OpcSenderHandler(SenderHandler):
             raise Exception("Sender: config contains no ip")
 
     def generate_layout_files(self, fixtures):
-        fixtures_list = dict((fix.line, fix.get_coords()) for fix in fixtures if fix.has_sender(self.name))
+        fixtures_list = dict()
+
+        for fix in fixtures:
+            for sender_info in fix.senders_info:
+                if sender_info.sender.name == self.name:
+                    fixtures_list[sender_info.line] = fix.get_coords()
 
         print("generating layout...")
 
