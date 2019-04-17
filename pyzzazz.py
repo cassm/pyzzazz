@@ -21,6 +21,7 @@ start_pattern = "sparkle"
 start_palette = "auto"
 default_port = 48945
 
+conf_file = "conf/elephant_conf.json"
 
 class Pyzzazz:
     def __init__(self, conf_path, palette_path):
@@ -280,7 +281,7 @@ if __name__ == "__main__":
         # FIXME check for conf on usb stick
         # FIXME multiple palettes
         # FIXME grab palettes off usb stick
-        pyzzazz = Pyzzazz("conf/conf.json", "palettes/")
+        pyzzazz = Pyzzazz(conf_file, "palettes/")
 
         print("Running...")
         while True:
