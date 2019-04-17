@@ -9,7 +9,7 @@ from common.video_handler import VideoHandler
 from common.socket_server import SocketServer
 from fixtures.dodecahedron import Dodecahedron
 from fixtures.cylinder import Cylinder
-from fixtures.bunting import Bunting
+from fixtures.bunting_polygon import BuntingPolygon
 from common.setting_handler import SettingHandler
 from overlays.overlay_handler import OverlayHandler
 from common.graceful_killer import GracefulKiller
@@ -189,10 +189,10 @@ class Pyzzazz:
                     fixture_senders = list(sender for sender in self.senders if sender.name in fixture_conf.get("senders", []))
                     self.fixtures.append(Cylinder(fixture_conf, fixture_senders, self.overlay_handler, self.video_handlers["cylinder"]))
 
-                elif fixture_conf.get("geometry", "") == "bunting":
-                    print("Creating bunting {} with senders {}".format(fixture_conf.get("name", ""), fixture_conf.get("senders", [])))
+                elif fixture_conf.get("geometry", "") == "bunting_polygon":
+                    print("Creating bunting polygon {} with senders {}".format(fixture_conf.get("name", ""), fixture_conf.get("senders", [])))
                     fixture_senders = list(sender for sender in self.senders if sender.name in fixture_conf.get("senders", []))
-                    self.fixtures.append(Bunting(fixture_conf, fixture_senders, self.overlay_handler, self.video_handlers["bunting"]))
+                    self.fixtures.append(BuntingPolygon(fixture_conf, fixture_senders, self.overlay_handler, self.video_handlers["bunting"]))
 
                 else:
                     raise Exception("Unknown fixture geometry {}".format(fixture_conf.get("geometry", "")))
