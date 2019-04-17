@@ -117,13 +117,11 @@ class Pyzzazz:
 
                 events = controller.get_events()
                 for event in events:
-                    # FIXME this is hacky
-                    if event.command["type"] == "overlay":
+                    if event.is_overlay():
                         self.overlay_handler.receive_command(event.command, self.effective_time)
 
                     else:
-                        # FIXME and this is even more hacky
-                        if event.command["type"] == "pattern" and event.command["name"] == "map_video":
+                        if event.is_video():
                             matching_vid_handlers = list(handler_name for handler_name in self.video_handlers.keys()
                                                          if handler_name.find(event.target_keyword) != -1)
 

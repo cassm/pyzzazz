@@ -26,6 +26,12 @@ class Event:
         self.command = command
         self.value = value
 
+    def is_overlay(self):
+        return self.command["type"] == "overlay"
+
+    def is_video(self):
+        return self.command["type"] == "pattern" and self.command["name"] == "map_video"
+
 
 class ControllerHandler():
     def __init__(self, config):
