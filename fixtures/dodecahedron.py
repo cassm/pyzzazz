@@ -40,8 +40,8 @@ class Dodecahedron(LedFixture):
 
         for led in self.leds:
             # between 0 and 1
-            map_x = (max_x_offset / nonzero(led.coord.get("local", "cartesian").x)) / 2 + 0.5
-            map_y = (max_y_offset / nonzero(led.coord.get("local", "cartesian").y)) / 2 + 0.5
+            map_x = (led.coord.get("local", "cartesian").x / max_x_offset) / 2.0 + 0.5
+            map_y = (led.coord.get("local", "cartesian").y / max_y_offset) / 2.0 + 0.5
 
             led.flat_mapping = (map_x, map_y)
 
