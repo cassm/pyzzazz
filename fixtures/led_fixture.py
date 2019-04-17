@@ -24,6 +24,8 @@ class LedFixture(Fixture):
         self.patterns = {}
         self.leds = []
 
+        self.pattern_map_by_polar = False
+
         self.geometry = config.get("geometry", "No geometry present in fixture definition")
         self.channel_order = config.get("channel_order", "No channel_order present in fixture definition")
         self.num_pixels = config.get("num_pixels", "No num_pixels present in fixture definition")
@@ -69,7 +71,7 @@ class LedFixture(Fixture):
                     self.patterns["make_me_one_with_everything"] = MakeMeOneWithEverything()
 
                 elif command["name"] == "fire":
-                    self.patterns["fire"] = Fire(self.leds)
+                    self.patterns["fire"] = Fire(self.leds, self.pattern_map_by_polar)
 
                 else:
                     raise Exception("LedFixture: unknown pattern {}".format(command["name"]))
