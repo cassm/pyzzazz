@@ -15,7 +15,6 @@ from overlays.overlay_handler import OverlayHandler
 from common.graceful_killer import GracefulKiller
 
 import time
-import re
 import traceback
 from pathlib import Path
 
@@ -30,7 +29,13 @@ class Pyzzazz:
         self._src_dir = Path(__file__).parent
         self.config_parser = ConfigParser(conf_path)
         self.palette_handler = PaletteHandler(palette_path)
-        self.video_handler = VideoHandler(video_path)
+
+        self.video_handlers = dict()
+
+        self.video_handlers["icosahedron"] = VideoHandler(video_path)
+        self.video_handlers["cylinder"] = VideoHandler(video_path)
+        self.video_handlers["bunting"] = VideoHandler(video_path)
+
         self.usb_serial_manager = UsbSerialManager()
         self.effective_time = 0.0
         self.last_update = time.time()
@@ -91,7 +96,8 @@ class Pyzzazz:
         self.palette_handler.set_space_per_palette(self.setting_handlers["master_settings"].get_value("space_per_palette", 0.5))
         self.palette_handler.set_time_per_palette(self.setting_handlers["master_settings"].get_value("time_per_palette", 0.5))
 
-        self.video_handler.update(self.effective_time)
+        for video_handler in self.video_handlers.values():
+            video_handler.update(self.effective_time)
 
         self.effective_time += (time.time() - self.last_update) * speed * 3  # we want to go from 0 to triple speed
         self.last_update = time.time()
@@ -109,16 +115,23 @@ class Pyzzazz:
                     if event.command["type"] == "overlay":
                         self.overlay_handler.receive_command(event.command, self.effective_time)
 
-                    elif event.command["type"] == "video":
-                        self.video_handler.receive_command(event.command)
-
                     else:
-                        matching_fixtures = list(fixture for fixture in self.fixtures if re.search(event.target_regex, fixture.name))
+                        # FIXME and this is even more hacky
+                        if event.command["type"] == "pattern" and event.command["name"] == "map_video":
+                            matching_vid_handlers = list(handler_name for handler_name in self.video_handlers.keys()
+                                                         if handler_name.find(event.target_keyword) != -1)
+
+                            for handler_name in matching_vid_handlers:
+                                self.video_handlers[handler_name].receive_command(event.command)
+
+                        matching_fixtures = list(fixture for fixture in self.fixtures
+                                                 if fixture.name.find(event.target_keyword) != -1)
 
                         for fixture in matching_fixtures:
                             fixture.receive_command(event.command, event.value)
 
-                        matching_setts = list(sett for sett in self.setting_handlers.keys() if re.search(event.target_regex, sett))
+                        matching_setts = list(sett for sett in self.setting_handlers.keys()
+                                              if sett.find(event.target_keyword) != -1)
 
                         for sett in matching_setts:
                             self.setting_handlers[sett].receive_command(event.command, event.value)
@@ -163,17 +176,17 @@ class Pyzzazz:
                 if fixture_conf.get("geometry", "") == "dodecahedron":
                     print("Creating dodecahedron {} with senders {}".format(fixture_conf.get("name", ""), fixture_conf.get("senders", [])))
                     fixture_senders = list(sender for sender in self.senders if sender.name in fixture_conf.get("senders", []))
-                    self.fixtures.append(Dodecahedron(fixture_conf, fixture_senders, self.overlay_handler, self.video_handler))
+                    self.fixtures.append(Dodecahedron(fixture_conf, fixture_senders, self.overlay_handler, self.video_handlers["icosahedron"]))
 
                 elif fixture_conf.get("geometry", "") == "cylinder":
                     print("Creating cylinder {} with senders {}".format(fixture_conf.get("name", ""), fixture_conf.get("senders", [])))
                     fixture_senders = list(sender for sender in self.senders if sender.name in fixture_conf.get("senders", []))
-                    self.fixtures.append(Cylinder(fixture_conf, fixture_senders, self.overlay_handler, self.video_handler))
+                    self.fixtures.append(Cylinder(fixture_conf, fixture_senders, self.overlay_handler, self.video_handlers["cylinder"]))
 
                 elif fixture_conf.get("geometry", "") == "bunting":
                     print("Creating bunting {} with senders {}".format(fixture_conf.get("name", ""), fixture_conf.get("senders", [])))
                     fixture_senders = list(sender for sender in self.senders if sender.name in fixture_conf.get("senders", []))
-                    self.fixtures.append(Bunting(fixture_conf, fixture_senders, self.overlay_handler, self.video_handler))
+                    self.fixtures.append(Bunting(fixture_conf, fixture_senders, self.overlay_handler, self.video_handlers["bunting"]))
 
                 else:
                     raise Exception("Unknown fixture geometry {}".format(fixture_conf.get("geometry", "")))
@@ -212,12 +225,12 @@ class Pyzzazz:
             for control in controller.get_controls():
                 # FIXME this is hacky also
                 if control.command["type"] != "overlay":
-                    matching_fixtures = list(fixture for fixture in self.fixtures if re.search(control.target_regex, fixture.name))
+                    matching_fixtures = list(fixture for fixture in self.fixtures if fixture.name.find(control.target_keyword) != -1)
 
                     for fixture in matching_fixtures:
                         fixture.register_command(control.command)
 
-                    matching_setts = list(sett for sett in self.setting_handlers.keys() if re.search(control.target_regex, sett))
+                    matching_setts = list(sett for sett in self.setting_handlers.keys() if sett.find(control.target_keyword) != -1)
 
                     for sett in matching_setts:
                         self.setting_handlers[sett].register_command(control.command, control.default)

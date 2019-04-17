@@ -16,7 +16,7 @@ class GuiControllerWindow:
         self._sliders = dict()
 
         for butt in buttons:
-            self._buttons[butt["id"]] = Control(butt["name"], butt["id"], butt["target_regex"], butt["command"], butt.get("default, 0"))
+            self._buttons[butt["id"]] = Control(butt["name"], butt["id"], butt["target_keyword"], butt["command"], butt.get("default, 0"))
 
             new_button = Button(self._window, highlightbackground=self._bg_colour, text=butt["name"],
                                 command=lambda n=butt["id"]: self.button_pressed(n))
@@ -24,7 +24,7 @@ class GuiControllerWindow:
             new_button.pack({'fill': 'x', 'expand': 1, 'padx': 5, 'pady': 3})
 
         for slider in sliders:
-            self._sliders[slider["id"]] = Control(slider["name"], slider["id"], slider["target_regex"], slider["command"], slider["default"])
+            self._sliders[slider["id"]] = Control(slider["name"], slider["id"], slider["target_keyword"], slider["command"], slider["default"])
             slider_label = Label(self._window, text=slider["name"], fg="#FFFFFF", bg=self._bg_colour)
             slider_label.pack({'fill': 'x', 'expand': 1, 'padx': 5, 'pady': 3})
 

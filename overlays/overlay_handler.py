@@ -6,7 +6,7 @@ import math
 
 
 class OverlayInfo:
-    # FIXME add regex?
+    # FIXME add keyword?
     def __init__(self, time, overlay):
         self.overlay = overlay
         self.max_contribution = 0.0

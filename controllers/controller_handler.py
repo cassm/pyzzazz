@@ -3,10 +3,10 @@ import ast
 
 
 class Control:
-    def __init__(self, name, id, target_regex, command, default):
+    def __init__(self, name, id, target_keyword, command, default):
         self.name = name
         self.id = id
-        self.target_regex = target_regex
+        self.target_keyword = target_keyword
         self.command = command
         self.default = default
         self.state = 0
@@ -21,8 +21,8 @@ class Control:
 
 
 class Event:
-    def __init__(self, target_regex, command, value):
-        self.target_regex = target_regex
+    def __init__(self, target_keyword, command, value):
+        self.target_keyword = target_keyword
         self.command = command
         self.value = value
 
@@ -38,14 +38,14 @@ class ControllerHandler():
         for button in config.get("buttons", ""):
             self._buttons[button["id"]] = Control(name=button["name"],
                                                   id=button["id"],
-                                                  target_regex=button["target_regex"],
+                                                  target_keyword=button["target_keyword"],
                                                   command=ast.literal_eval(button["command"]),
                                                   default=button.get("default", 0))
 
         for slider in config.get("sliders", ""):
             self._sliders[slider["id"]] = Control(name=slider["name"],
                                                   id=slider["id"],
-                                                  target_regex=slider["target_regex"],
+                                                  target_keyword=slider["target_keyword"],
                                                   command=ast.literal_eval(slider["command"]),
                                                   default=slider.get("default", 50.0) / 100.0)
 
@@ -63,7 +63,7 @@ class ControllerHandler():
         pass
 
     def _add_event(self, control):
-        self._events.append(Event(target_regex=control.target_regex, command=control.command, value=control.state))
+        self._events.append(Event(target_keyword=control.target_keyword, command=control.command, value=control.state))
 
     def get_events(self):
         return self._events
