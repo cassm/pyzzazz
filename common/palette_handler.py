@@ -25,7 +25,6 @@ class PaletteHandler:
 
     def parse_palette_files(self):
         for filename in os.listdir(self.palette_path):
-            print(filename)
             if filename.endswith(".bmp"):
                 try:
                     image = imageio.imread(os.path.join(self.palette_path, filename))
