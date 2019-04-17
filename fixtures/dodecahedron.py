@@ -6,13 +6,13 @@ from common.coord import Cartesian
 import math
 
 class Dodecahedron(LedFixture):
-    def __init__(self, config, sender, overlay_handler):
+    def __init__(self, config, senders, overlay_handler):
         # dodecahedrons always have 60 pixels
         config["num_pixels"] = 60
 
         self.validate_config(config)
 
-        LedFixture.__init__(self, config, sender, overlay_handler)
+        LedFixture.__init__(self, config, senders, overlay_handler)
 
         led_spherical_local_coords = ((60,   6),  (20,  30),  (45,  48),  (75,  18), (100, 348),
                                      (300,   6), (260, 348), (285,  18), (315,  48), (340,  30),
