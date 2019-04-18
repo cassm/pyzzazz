@@ -1,3 +1,4 @@
+import time
 import os
 import cv2
 
@@ -20,6 +21,9 @@ class VideoHandler:
         self.height_offset = 0
         self.vid_length = 1
 
+        self._last_update = 0.0
+        self._time_per_frame = 1.0 / 30.0
+
         self._switch_to_video(list(self.videos.keys())[0])
 
     def _switch_to_video(self, name):
@@ -33,6 +37,13 @@ class VideoHandler:
         self.vid_length = self.vidcap.get(cv2.CAP_PROP_POS_MSEC)
 
         self._update_sampling_factors()
+
+        self.vidcap.set(cv2.CAP_PROP_POS_MSEC, (self._last_update*1000) % self.vid_length)
+
+        success, self.frame = self.vidcap.read()
+
+        if not success:
+            raise Exception("Failed to read video frame")
 
     def _update_sampling_factors(self):
         width = self.vidcap.get(3)
@@ -51,14 +62,12 @@ class VideoHandler:
         self.scaling_factor = min(width, height) - 1
 
     def update(self, time):
-        self.vidcap.set(cv2.CAP_PROP_POS_MSEC, (time*1000) % self.vid_length)
+        while self._last_update + self._time_per_frame < time:
+            success, self.frame = self.vidcap.read()
+            self._last_update += self._time_per_frame
 
-        success, image = self.vidcap.read()
-
-        if success:
-            self.frame = image
-        if not success:
-            raise Exception("Failed to read video frame")
+            if not success:
+                raise Exception("Failed to read video frame")
 
     def receive_command(self, command):
         if command["type"] == "pattern" and command["name"] == "map_video":
