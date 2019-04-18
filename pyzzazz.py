@@ -94,9 +94,6 @@ class Pyzzazz:
         self.palette_handler.set_space_per_palette(self.setting_handlers["master_settings"].get_value("space_per_palette", 0.5))
         self.palette_handler.set_time_per_palette(self.setting_handlers["master_settings"].get_value("time_per_palette", 0.5))
 
-        for video_handler in self.video_handlers.values():
-            video_handler.update(self.effective_time)
-
         for controller in self.controllers:
             if not controller.is_connected():
                 controller.try_connect()
@@ -134,6 +131,9 @@ class Pyzzazz:
         for sender in self.senders.values():
             if not sender.is_connected():
                 sender.try_connect()
+
+        for video_handler in self.video_handlers.values():
+            video_handler.update(self.effective_time)
 
         for fixture in self.fixtures:
             fixture.update(self.effective_time, self.palette_handler, smoothness, brightness)
