@@ -62,12 +62,21 @@ class VideoHandler:
         self.scaling_factor = min(width, height) - 1
 
     def update(self, time):
-        while self._last_update + self._time_per_frame < time:
+        if time - self._last_update > self._time_per_frame * 3:
+            self.vidcap.set(cv2.CAP_PROP_POS_MSEC, (time*1000) % self.vid_length)
             success, self.frame = self.vidcap.read()
-            self._last_update += self._time_per_frame
+            self._last_update = time
 
             if not success:
                 raise Exception("Failed to read video frame")
+
+        else:
+            while self._last_update + self._time_per_frame < time:
+                success, self.frame = self.vidcap.read()
+                self._last_update += self._time_per_frame
+
+                if not success:
+                    raise Exception("Failed to read video frame")
 
     def receive_command(self, command):
         if command["type"] == "pattern" and command["name"] == "map_video":
