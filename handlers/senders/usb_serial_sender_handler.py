@@ -28,18 +28,13 @@ class UsbSerialSenderHandler(SenderHandler):
                 byte_values.append(0)
 
             # packet = [ord('~'), line, len(byte_values)/3]
-            sentinels = [ord('~'), ord('|')]
+            header = [ord('~'), line]
+            footer = [ord('|')]
 
-            packet = [ord('~'), line]
+            # header[-1:] = byte_values
+            # header[-1:] = footer
 
-            for value in byte_values:
-                if value in sentinels:
-                    value += 1
-                packet.append(value)
-
-            packet.append(ord('|'))
-
-            self._serial_handler.send_bytes(self.name, packet)
+            self._serial_handler.send_bytes(self.name, header + byte_values + footer)
 
     def encapsulate(self, line, payload):
         header = [ord('~'), line]

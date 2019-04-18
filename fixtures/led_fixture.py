@@ -145,6 +145,9 @@ class LedFixture(Fixture):
                 current_pixel["w"] = w
 
             for char in channel_order:
+                if current_pixel[char] in [ord('~'), ord('|')]:
+                    current_pixel[char] += 1
+
                 byte_value_buffer.append(current_pixel[char])
 
         while len(byte_value_buffer) % 3:

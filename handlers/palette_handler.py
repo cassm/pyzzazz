@@ -85,8 +85,8 @@ class PaletteHandler:
         time_delta = 1-time_delta
 
         space_progress = space_delta / nonzero(self.space_per_palette)
-        time_progress = time_delta / nonzero(self.time_per_palette)
-        total_progress = (space_progress + time_progress) * self.standard_palette_len
+        # time_progress = time_delta / nonzero(self.time_per_palette)
+        total_progress = (space_progress + time_delta) * self.standard_palette_len
         total_progress %= self.standard_palette_len
 
         total_index = int(total_progress)

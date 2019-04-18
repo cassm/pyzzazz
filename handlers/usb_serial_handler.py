@@ -1,6 +1,8 @@
 import serial
 from serial.tools import list_ports_posix
 import time
+from sys import platform
+import os
 
 
 class SerialPortInfo:
@@ -21,8 +23,20 @@ class UsbSerialHandler:
         self.name_query_pkt = [ord('~'), 0xfe]
         self.send_interval = 0.0005
 
+        self.last_poll = 0.0
+        self.poll_interval = 1.0
+
     def update(self):
-        available_ports = list(port[0] for port in list_ports_posix.comports() if port[1] == 'USB Serial')
+        if self.last_poll + self.poll_interval > time.time():
+            return
+
+        # available_ports = list(port[0] for port in list_ports_posix.comports() if port[1] == 'USB Serial')
+        port_keyword = "ttyACM"
+
+        if platform == "darwin":
+            port_keyword = "cu.usbmodem"
+
+        available_ports = list(os.path.join("/dev/", dev) for dev in os.listdir("/dev/") if str(dev).find(port_keyword) != -1)
 
         # close absent ports
         for port in self.attached_ports.keys():
