@@ -59,7 +59,7 @@ class PaletteHandler:
         print (self.palettes.shape)
 
     def set_palette_space_factor(self, value):
-        self.palette_space_factor = (1.0 / nonzero(value)) / 12.0  # expect 0 to 1
+        self.palette_space_factor = (1.0 / max(value, 0.01)) / 12.0  # expect 0 to 1
 
     def set_palette_time_factor(self, value):
         self.palette_time_factor = value * 2.0  # expect 0 to 1
