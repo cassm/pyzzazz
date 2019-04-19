@@ -131,7 +131,8 @@ class SocketServer:
                             s.close()
                             self._client_dict.pop(s)
 
-                        print('Blocking with', len(self._client_dict[s].outbound_byte_buffer), 'remaining')
+                        else:
+                            print('Blocking with', len(self._client_dict[s].outbound_byte_buffer), 'remaining')
 
                     except Exception as e:
                         print("Lost connection with client {}".format(self._client_dict[s].name))
