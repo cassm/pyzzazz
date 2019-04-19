@@ -11,7 +11,7 @@ class Cylinder(LedFixture):
     def __init__(self, config, senders, overlay_handler, video_handler):
         self.validate_config(config)
 
-        num_pixels = config.get("num_leds")
+        num_pixels = config.get("num_pixels")
         num_turns = config.get("num_turns")
         radius = config.get("radius")
         height = config.get("height")

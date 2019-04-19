@@ -23,9 +23,9 @@ class Sparkle(Pattern):
         self._time_factor = 1.0 / 50
         self._space_factor = 1.0
 
-        num_leds = len(leds)
-        self._sparkle_times = np.zeros(num_leds, dtype=np.float16)
-        self._sparkle_colours = np.zeros((num_leds, 3), dtype=np.float16)
+        num_pixels = len(leds)
+        self._sparkle_times = np.zeros(num_pixels, dtype=np.float16)
+        self._sparkle_colours = np.zeros((num_pixels, 3), dtype=np.float16)
         self._led_deltas = np.array(list(led.coord.get_delta("global") for led in leds), dtype=np.float16)
 
     def set_vars(self, command):
