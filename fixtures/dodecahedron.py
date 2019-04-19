@@ -4,6 +4,7 @@ from common.coord import Coordinate
 from common.coord import Spherical
 from common.coord import Cartesian
 from common.utils import nonzero
+import numpy as np
 import math
 
 class Dodecahedron(LedFixture):
@@ -30,10 +31,14 @@ class Dodecahedron(LedFixture):
 
         fixture_origin = Cartesian(*config.get("location"))
 
+        leds = list()
+
         for coord in led_spherical_local_coords:
             led_local_spherical = Spherical(r=config["radius"], theta=math.radians(coord[0]), phi=math.radians(coord[1]))
             led_coord = Coordinate(local_origin=fixture_origin, local_spherical=led_local_spherical)
-            self.leds.append(Led(led_coord, [0.0, 0.0, 0.0]))
+            leds.append(Led(led_coord, [0.0, 0.0, 0.0]))
+
+        self.leds = np.array(leds)
 
         max_x_offset = max((math.fabs(led.coord.get("local", "cartesian").x) for led in self.leds))
         max_y_offset = max((math.fabs(led.coord.get("local", "cartesian").y) for led in self.leds))

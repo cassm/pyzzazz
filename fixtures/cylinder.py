@@ -3,6 +3,7 @@ from fixtures.led_fixture import Led
 from common.coord import Coordinate
 from common.coord import Cartesian
 from common.coord import Cylindrical
+import numpy as np
 import math
 
 
@@ -29,6 +30,8 @@ class Cylinder(LedFixture):
         print(fixture_origin)
         print("angle from centre {}".format(angle_from_centre))
 
+        leds = list()
+
         for i in range(num_pixels):
             theta = (i * theta_per_pixel) % (2*math.pi)
             z = i * z_per_pixel - height/2
@@ -41,7 +44,9 @@ class Cylinder(LedFixture):
 
             flat_mapping=[mapping_angle / (2.0*math.pi), i * z_per_pixel / height]
             led_coord = Coordinate(local_origin=fixture_origin, local_cylindrical=led_local_cylindrical)
-            self.leds.append(Led(led_coord, flat_mapping=flat_mapping))
+            leds.append(Led(led_coord, flat_mapping=flat_mapping))
+
+        self.leds = np.array(leds)
 
     def validate_config(self, config):
         if "radius" not in config.keys():

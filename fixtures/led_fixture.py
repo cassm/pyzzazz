@@ -5,13 +5,11 @@ from patterns.make_me_one_with_everything import MakeMeOneWithEverything
 from patterns.fire import Fire
 from patterns.smooth import Smooth
 from patterns.map_video import MapVideo
-from operator import add
+import numpy as np
 
 
 class Led:
-    def __init__(self, coord, colour=[0.0, 0.0, 0.0], flat_mapping=[0.0, 0.0]):
-        self.colour = colour
-        self.overlaid_colour = colour
+    def __init__(self, coord, flat_mapping=[0.0, 0.0]):
         self.coord = coord
         self.flat_mapping = flat_mapping
 
@@ -28,19 +26,22 @@ class LedFixture(Fixture):
 
         Fixture.__init__(self, config, overlay_handler, video_handler)
 
-        self.pattern = config.get("default_pattern")
-
-        self.patterns = {}
-        self.leds = []
-
-        self.pattern_map_by_polar = False
-
         self.geometry = config.get("geometry", "No geometry present in fixture definition")
         self.channel_order = config.get("channel_order", "No channel_order present in fixture definition")
-        self.num_pixels = config.get("num_pixels", "No num_pixels present in fixture definition")
+        self.num_pixels = config.get("num_pixels", 0)
         self.senders_info = list(SenderInfo(sender[0], sender[1]) for sender in senders)
 
         self.power_budget = config.get("power_budget", None) # watts
+
+        self.pattern = config.get("default_pattern")
+
+        self.patterns = {}
+
+        self.leds = np.array([])
+        self.colours = np.zeros((self.num_pixels, 3), dtype=np.float16)
+        self.overlaid_colours = np.zeros((self.num_pixels, 3), dtype=np.float16)
+
+        self.pattern_map_by_polar = False
 
     def validate_config(self, config):
         if "default_pattern" not in config.keys():
@@ -53,6 +54,7 @@ class LedFixture(Fixture):
             raise Exception("LedFixture: config contains no geometry")
 
     def receive_command(self, command, value):
+        print("{} received command {}".format(self.name, command))
         if command["type"] == "pattern":
             self.pattern = command["name"]
             self.patterns[self.pattern].set_vars(command["args"])
@@ -67,10 +69,10 @@ class LedFixture(Fixture):
         if command["type"] == "pattern":
             if command["name"] not in self.patterns:
                 if command["name"] == "smooth":
-                    self.patterns["smooth"] = Smooth()
+                    self.patterns["smooth"] = Smooth(self.leds)
 
                 elif command["name"] == "sparkle":
-                    self.patterns["sparkle"] = Sparkle(len(self.leds))
+                    self.patterns["sparkle"] = Sparkle(self.leds)
 
                 elif command["name"] == "fizzy_lifting_drink":
                     self.patterns["fizzy_lifting_drink"] = FizzyLiftingDrink()
@@ -110,71 +112,71 @@ class LedFixture(Fixture):
         if smoothness < 0 or smoothness > 1:
             raise Exception("illegal smoothness value of {}".format(smoothness))
 
-        for index, led in enumerate(self.leds):
-            old_value = led.colour
-            new_value = self.patterns[self.pattern].get_pixel_colour(self.leds, index, time, palette, self.palette_name, master_brightness)
+        self.colours *= smoothness
+        new_colours = self.patterns[self.pattern].get_pixel_colours(self.leds, time, palette, self.palette_name)
+        new_colours = new_colours[:len(self.colours)]
+        new_colours *= (1.0 - smoothness)
+        self.colours += new_colours
+        self.colours *= master_brightness
 
-            led.colour = [old_value[i] * smoothness + new_value[i] * (1.0 - smoothness) for i in range(3)]
-            # led.colour = old_value * smoothness + new_value * (1.0 - smoothness)
-            led.overlaid_colour = self.overlay_handler.calculate_overlaid_colour(led, time)
+        # led.overlaid_colour = self.overlay_handler.calculate_overlaid_colour(led, time)
 
     def get_pixels(self, force_rgb=False):
         if force_rgb:
-            return self.get_byte_values("rgb", list(led.overlaid_colour for led in self.leds))
+            return self.get_byte_values("rgb", self.colours)
         else:
-            return self.get_byte_values(self.channel_order, list(led.overlaid_colour for led in self.leds))
+            return self.get_byte_values(self.channel_order, self.colours)
 
     def get_byte_values(self, channel_order, pixels):
-        byte_value_buffer = list()
+        input_order = ["r", "g", "b"]
+        input_values = np.array([np.take(pixels, 0, axis=1),
+                                 np.take(pixels, 1, axis=1),
+                                 np.take(pixels, 2, axis=1)])
 
-        for pixel in pixels:
-            # currently only handles combinations of r, g, b, and w
-            current_pixel = dict()
+        if "w" in channel_order:
+            w = np.min(pixels, axis=1)
+            np.subtract(input_values, w)
+            input_values = np.append(input_values, [w], axis=0)
+            input_order.append("w")
 
-            input_channel_order = ["r", "g", "b"]
+        output_values = np.zeros(len(pixels) * len(channel_order), dtype=int)
 
-            for i in range(3):
-                current_pixel[input_channel_order[i]] = max(0, min(255, int(pixel[i])))
+        for index, cha in enumerate(channel_order):
+            if cha not in input_order:
+                raise Exception("Unknown colour channel ", cha)
 
-            if "w" in channel_order:
-                w = min(current_pixel.values())
+            output_values[index::len(channel_order)] = input_values[input_order.index(cha)]
 
-                for channel, value in current_pixel.items():
-                    current_pixel[channel] = value - w
+        sentinel_map = output_values == ord('~')
+        sentinel_map += output_values == ord('|')
 
-                current_pixel["w"] = w
-
-            for char in channel_order:
-                if current_pixel[char] in [ord('~'), ord('|')]:
-                    current_pixel[char] += 1
-
-                byte_value_buffer.append(current_pixel[char])
-
-        while len(byte_value_buffer) % 3:
-            byte_value_buffer.append(0)
+        safe_output_values = output_values + sentinel_map
+        safe_output_values = np.clip(255.0, 0.0, safe_output_values)
 
         if self.power_budget:
-            return self.power_limit(channel_order, byte_value_buffer)
+            safe_output_values = self.power_limit(channel_order, safe_output_values)
 
-        return byte_value_buffer
+        return safe_output_values.astype(int)
 
     def power_limit(self, channel_order, byte_values):
-        total_draw = 0.0
-
         watts_per_rgb_bit = 0.00015  # watts per bit per rgb channel
         watts_per_w_bit = 0.00029  # watts per bit per w channel
 
-        for index, value in enumerate(byte_values):
-            if channel_order[index % len(channel_order)] == "w":
-                total_draw += value * watts_per_w_bit
+        channel_total = np.sum(byte_values)
 
-            else:
-                total_draw += value * watts_per_rgb_bit
+        if "w" in channel_order:
+            w_total = np.sum(byte_values[channel_order.index("w")::len(channel_order)])
+            rgb_total = channel_total - w_total
+
+            total_draw = rgb_total * watts_per_rgb_bit + w_total * watts_per_w_bit
+
+        else:
+            total_draw = channel_total * watts_per_rgb_bit
 
         if total_draw > self.power_budget:
             downscale_factor = self.power_budget / total_draw
 
-            return (int(value * downscale_factor) for value in byte_values)
+            byte_values *= downscale_factor
 
         return byte_values
 
