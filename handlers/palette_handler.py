@@ -16,8 +16,8 @@ class PaletteHandler:
 
         assert len(self.palettes.keys()) > 0, "No parsable palette files present!"
 
-        self.space_per_palette = 3.0
-        self.time_per_palette = 1.0
+        self.palette_space_factor = 3.0
+        self.palette_time_factor = 1.0
         self.master_palette_name = list(self.palettes.keys())[0]
 
     def set_master_palette_name(self, name):
@@ -49,11 +49,11 @@ class PaletteHandler:
                 except:
                     print("Palette: failed to parse palette file {}".format(filename))
 
-    def set_space_per_palette(self, value):
-        self.space_per_palette = value * 6.0  # expect 0 to 1
+    def set_palette_space_factor(self, value):
+        self.palette_space_factor = (1.0 / nonzero(value)) / 12.0  # expect 0 to 1
 
-    def set_time_per_palette(self, value):
-        self.time_per_palette = value * 2.0  # expect 0 to 1
+    def set_palette_time_factor(self, value):
+        self.palette_time_factor = value * 2.0  # expect 0 to 1
 
     def sample_positional(self, position, palette_name):
         palette_to_use = palette_name
@@ -66,29 +66,18 @@ class PaletteHandler:
         index = int(position * self.standard_palette_len-1)
         return self.palettes[palette_to_use][index]
 
-    def sample_radial(self, space_delta, time_delta, space_divisor, time_divisor, palette_name):
+    def sample_radial(self, space_delta, time_delta, space_factor, time_factor, palette_name):
+        assert 0 <= time_factor <= 1.0, "Time factor must be between 0 and 1"
+        assert 0 <= space_factor <= 1.0, "Space factor must be between 0 and 1"
+
         palette_to_use = palette_name
 
         if not palette_name:
             palette_to_use = self.master_palette_name
 
-        while space_delta < 0:
-            space_delta += self.space_per_palette
+        total_progress = int((space_delta * self.palette_space_factor * space_factor
+                              - time_delta * self.palette_time_factor * time_factor) * self.standard_palette_len)
 
-        while time_delta < 0:
-            time_delta += self.time_per_palette
-
-        space_delta /= nonzero(space_divisor)
-        time_delta /= nonzero(time_divisor)
-
-        # move forwards not backwards
-        time_delta = 1-time_delta
-
-        space_progress = space_delta / nonzero(self.space_per_palette)
-        # time_progress = time_delta / nonzero(self.time_per_palette)
-        total_progress = (space_progress + time_delta) * self.standard_palette_len
         total_progress %= self.standard_palette_len
 
-        total_index = int(total_progress)
-
-        return self.palettes[palette_to_use][total_index]
+        return self.palettes[palette_to_use][total_progress]

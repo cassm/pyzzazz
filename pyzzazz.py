@@ -91,8 +91,8 @@ class Pyzzazz:
         self.last_update = time.time()
 
         self.palette_handler.set_master_palette_name(self.setting_handlers["master_settings"].get_value("palette", start_palette))
-        self.palette_handler.set_space_per_palette(self.setting_handlers["master_settings"].get_value("space_per_palette", 0.5))
-        self.palette_handler.set_time_per_palette(self.setting_handlers["master_settings"].get_value("time_per_palette", 0.5))
+        self.palette_handler.set_palette_space_factor(self.setting_handlers["master_settings"].get_value("space_per_palette", 0.5))
+        self.palette_handler.set_palette_time_factor(self.setting_handlers["master_settings"].get_value("time_per_palette", 0.5))
 
         for controller in self.controllers:
             if not controller.is_connected():
