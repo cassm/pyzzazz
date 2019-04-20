@@ -245,11 +245,6 @@ class Pyzzazz:
         if sender_conf.get("name", "") in sender_names:
             raise Exception("Pyzzazz: config specifies one or more senders with identical name {}".format(sender_conf.get("name", "")))
 
-        # check for duplicate ports
-        # sender_ports = tuple(sender.port for sender in self.senders)
-        # if sender_conf.get("port", "") in sender_ports:
-        #     raise Exception("Pyzzazz: config specifies one or more senders with identical port {}".format(sender_conf.get("port", "")))
-
     def sanity_check_fixture_conf(self, fixture_conf):
         # check for duplicate names
         for fixture in self.fixtures:
