@@ -1,11 +1,14 @@
 from patterns.pattern import Pattern
-import openpixelcontrol.python.color_utils as color_utils
+import numpy as np
 import math
 
 
 # this is lifted from opc's raver_plaid example
 class FizzyLiftingDrink(Pattern):
-    def get_pixel_colour(self, pixels, index, time, palette_handler, palette_name, master_brightness):
+    def __init__(self, leds):
+        self._led_deltas = np.array(list(led.coord.get_delta("global") for led in leds), dtype=np.float16)
+
+    def get_pixel_colours(self, leds, time, palette_handler, palette_name):
         # how many sine wave cycles are squeezed into our n_pixels
         # 24 happens to create nice diagonal stripes on the wall layout
         freq_r = 24
@@ -19,18 +22,19 @@ class FizzyLiftingDrink(Pattern):
 
         t = time * 5
 
-        pct = pixels[index].coord.get_delta("global")
+        pct = (self._led_deltas * 77) % 37
 
-        # diagonal black stripes
-        pct_jittered = (pct * 77) % 37
+        blackstripes = np.cos((pct - t*0.05) * math.pi*2) * 1.5
+        blackstripes_offset = np.cos((pct/60.0 - 0.9) * math.pi*2) * 1.75 + 1.75
+        blackstripes = np.clip(1.0, 0.0, blackstripes_offset + blackstripes)
 
-        blackstripes = color_utils.cos(pct_jittered, offset=t * 0.05, period=1, minn=-1.5, maxx=1.5)
-        blackstripes_offset = color_utils.cos(t, offset=0.9, period=60, minn=-0.5, maxx=3)
-        blackstripes = color_utils.clamp(blackstripes + blackstripes_offset, 0, 1)
+        r = blackstripes * np.cos(pct * freq_r + t / speed_r)
+        g = blackstripes * np.cos(pct * freq_g + t / speed_g)
+        b = blackstripes * np.cos(pct * freq_b + t / speed_b)
 
-        # 3 sine waves for r, g, b which are out of sync with each other
-        r = blackstripes * color_utils.remap(math.cos((t / speed_r + pct * freq_r) * math.pi * 2), -1, 1, 0, 256)
-        g = blackstripes * color_utils.remap(math.cos((t / speed_g + pct * freq_g) * math.pi * 2), -1, 1, 0, 256)
-        b = blackstripes * color_utils.remap(math.cos((t / speed_b + pct * freq_b) * math.pi * 2), -1, 1, 0, 256)
+        output = np.array(list([r[i], g[i], b[i]] for i in range(len(leds))))
 
-        return list(channel * master_brightness for channel in [r, g, b])
+        output += 1
+        output *= 127
+
+        return output

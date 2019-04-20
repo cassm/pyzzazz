@@ -75,7 +75,7 @@ class LedFixture(Fixture):
                     self.patterns["sparkle"] = Sparkle(self.leds)
 
                 elif command["name"] == "fizzy_lifting_drink":
-                    self.patterns["fizzy_lifting_drink"] = FizzyLiftingDrink()
+                    self.patterns["fizzy_lifting_drink"] = FizzyLiftingDrink(self.leds)
 
                 elif command["name"] == "make_me_one_with_everything":
                     self.patterns["make_me_one_with_everything"] = MakeMeOneWithEverything()

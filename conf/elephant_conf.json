@@ -186,92 +186,98 @@
           "command": "{'type': 'pattern', 'name': 'smooth', 'args': {}}"
         },
         {
-          "name": "make_me_one_with_everything",
+          "name": "fizzy lifting drink",
           "id": 1,
+          "target_keyword": "led_fix_",
+          "command": "{'type': 'pattern', 'name': 'fizzy_lifting_drink', 'args': {}}"
+        },
+        {
+          "name": "make_me_one_with_everything",
+          "id": 2,
           "target_keyword": "led_fix_",
           "command": "{'type': 'pattern', 'name': 'make_me_one_with_everything', 'args': {}}"
         },
         {
           "name": "sparkle",
-          "id": 2,
+          "id": 3,
           "target_keyword": "led_fix_",
           "command": "{'type': 'pattern', 'name': 'sparkle', 'args': {}}"
         },
         {
           "name": "fire",
-          "id": 3,
+          "id": 4,
           "target_keyword": "led_fix_",
           "command": "{'type': 'pattern', 'name': 'fire', 'args': {}}"
         },
         {
           "name": "icosahedrons forest-sheep",
-          "id": 4,
+          "id": 5,
           "target_keyword": "icosahedron",
           "command": "{'type': 'pattern', 'name': 'map_video', 'video_name': 'forest-sheep-mpeg2.mp4', 'args': {}}"
         },
         {
           "name": "bunting forest-sheep",
-          "id": 5,
+          "id": 6,
           "target_keyword": "bunting",
           "command": "{'type': 'pattern', 'name': 'map_video', 'video_name': 'forest-sheep-mpeg2.mp4', 'args': {}}"
         },
         {
           "name": "cylinder forest-sheep",
-          "id": 6,
+          "id": 7,
           "target_keyword": "cylinder",
           "command": "{'type': 'pattern', 'name': 'map_video', 'video_name': 'forest-sheep-mpeg2.mp4', 'args': {}}"
         },
         {
           "name": "icosahedrons hx-01",
-          "id": 7,
+          "id": 8,
           "target_keyword": "icosahedron",
           "command": "{'type': 'pattern', 'name': 'map_video', 'video_name': 'hx-01-mpeg2-smol.mp4', 'args': {}}"
         },
         {
           "name": "bunting hx-01",
-          "id": 8,
+          "id": 9,
           "target_keyword": "bunting",
           "command": "{'type': 'pattern', 'name': 'map_video', 'video_name': 'hx-01-mpeg2-smol.mp4', 'args': {}}"
         },
         {
           "name": "cylinder hx-01",
-          "id": 9,
+          "id": 10,
           "target_keyword": "cylinder",
           "command": "{'type': 'pattern', 'name': 'map_video', 'video_name': 'hx-01-mpeg2-smol.mp4', 'args': {}}"
         },
         {
           "name": "master palette auto",
-          "id": 10,
+          "id": 11,
           "target_keyword": "master_settings",
           "command": "{'type': 'palette', 'name': 'auto'}"
         },
         {
           "name": "master palette stressTest",
-          "id": 11,
+          "id": 12,
           "target_keyword": "master_settings",
           "command": "{'type': 'palette', 'name': 'stressTest'}"
         },
         {
           "name": "master palette unicornBarf",
-          "id": 12,
+          "id": 13,
           "target_keyword": "master_settings",
           "command": "{'type': 'palette', 'name': 'unicornBarf'}"
         },
         {
           "name": "flash",
-          "id": 17,
+          "id": 18,
           "target_keyword": "",
           "command": "{'type': 'overlay', 'name': 'flash', 'args': {'decay_factor': 1.0}}"
         },
         {
           "name": "star drive",
-          "id": 18,
+          "id": 19,
           "target_keyword": "",
           "command": "{'type': 'overlay', 'name': 'star_drive', 'args': {'decay_factor': 1.0}}"
         },
         {
           "name": "ripple",
-          "id": 19,
+          "id": 20,
           "target_keyword": "",
           "command": "{'type': 'overlay', 'name': 'ripple', 'args': {'decay_factor': 1.0}}"
         }
