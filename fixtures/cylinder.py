@@ -27,9 +27,6 @@ class Cylinder(LedFixture):
         if fixture_origin.x < 0:
             angle_from_centre += math.pi
 
-        print(fixture_origin)
-        print("angle from centre {}".format(angle_from_centre))
-
         leds = list()
 
         for i in range(num_pixels):
