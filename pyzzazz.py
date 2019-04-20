@@ -84,7 +84,7 @@ class Pyzzazz:
             return
 
         smoothness = self.setting_handlers["master_settings"].get_value("smoothness", 0.5)
-        brightness = self.setting_handlers["master_settings"].get_value("brightness", 1.0)
+        brightness = self.setting_handlers["master_settings"].get_value("brightness", 0.5)
         speed = self.setting_handlers["master_settings"].get_value("speed", 0.5)
 
         self.effective_time += (time.time() - self.last_update) * speed * 3  # we want to go from 0 to triple speed
