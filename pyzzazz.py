@@ -1,12 +1,12 @@
 from handlers.config_handler import ConfigHandler
-from handlers.usb_serial_handler import UsbSerialHandler
+from handlers.connections.usb_serial_handler import UsbSerialHandler
 from handlers.senders.usb_serial_sender_handler import UsbSerialSenderHandler
 from handlers.controllers.gui_controller_handler import GuiControllerHandler
 from handlers.controllers.usb_serial_controller_handler import UsbSerialControllerHandler
 from handlers.senders.opc_sender_handler import OpcSenderHandler
 from handlers.palette_handler import PaletteHandler
 from handlers.video_handler import VideoHandler
-from common.socket_server import SocketServer
+from handlers.connections.socket_server import SocketServer
 from fixtures.dodecahedron import Dodecahedron
 from fixtures.cylinder import Cylinder
 from fixtures.bunting_polygon import BuntingPolygon
@@ -199,7 +199,7 @@ class Pyzzazz:
 
             if controller_conf.get("type", "") == "usb_serial":
                 print("Creating usb serial controllers {} on port {}".format(controller_conf.get("name", ""), controller_conf.get("port", "")))
-                self.controllers.append(UsbSerialControllerHandler(controller_conf))
+                self.controllers.append(UsbSerialControllerHandler(controller_conf, self.usb_serial_manager))
 
             elif controller_conf.get("type", "") == "gui":
                 print("Creating gui controllers {} on port {}".format(controller_conf.get("name", ""), controller_conf.get("port", "")))

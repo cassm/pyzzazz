@@ -77,12 +77,14 @@ class SocketClient:
                     self._socket.close()
                     self._inout.clear()
                     self._connected = False
+                    print(e)
                     print("Lost connection on {}".format(self._address))
 
             except Exception as e:
                 self._socket.close()
                 self._inout.clear()
                 self._connected = False
+                print(e)
                 print("Lost connection on {}".format(self._address))
 
         if len(writeable) > 0:
@@ -96,6 +98,7 @@ class SocketClient:
                             self._socket.close()
                             self._inout.clear()
                             self._connected = False
+                            print(e)
                             print("Lost connection on {}".format(self._address))
 
                         print('Blocking with', len(self._outbound_byte_buffer), 'remaining')
@@ -104,12 +107,14 @@ class SocketClient:
                         self._socket.close()
                         self._inout.clear()
                         self._connected = False
+                        print(e)
                         print("Lost connection on {}".format(self._address))
 
         if len(errored) > 0:
             self._socket.close()
             self._inout.clear()
             self._connected = False
+            print(e)
             print("Lost connection on {}".format(self._address))
 
         self.process_received_packets()

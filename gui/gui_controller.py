@@ -1,5 +1,5 @@
 from tkinter import *
-from common.socket_client import SocketClient
+from handlers.connections.socket_client import SocketClient
 from handlers.packet_handler import CommHeader
 from handlers.packet_handler import StateReplyPayload
 from handlers.controllers.controller_handler import Control
