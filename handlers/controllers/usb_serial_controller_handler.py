@@ -14,7 +14,7 @@ class UsbSerialControllerHandler(ControllerHandler):
         self.events = list()
 
         self._request_timeout = 0.1
-        self._request_interval = 1.0 / 30
+        self._request_interval = 1.0 / 120
         self._last_request = 0
         self._waiting_reply = False
 

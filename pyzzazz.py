@@ -20,7 +20,7 @@ from pathlib import Path
 
 # TODO fixture groups
 
-start_pattern = "sparkle"
+start_pattern = "smooth"
 start_palette = "auto"
 default_port = 48945
 
@@ -80,15 +80,9 @@ class Pyzzazz:
 
         self.usb_serial_manager.update()
 
-        if self.last_update + self.time_per_frame > time.time():
-            return
-
         smoothness = self.setting_handlers["master_settings"].get_value("smoothness", 0.5)
         brightness = self.setting_handlers["master_settings"].get_value("brightness", 0.5)
         speed = self.setting_handlers["master_settings"].get_value("speed", 0.5)
-
-        self.effective_time += (time.time() - self.last_update) * speed * 3  # we want to go from 0 to triple speed
-        self.last_update = time.time()
 
         self.palette_handler.set_master_palette_name(self.setting_handlers["master_settings"].get_value("palette", start_palette))
         self.palette_handler.set_palette_space_factor(self.setting_handlers["master_settings"].get_value("space_per_palette", 0.5))
@@ -127,6 +121,14 @@ class Pyzzazz:
                             self.setting_handlers[sett].receive_command(event.command, event.value)
 
                 controller.clear_events()
+
+        # prevent senders and video updating too often
+        if self.last_update + self.time_per_frame > time.time():
+            return
+
+        self.effective_time += (time.time() - self.last_update) * speed * 3  # we want to go from 0 to triple speed
+        self.last_update = time.time()
+
 
         for sender in self.senders.values():
             if not sender.is_connected():
