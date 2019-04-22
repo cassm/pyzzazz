@@ -3,7 +3,7 @@ from bitarray import bitarray
 
 # FIXME probably make this less fragile. strict mode?
 class CommHeader:
-    signature = 0xBEEE
+    signature = ord("~")
 
     ops_by_byte = {0x00: "name_request",
                    0x01: "name_reply",
@@ -15,7 +15,7 @@ class CommHeader:
                   "state_request": 0x02,
                   "state_reply": 0x03}
 
-    header_len = 5
+    header_len = 4
 
     def __init__(self, payload_len=0, msgtype=None, bytes=None):
         if bytes:
@@ -32,23 +32,22 @@ class CommHeader:
         assert len(raw_bytes) == self.header_len, \
             "selfHeader: invalid header length {}".format(len(raw_bytes))
 
-        self.signature = raw_bytes[0] << 8 | raw_bytes[1]
+        self.signature = int(raw_bytes[0])
         assert self.signature == self.signature, \
             "selfHeader: invalid signature {:04X}".format(self.signature)
 
-        self.opcode = raw_bytes[2]
+        self.opcode = raw_bytes[1]
         assert self.opcode in self.ops_by_byte.keys(), \
             "selfHeader: invalid opcode {:02X}".format(self.opcode)
 
-        self.payload_len = raw_bytes[3] << 8 | raw_bytes[4]
+        self.payload_len = raw_bytes[2] << 8 | raw_bytes[3]
 
     def get_bytes(self):
         assert min(self.signature, self.opcode, self.payload_len) >= 0, \
             "selfHeader: get_bytes called with uninitialised fields"
 
         header_bytes = bytearray()
-        header_bytes.append(self.signature >> 8)
-        header_bytes.append(self.signature & 0xff)
+        header_bytes.append(self.signature)
         header_bytes.append(self.opcode)
         header_bytes.append(self.payload_len >> 8)
         header_bytes.append(self.payload_len & 0xff)
@@ -97,15 +96,15 @@ class StateReplyPayload:
             self.slider_state = slider_state
 
     def set_bytes(self, raw_bytes):
-        assert len(raw_bytes) >= 2, \
+        assert len(raw_bytes) >= 1, \
             "remaining length of packet is less than button bitfield width field"
 
-        button_bitfield_width = int.from_bytes(raw_bytes[:2], byteorder='big', signed=False)
+        button_bitfield_width = int(raw_bytes[0])
 
-        del(raw_bytes[0:2])
+        del(raw_bytes[0])
 
         assert len(raw_bytes) >= button_bitfield_width, \
-            "remaining length of packet is less than specified button bitfield width"
+            "remaining length of packet {} is less than specified button bitfield width {}".format(len(raw_bytes), button_bitfield_width)
 
         for chunk in raw_bytes[0:button_bitfield_width]:
             for bit in range(8):
@@ -113,15 +112,15 @@ class StateReplyPayload:
 
         del(raw_bytes[0:button_bitfield_width])
 
-        assert len(raw_bytes) >= 2, \
+        assert len(raw_bytes) >= 1, \
             "remaining length of packet is less than num sliders field"
 
-        num_sliders = int.from_bytes(raw_bytes[:2], byteorder='big', signed=False)
+        num_sliders = int(raw_bytes[0])
 
         assert len(raw_bytes) >= num_sliders*2, \
             "remaining length of packet is less than specified button bitfield width"
 
-        del(raw_bytes[0:2])
+        del(raw_bytes[0])
 
         for _ in range(num_sliders):
             self.slider_state.append(raw_bytes[0] << 8 | raw_bytes[1])
@@ -140,14 +139,14 @@ class StateReplyPayload:
         #     button_bitfield.append(False)
 
         # button bitfield width
-        bitfield_width = int(len(button_bitfield.tobytes()))
-        state_bytes.extend(bitfield_width.to_bytes(2, byteorder='big', signed=False))
+        bitfield_width = len(button_bitfield.tobytes())
+        state_bytes.extend(bitfield_width.to_bytes(1, signed=False))
 
         # button bitfield
         state_bytes.extend(button_bitfield.tobytes())
 
         # number of slider vals
-        state_bytes.extend(len(self.slider_state).to_bytes(2, byteorder='big', signed=False))
+        state_bytes.extend(len(self.slider_state).to_bytes(1, signed=False))
 
         # slider vals
         for slider_val in self.slider_state:
