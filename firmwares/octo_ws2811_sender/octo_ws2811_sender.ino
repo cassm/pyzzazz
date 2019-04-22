@@ -16,6 +16,7 @@
 #include <OctoWS2811.h>
 
 const char board_id[] = "OCTO_SENDER_000";
+const int board_id_len = 15;
 
 const int onboard_led = 13;
 const uint8_t frame_start_char = '~';
@@ -23,10 +24,18 @@ const uint8_t frame_end_char = '|';
 
 #define FPS 30
 
-#define NAME_REQUEST 254
-#define AWAITING_STRIP_ID 253
-#define BETWEEN_FRAMES 252
+#define OP_NAME_REQUEST 0x00
+#define OP_NAME_REPLY 0x01
+#define OP_FRAME_UPDATE 0x04
+
+#define AWAITING_STRIP_ID 0
+#define AWAITING_OPCODE 1
+#define READING_FRAME 2
+#define BETWEEN_FRAMES 3
+
 #define MAX_STRIP_ID 7
+
+int state = BETWEEN_FRAMES;
 
 uint64_t iter = 0;
 bool currentLedState = 0;
@@ -74,42 +83,40 @@ void setup() {
 void loop() {
   while (Serial.available() && last_render + render_interval > millis()) {
     uint8_t symbol = Serial.read();
-    
+
+    // FIXME this is weak
     if (symbol == frame_start_char) {
       led_index = 0;
       pixel_index = 0;
-      stripid = AWAITING_STRIP_ID;
+      state = AWAITING_OPCODE;
       digitalWrite(onboard_led, currentLedState);
       currentLedState = !currentLedState;
     }
 
     else if (symbol == frame_end_char) {
-      for (int i = 0; i < led_index; i++) {
-          ;
-      }
-      
       led_index = 0;
       pixel_index = 0;
-      stripid = BETWEEN_FRAMES;
+      state = BETWEEN_FRAMES;
     }
     
-    else if (stripid == AWAITING_STRIP_ID) {
-      if (symbol == NAME_REQUEST) {
-        for (int i = 0; i < 20; i++) {
-          digitalWrite(onboard_led, currentLedState);
-          currentLedState = !currentLedState;
-          delay(20);
-        }
-        Serial.write("~");
-        Serial.write(board_id);
-        Serial.write("|");
+    else if (state == AWAITING_OPCODE) {
+      if (symbol == OP_NAME_REQUEST) {
+        send_name_reply();
+
+        state = BETWEEN_FRAMES;
       }
-      else {
-        stripid = symbol;
+      
+      else if (symbol == OP_FRAME_UPDATE) {
+        state = AWAITING_STRIP_ID;
       }
     }
 
-    else if (stripid <= MAX_STRIP_ID and led_index < ledsPerStrip) {
+    else if (state == AWAITING_STRIP_ID) {
+      stripid = symbol;
+      state = READING_FRAME;
+    }
+
+    else if (state == READING_FRAME and led_index < ledsPerStrip) {
       current_frame[led_index][pixel_index++] = symbol;
       
       if (pixel_index == 3) {
@@ -124,4 +131,12 @@ void loop() {
     last_render = millis();
     leds.show();
   }
+}
+
+void send_name_reply() {
+  Serial.write("~");
+  Serial.write(OP_NAME_REPLY);
+  Serial.write(board_id_len >> 8);
+  Serial.write(board_id_len & 0xff);
+  Serial.write(board_id);
 }

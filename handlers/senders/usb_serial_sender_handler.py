@@ -1,4 +1,5 @@
 from handlers.senders.sender_handler import SenderHandler
+from handlers.packet_handler import CommHeader
 
 
 class UsbSerialSenderHandler(SenderHandler):
@@ -38,7 +39,7 @@ class UsbSerialSenderHandler(SenderHandler):
                 print("BaaAD")
 
             # packet = [ord('~'), line, len(byte_values)/3]
-            header = [ord('~'), line]
+            header = [ord('~'), CommHeader.ops_by_str["frame_update"], line]
             footer = [ord('|')]
 
             # header[-1:] = byte_values
