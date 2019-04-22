@@ -13,7 +13,8 @@ class UsbSerialControllerHandler(ControllerHandler):
 
         self.events = list()
 
-        self._request_timeout = 0.5
+        self._request_timeout = 0.1
+        self._request_interval = 1.0 / 30
         self._last_request = 0
         self._waiting_reply = False
 
@@ -33,8 +34,10 @@ class UsbSerialControllerHandler(ControllerHandler):
                 self._waiting_reply = False
 
             if not self._waiting_reply:
-                self._serial_manager.send_request(self.name, "state_request")
-                self._waiting_reply = True
+                if self._last_request + self._request_interval < time.time():
+                    self._last_request = time.time()
+                    self._serial_manager.send_request(self.name, "state_request")
+                    self._waiting_reply = True
 
             for packet in self._serial_manager.get_packets(self.name):
                 if packet["msgtype"] == "state_reply":
