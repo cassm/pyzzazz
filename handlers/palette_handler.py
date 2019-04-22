@@ -33,15 +33,7 @@ class PaletteHandler:
             if filename.endswith(".bmp"):
                 try:
                     image = imageio.imread(os.path.join(self.palette_path, filename))
-                    print(len(image[0]))
-                    print(image.shape)
-                    print("---")
-                    palette_pixels_per_image_pixel = float(self.standard_palette_len) / float(len(image[0]))
-
-                    rgb_buffer = list()
-
                     indices = list(int(i * (len(image[0]) - 1) / self.standard_palette_len) for i in range(self.standard_palette_len))
-                    print(indices)
 
                     rgb_buffer = np.array(image[0])[indices].astype(np.float16)
 
@@ -56,7 +48,6 @@ class PaletteHandler:
                     raise e
 
         self.palettes = np.array(palettes).astype(np.float16)
-        print (self.palettes.shape)
 
     def set_palette_space_factor(self, value):
         self.palette_space_factor = (1.0 / max(value, 0.01)) / 12.0  # expect 0 to 1

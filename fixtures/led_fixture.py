@@ -54,7 +54,6 @@ class LedFixture(Fixture):
             raise Exception("LedFixture: config contains no geometry")
 
     def receive_command(self, command, value):
-        print("{} received command {}".format(self.name, command))
         if command["type"] == "pattern":
             self.pattern = command["name"]
             self.patterns[self.pattern].set_vars(command["args"])
