@@ -174,8 +174,8 @@
 
   "Controllers": [
     {
-      "name": "controller_0",
-      "type": "gui",
+      "name": "USB_CONTROLLER_000",
+      "type": "usb_serial",
       "port": 48945,
 
       "buttons": [

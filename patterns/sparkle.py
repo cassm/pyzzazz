@@ -53,7 +53,7 @@ class Sparkle(Pattern):
         time_deltas = time - self._sparkle_times
         time_deltas *= 2
         time_deltas = np.clip(999, 0.1, time_deltas)
-        sparkle_intensities = 1.0 / time_deltas
+        sparkle_intensities = 1.0 / time_deltas.astype(np.float16)
         sparkle_intensities = np.clip(1.0, 0.0, sparkle_intensities)
         sparkle_colours = self._sparkle_colours*sparkle_intensities[:,np.newaxis]
 

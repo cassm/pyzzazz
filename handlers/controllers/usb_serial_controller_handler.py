@@ -60,7 +60,7 @@ class UsbSerialControllerHandler(ControllerHandler):
                                 self._add_event(self._sliders[i])
 
                 else:
-                    raise Exception("GuiControllerHandler: unhandled packet type")
+                    raise Exception("UsbSerialControllerHandler: unhandled packet type ", packet["msgtype"])
 
             self._serial_manager.clear_packets(self.name)
 
