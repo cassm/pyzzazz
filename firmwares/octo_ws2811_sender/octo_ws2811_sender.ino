@@ -15,17 +15,45 @@
 
 #include <OctoWS2811.h>
 
+const char board_id[] = "OCTO_SENDER_000";
+const int board_id_len = 15;
+
 const int onboard_led = 13;
 const uint8_t frame_start_char = '~';
 const uint8_t frame_end_char = '|';
 
-uint64_t last_show = 0;
-uint64_t show_interval = 1000/24;
+#define FPS 30
+
+#define OP_NAME_REQUEST 0x00
+#define OP_NAME_REPLY 0x01
+#define OP_FRAME_UPDATE 0x04
+
+#define AWAITING_STRIP_ID 0
+#define AWAITING_OPCODE 1
+#define READING_FRAME 2
+#define BETWEEN_FRAMES 3
+
+#define MAX_STRIP_ID 7
+
+int state = BETWEEN_FRAMES;
 
 uint64_t iter = 0;
-bool currentState = 0;
+bool currentLedState = 0;
 
-const uint8_t PROGMEM gamma_table[255] = {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+const int ledsPerStrip = 200;
+
+DMAMEM int displayMemory[ledsPerStrip*6];
+int drawingMemory[ledsPerStrip*6];
+int led_index = 0;
+int pixel_index = 0;
+uint8_t stripid = BETWEEN_FRAMES;
+
+uint8_t current_frame[ledsPerStrip][3];
+
+uint64_t last_render = 0;
+uint64_t render_interval = 1000/FPS;
+
+const uint8_t gamma_table[255] = {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
                                       0,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   2,   2,   2,   2,
                                       2,   2,   2,   3,   3,   3,   3,   3,   4,   4,   4,   4,   5,   5,   5,   5,
                                       6,   6,   6,   6,   7,   7,   7,   8,   8,   8,   9,   9,   9,  10,  10,  10,
@@ -42,78 +70,8 @@ const uint8_t PROGMEM gamma_table[255] = {   0,   0,   0,   0,   0,   0,   0,   
                                     191, 193, 195, 197, 199, 201, 203, 205, 207, 209, 211, 213, 215, 217, 220, 222,
                                     224, 226, 228, 230, 232, 235, 237, 239, 241, 244, 246, 248, 250, 253, 255,};
 
-const int ledsPerStrip = 258;
 
-// why multiply by 6? 2 bytes per colour??
-DMAMEM int displayMemory[ledsPerStrip*6];
-int drawingMemory[ledsPerStrip*6];
-
-OctoWS2811 leds(ledsPerStrip, displayMemory, drawingMemory, WS2811_GRB | WS2811_800kHz);
-
-//FIXME add timeout
-uint8_t blocking_serial_read(unsigned long poll_interval) {
-  while (!Serial.available()) {
-    delay(poll_interval);
-  }
-
-  return Serial.read();
-}
-
-int process_data_frame() {
-    // get header
-
-    //FIXME fit both into one char?
-    uint8_t strip_id = blocking_serial_read(1);
-    
-    //Serial.print("Frame received for pin ");
-    //Serial.println(pin);
-    
-    if (strip_id > 7) {
-      //Serial.println("Error: strip not found");
-      return 0;
-    }
-    
-    uint8_t pixel[3] = {0};
-    int i = 0;
-
-    uint8_t next_byte = blocking_serial_read(1);
-    
-    while (true) {
-      if (next_byte == frame_start_char) {
-        return -1;
-        
-      }
-      else if (next_byte == frame_end_char) {
-        if (iter++ % 2 == 0) {
-          digitalWrite(onboard_led, currentState);
-          currentState = !currentState;
-          iter = 1;
-        }
-        
-        return 0;
-      }
-
-      if (i <= ledsPerStrip*3) {
-        int channelIndex = i%3;
-        int pixelIndex = i/3;
-
-        pixel[channelIndex] = next_byte;
-
-        if (channelIndex == 2) {
-          uint32_t val = gamma_table[pixel[1]] << 16 |
-                         gamma_table[pixel[0]] << 8 |
-                         gamma_table[pixel[2]];
-      
-          leds.setPixel(strip_id*ledsPerStrip + pixelIndex, val);
-        }
-        
-        
-      }
-
-      i++;
-      next_byte = blocking_serial_read(1);
-    }
-}
+OctoWS2811 leds(ledsPerStrip, displayMemory, drawingMemory, WS2811_RGB | WS2811_800kHz);
 
 void setup() {
   // put your setup code here, to run once:
@@ -123,18 +81,62 @@ void setup() {
 }
 
 void loop() {
-  uint8_t start_char = blocking_serial_read(1);
+  while (Serial.available() && last_render + render_interval > millis()) {
+    uint8_t symbol = Serial.read();
 
-  if (start_char == frame_start_char) {
-    int result = -1;
-    while (result == -1) { // returns -1 if a new frame started in the middle of a frame
-      result = process_data_frame();
+    // FIXME this is weak
+    if (symbol == frame_start_char) {
+      led_index = 0;
+      pixel_index = 0;
+      state = AWAITING_OPCODE;
+      digitalWrite(onboard_led, currentLedState);
+      currentLedState = !currentLedState;
     }
 
+    else if (symbol == frame_end_char) {
+      led_index = 0;
+      pixel_index = 0;
+      state = BETWEEN_FRAMES;
+    }
     
-    if (last_show + show_interval < millis()) {
-      last_show = millis();
-      leds.show();
+    else if (state == AWAITING_OPCODE) {
+      if (symbol == OP_NAME_REQUEST) {
+        send_name_reply();
+
+        state = BETWEEN_FRAMES;
+      }
+      
+      else if (symbol == OP_FRAME_UPDATE) {
+        state = AWAITING_STRIP_ID;
+      }
+    }
+
+    else if (state == AWAITING_STRIP_ID) {
+      stripid = symbol;
+      state = READING_FRAME;
+    }
+
+    else if (state == READING_FRAME and led_index < ledsPerStrip) {
+      current_frame[led_index][pixel_index++] = symbol;
+      
+      if (pixel_index == 3) {
+        leds.setPixel(stripid*ledsPerStrip + led_index, gamma_table[current_frame[led_index][0]], gamma_table[current_frame[led_index][1]], gamma_table[current_frame[led_index][2]]);
+        pixel_index = 0;
+        led_index++;
+      }
     }
   }
+  
+  if (last_render + render_interval < millis()) {
+    last_render = millis();
+    leds.show();
+  }
+}
+
+void send_name_reply() {
+  Serial.write("~");
+  Serial.write(OP_NAME_REPLY);
+  Serial.write(board_id_len >> 8);
+  Serial.write(board_id_len & 0xff);
+  Serial.write(board_id);
 }

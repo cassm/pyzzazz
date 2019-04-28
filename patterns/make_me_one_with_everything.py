@@ -9,7 +9,7 @@ class MakeMeOneWithEverything(Pattern):
 
         # sane defaults
         self._shimmer_level = 128
-        self._white_level = 256
+        self._white_level = 192
         self._swoosh_interval = 15
 
         self._next_swoosh = random.gauss(self._swoosh_interval, self._swoosh_interval / 4)
@@ -27,7 +27,7 @@ class MakeMeOneWithEverything(Pattern):
             # time, direction (phi or theta), swoosh speed between 2 and 5
             self._active_swooshes.append((time, random.randrange(1, 3), random.random()*3 + 2))
 
-        self._active_swooshes = list(swoosh for swoosh in self._active_swooshes if time - swoosh[0] < 500)
+        self._active_swooshes = list(swoosh for swoosh in self._active_swooshes if time - swoosh[0] < 30)
         pass
 
     def get_pixel_colour(self, pixels, index, time, palette_handler, palette_name, master_brightness):
@@ -38,6 +38,7 @@ class MakeMeOneWithEverything(Pattern):
         g = max(math.sin(-time / -2 + origin_delta * (5 + math.cos(-time / 2.2 + origin_delta))) * self._shimmer_level, 0)
         b = max(math.sin(-time / -2 + origin_delta * (5 + math.cos(-time / 2.5 + origin_delta))) * self._shimmer_level, 0)
         w = self._white_level + math.sin(-time / -8 + origin_delta / 3) * self._shimmer_level + math.sin(-time / -10 + origin_delta / 1.4) * self._shimmer_level / 4 - sum((r, g, b))
+        w *= 0.9
 
         swoosh_level = 0.0
 

@@ -1,0 +1,318 @@
+{
+  "Senders": [
+    {
+      "name": "OCTO_SENDER_000",
+      "type": "usb_serial",
+      "num_lines": 8
+    },
+    {
+      "name": "OCTO_SENDER_001",
+      "type": "usb_serial",
+      "num_lines": 8
+    },
+    {
+      "name": "sim_0",
+      "type": "opc",
+      "is_simulator": true,
+      "ip": "127.0.0.1",
+      "port": "7890"
+    }
+  ],
+
+  "Fixtures": [
+    {
+      "name": "led_fix_bunting_0",
+      "type": "led",
+      "default_pattern": "sparkle",
+      "channel_order": "grbw",
+      "geometry": "bunting_polygon",
+      "sides": 6,
+      "arrangement": "hexagon",
+      "leds_per_strand": 43,
+      "length_per_strand": 2.5,
+      "num_strands": 3,
+      "radius": 1.245,
+      "location": [0.0, 0.0, 0.4],
+      "farthest_point": [2.457, 0.0, 0.4],
+      "senders": [["sim_0", 0], ["OCTO_SENDER_000", 0]]
+    },
+    {
+      "name": "led_fix_bunting_1",
+      "type": "led",
+      "default_pattern": "sparkle",
+      "channel_order": "grb",
+      "geometry": "bunting_polygon",
+      "sides": 6,
+      "leds_per_strand": 43,
+      "length_per_strand": 2.5,
+      "num_strands": 4,
+      "radius": 1.65,
+      "location": [0.0, 0.0, 0.3],
+      "farthest_point": [2.457, 0.0, 0.4],
+      "senders": [["sim_0", 1], ["OCTO_SENDER_000", 1]]
+    },
+    {
+      "name": "led_fix_bunting_2",
+      "type": "led",
+      "default_pattern": "sparkle",
+      "channel_order": "grb",
+      "geometry": "bunting_polygon",
+      "sides": 6,
+      "leds_per_strand": 43,
+      "length_per_strand": 2.5,
+      "num_strands": 5,
+      "radius": 2.075,
+      "location": [0.0, 0.0, 0.2],
+      "farthest_point": [2.457, 0.0, 0.4],
+      "senders": [["sim_0", 2], ["OCTO_SENDER_000", 2]]
+    },
+    {
+      "name": "led_fix_bunting_3",
+      "type": "led",
+      "default_pattern": "sparkle",
+      "channel_order": "grb",
+      "geometry": "bunting_polygon",
+      "sides": 6,
+      "leds_per_strand": 43,
+      "length_per_strand": 2.5,
+      "num_strands": 6,
+      "radius": 2.475,
+      "location": [0.0, 0.0, 0.1],
+      "farthest_point": [2.457, 0.0, 0.4],
+      "senders": [["sim_0", 3], ["OCTO_SENDER_000", 3]]
+    },
+    {
+      "name": "led_fix_icosahedron_0",
+      "type": "led",
+      "default_pattern": "sparkle",
+      "channel_order": "grbw",
+      "power_budget": 25,
+      "geometry": "dodecahedron",
+      "location": [0.0, 0.0, 0.3],
+      "radius": 0.45,
+      "senders": [["sim_0", 4], ["OCTO_SENDER_001", 0]]
+    },
+    {
+      "name": "led_fix_cylinder_0",
+      "type": "led",
+      "default_pattern": "sparkle",
+      "channel_order": "grb",
+      "geometry": "cylinder",
+      "location": [2.6, 0.0, -0.5],
+      "radius": 0.1,
+      "height": 0.35,
+      "num_pixels": 150,
+      "num_turns": 13.9,
+      "senders": [["sim_0", 5], ["OCTO_SENDER_001", 1]]
+    },
+    {
+      "name": "led_fix_cylinder_1",
+      "type": "led",
+      "default_pattern": "sparkle",
+      "channel_order": "grb",
+      "geometry": "cylinder",
+      "location": [1.3, 2.25, -0.5],
+      "radius": 0.1,
+      "height": 0.35,
+      "num_pixels": 150,
+      "num_turns": 13.9,
+      "senders": [["sim_0", 6], ["OCTO_SENDER_001", 2]]
+    },
+    {
+      "name": "led_fix_cylinder_2",
+      "type": "led",
+      "default_pattern": "sparkle",
+      "channel_order": "grb",
+      "geometry": "cylinder",
+      "location": [-1.3, 2.25, -0.5],
+      "radius": 0.1,
+      "height": 0.35,
+      "num_pixels": 150,
+      "num_turns": 13.9,
+      "senders": [["sim_0", 7], ["OCTO_SENDER_001", 3]]
+    },
+    {
+      "name": "led_fix_cylinder_3",
+      "type": "led",
+      "default_pattern": "sparkle",
+      "channel_order": "grb",
+      "geometry": "cylinder",
+      "location": [-2.6, 0.0, -0.5],
+      "radius": 0.1,
+      "height": 0.35,
+      "num_pixels": 150,
+      "num_turns": 13.9,
+      "senders": [["sim_0", 8], ["OCTO_SENDER_001", 4]]
+    },
+    {
+      "name": "led_fix_cylinder_4",
+      "type": "led",
+      "default_pattern": "sparkle",
+      "channel_order": "grb",
+      "geometry": "cylinder",
+      "location": [-1.3, -2.25, -0.5],
+      "radius": 0.1,
+      "height": 0.35,
+      "num_pixels": 150,
+      "num_turns": 13.9,
+      "senders": [["sim_0", 9], ["OCTO_SENDER_001", 5]]
+    },
+    {
+      "name": "led_fix_cylinder_5",
+      "type": "led",
+      "default_pattern": "sparkle",
+      "channel_order": "grb",
+      "geometry": "cylinder",
+      "location": [1.3, -2.25, -0.5],
+      "radius": 0.1,
+      "height": 0.35,
+      "num_pixels": 150,
+      "num_turns": 13.9,
+      "senders": [["sim_0", 10], ["OCTO_SENDER_001", 6]]
+    }
+  ],
+
+  "Controllers": [
+    {
+      "name": "USB_CONTROLLER_000",
+      "type": "usb_serial",
+      "port": 48945,
+
+      "buttons": [
+        {
+          "name": "smooth",
+          "id": 0,
+          "target_keyword": "led_fix_",
+          "command": "{'type': 'pattern', 'name': 'smooth', 'args': {}}"
+        },
+        {
+          "name": "fizzy lifting drink",
+          "id": 1,
+          "target_keyword": "led_fix_",
+          "command": "{'type': 'pattern', 'name': 'fizzy_lifting_drink', 'args': {}}"
+        },
+        {
+          "name": "make_me_one_with_everything",
+          "id": 2,
+          "target_keyword": "led_fix_",
+          "command": "{'type': 'pattern', 'name': 'make_me_one_with_everything', 'args': {}}"
+        },
+        {
+          "name": "sparkle",
+          "id": 3,
+          "target_keyword": "led_fix_",
+          "command": "{'type': 'pattern', 'name': 'sparkle', 'args': {}}"
+        },
+        {
+          "name": "fire",
+          "id": 4,
+          "target_keyword": "led_fix_",
+          "command": "{'type': 'pattern', 'name': 'fire', 'args': {}}"
+        },
+        {
+          "name": "icosahedrons forest-sheep",
+          "id": 5,
+          "target_keyword": "icosahedron",
+          "command": "{'type': 'pattern', 'name': 'map_video', 'video_name': 'forest-sheep-mpeg2.mp4', 'args': {}}"
+        },
+        {
+          "name": "bunting forest-sheep",
+          "id": 6,
+          "target_keyword": "bunting",
+          "command": "{'type': 'pattern', 'name': 'map_video', 'video_name': 'forest-sheep-mpeg2.mp4', 'args': {}}"
+        },
+        {
+          "name": "cylinder forest-sheep",
+          "id": 7,
+          "target_keyword": "cylinder",
+          "command": "{'type': 'pattern', 'name': 'map_video', 'video_name': 'forest-sheep-mpeg2.mp4', 'args': {}}"
+        },
+        {
+          "name": "icosahedrons hx-01",
+          "id": 8,
+          "target_keyword": "icosahedron",
+          "command": "{'type': 'pattern', 'name': 'map_video', 'video_name': 'hx-01-mpeg2-smol.mp4', 'args': {}}"
+        },
+        {
+          "name": "bunting hx-01",
+          "id": 9,
+          "target_keyword": "bunting",
+          "command": "{'type': 'pattern', 'name': 'map_video', 'video_name': 'hx-01-mpeg2-smol.mp4', 'args': {}}"
+        },
+        {
+          "name": "cylinder hx-01",
+          "id": 10,
+          "target_keyword": "cylinder",
+          "command": "{'type': 'pattern', 'name': 'map_video', 'video_name': 'hx-01-mpeg2-smol.mp4', 'args': {}}"
+        },
+        {
+          "name": "master palette auto",
+          "id": 11,
+          "target_keyword": "master_settings",
+          "command": "{'type': 'palette', 'name': 'auto'}"
+        },
+        {
+          "name": "master palette stressTest",
+          "id": 12,
+          "target_keyword": "master_settings",
+          "command": "{'type': 'palette', 'name': 'stressTest'}"
+        },
+        {
+          "name": "master palette unicornBarf",
+          "id": 13,
+          "target_keyword": "master_settings",
+          "command": "{'type': 'palette', 'name': 'unicornBarf'}"
+        },
+        {
+          "name": "flash",
+          "id": 18,
+          "target_keyword": "",
+          "command": "{'type': 'overlay', 'name': 'flash', 'args': {'decay_factor': 1.0}}"
+        },
+        {
+          "name": "star drive",
+          "id": 19,
+          "target_keyword": "",
+          "command": "{'type': 'overlay', 'name': 'star_drive', 'args': {'decay_factor': 1.0}}"
+        },
+        {
+          "name": "ripple",
+          "id": 20,
+          "target_keyword": "",
+          "command": "{'type': 'overlay', 'name': 'ripple', 'args': {'decay_factor': 1.0}}"
+        }
+      ],
+
+      "sliders": [
+        {
+          "name": "master smoothness",
+          "id": 0,
+          "target_keyword": "master_settings",
+          "command": "{'type': 'slider', 'name': 'smoothness'}",
+          "default": 50
+        },
+        {
+          "name": "master brightness",
+          "id": 1,
+          "target_keyword": "master_settings",
+          "command": "{'type': 'slider', 'name': 'brightness'}",
+          "default": 100
+        },
+        {
+          "name": "master speed",
+          "id": 2,
+          "target_keyword": "master_settings",
+          "command": "{'type': 'slider', 'name': 'speed'}",
+          "default": 33
+        },
+        {
+          "name": "space_per_palette",
+          "id": 3,
+          "target_keyword": "master_settings",
+          "command": "{'type': 'slider', 'name': 'space_per_palette'}",
+          "default": 50
+        }
+      ]
+    }
+  ]
+}

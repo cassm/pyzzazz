@@ -5,26 +5,34 @@ import math
 
 
 class PixelInfo:
-    def __init__(self, normalised_z):
+    def __init__(self, normalised_space_offset):
         self.spark_intensity = 0.0
         self.last_sparked = 0.0
-        self.normalised_z = normalised_z
+        self.normalised_space_offset = normalised_space_offset
 
 
 class Fire(Pattern):
-    def __init__(self, leds):
+    def __init__(self, leds, sample_radial=False):
         self.next_spark = 0.0
         self.spark_interval = 0.2
         self.fixture_offset = random.random() * 10
         self.pixel_info = list()
+        self.sample_radial = sample_radial
+
+        max_delta = max(led.coord.get_delta("local") for led in leds)
+        min_delta = min(led.coord.get_delta("local") for led in leds)
+        delta_conversion_factor = 1.0 / (max_delta - min_delta)
 
         max_z = max(led.coord.get("local", "cartesian").z for led in leds)
         min_z = min(led.coord.get("local", "cartesian").z for led in leds)
         z_conversion_factor = 1.0 / (max_z - min_z)
 
         for i in range(len(leds)):
-            normalised_z = (-leds[i].coord.get("local", "cartesian").z - min_z) * z_conversion_factor
-            self.pixel_info.append(PixelInfo(normalised_z))
+            normalised_z_offset = (-leds[i].coord.get("local", "cartesian").z - min_z) * z_conversion_factor
+            normalised_delta_offset = (leds[i].coord.get_delta("local") - min_delta) * delta_conversion_factor
+
+            normalised_space_offset = normalised_delta_offset if self.sample_radial else normalised_z_offset
+            self.pixel_info.append(PixelInfo(normalised_space_offset))
 
     def update(self, leds, time, palette_handler, palette_name):
         if time > self.next_spark:
@@ -46,6 +54,6 @@ class Fire(Pattern):
 
         total_sine_val = sum(sine_vals) / 16.0
 
-        palette_position = max(0, min(1, self.pixel_info[index].normalised_z + spark_val + total_sine_val))
+        palette_position = max(0, min(1, self.pixel_info[index].normalised_space_offset + spark_val + total_sine_val))
 
         return list(channel * master_brightness for channel in palette_handler.sample_positional(palette_position, "fire"))

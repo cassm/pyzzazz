@@ -1,9 +1,8 @@
-from senders.sender_handler import SenderHandler
+from handlers.senders.sender_handler import SenderHandler
 import openpixelcontrol.python.opc as opc
 import subprocess
 import json
 import os
-from pathlib import Path
 
 
 class OpcSenderHandler(SenderHandler):
@@ -13,13 +12,10 @@ class OpcSenderHandler(SenderHandler):
 
         self.validate_config(config)
 
-        self.name = config.get("name")
         self.ip = config.get("ip")
         self.port = config.get("port")
-        self.num_lines = config.get("num_lines")
         self._client = opc.Client(":".join([self.ip, self.port]))
         self._previously_connected = False
-        self._simulate = config.get("simulate", False)
 
         self._src_dir = src_dir
         self._layouts_dir = "{}/layouts".format(self._src_dir)
@@ -27,34 +23,47 @@ class OpcSenderHandler(SenderHandler):
         if not os.path.isdir(self._layouts_dir):
             os.mkdir(self._layouts_dir)
 
+        self._line_offsets = list()
+        self._line_lengths = list()
+
+        self._buffer = list()
+
     def validate_config(self, config):
         if "ip" not in config.keys():
             raise Exception("Sender: config contains no ip")
 
-        if config.get("num_lines") > 10:
-            raise Exception("OpcSender: We only support a max of ten lines")
-
     def generate_layout_files(self, fixtures):
-        fixtures_list = dict((fix.line, fix.get_coords()) for fix in fixtures if fix.has_sender(self.name))
+        fixtures_list = dict()
 
-        for line in range(self.num_lines):
-            print("generating layouts/{}_{}.json...".format(self.name, line))
+        for fix in fixtures:
+            for sender_info in fix.senders_info:
+                if sender_info.sender.name == self.name:
+                    fixtures_list[sender_info.line] = fix.get_coords()
 
-            point_list = list({"point": led} for led in fixtures_list.get(line, []))
+        print("generating layout...")
 
-            with open("{}/{}_{}.json".format(self._layouts_dir, self.name, line), "w") as f:
-                f.write(json.dumps(point_list, indent=2))
+        point_list = list()
+
+        for line in range(max(fixtures_list.keys()) + 1):
+            print("parsing fixture on line {}...".format(line))
+            fixture_point_list = list({"point": led} for led in fixtures_list.get(line, []))
+            point_list.extend(fixture_point_list)
+
+            self._buffer.append([[0, 0, 0]] * len(fixture_point_list))
+
+            self._line_offsets.append(sum(self._line_lengths))
+            self._line_lengths.append(len(fixture_point_list))
+
+        with open("{}/{}_layout.json".format(self._layouts_dir, self.name), "w") as f:
+            f.write(json.dumps(point_list, indent=2))
 
         print("\n")
 
     def start(self):
-        if self._simulate:
+        if self.is_simulator:
             args = list()
             args.append("{}/openpixelcontrol/bin/gl_server".format(self._src_dir))
-
-            for i in range(self.num_lines):
-                args.append("-l{}/{}_{}.json".format(self._layouts_dir, self.name, i))
-
+            args.append("-l{}/{}_layout.json".format(self._layouts_dir, self.name))
             args.append("-p{}".format(self.port))
 
             print("Opening open pixel control simulation server...\n\n")
@@ -79,9 +88,16 @@ class OpcSenderHandler(SenderHandler):
     def try_connect(self):
         return
 
-    def send(self, line, pixels):
-        if line > self.num_lines or line < 0:
+    def send(self, line, byte_values):
+        if line > len(self._line_offsets) or line < 0:
             raise Exception("Sender: send called on invalid line {}".format(line))
 
+        pixels = list(byte_values[i:i+3] for i in range(0, len(byte_values), 3))
+
+        if len(pixels) > self._line_lengths[line]:
+            pixels = pixels[:self._line_lengths[line]]
+
+        self._buffer[self._line_offsets[line]:self._line_offsets[line] + len(pixels)] = pixels
+
         if self.is_connected():
-            self._client.put_pixels(pixels, channel=line+1)
+            self._client.put_pixels(self._buffer, channel=line+1)

@@ -4,37 +4,54 @@ from patterns.fizzy_lifting_drink import FizzyLiftingDrink
 from patterns.make_me_one_with_everything import MakeMeOneWithEverything
 from patterns.fire import Fire
 from patterns.smooth import Smooth
-from operator import add
+from patterns.map_video import MapVideo
+import numpy as np
 
 
 class Led:
-    def __init__(self, coord, colour=[0.0, 0.0, 0.0]):
-        self.colour = colour
-        self.overlaid_colour = colour
+    def __init__(self, coord, flat_mapping=[0.0, 0.0]):
         self.coord = coord
+        self.flat_mapping = flat_mapping
+
+
+class SenderInfo:
+    def __init__(self, sender, line):
+        self.sender = sender
+        self.line = line
 
 
 class LedFixture(Fixture):
-    def __init__(self, config, senders, overlay_handler):
+    def __init__(self, config, senders, overlay_handler, video_handler):
         self.validate_config(config)
 
-        Fixture.__init__(self, config, overlay_handler)
-
-        self.pattern = ""
-        self.patterns = {}
-        self.leds = []
+        Fixture.__init__(self, config, overlay_handler, video_handler)
 
         self.geometry = config.get("geometry", "No geometry present in fixture definition")
-        self.num_pixels = config.get("num_pixels", "No num_pixels present in fixture definition")
-        self.senders = senders
-        self.line = config.get("line", "No line present in fixture definition")
+        self.channel_order = config.get("channel_order", "No channel_order present in fixture definition")
+        self.num_pixels = config.get("num_pixels", 0)
+        self.senders_info = list(SenderInfo(sender[0], sender[1]) for sender in senders)
+
+        self.power_budget = config.get("power_budget", None) # watts
+
+        self.pattern = config.get("default_pattern")
+
+        self.patterns = {}
+
+        self.leds = np.array([])
+        self.colours = np.zeros((self.num_pixels, 3), dtype=np.float16)
+        self.overlaid_colours = np.zeros((self.num_pixels, 3), dtype=np.float16)
+
+        self.pattern_map_by_polar = False
 
     def validate_config(self, config):
+        if "default_pattern" not in config.keys():
+            raise Exception("LedFixture: config contains no default_pattern")
+
+        if "channel_order" not in config.keys():
+            raise Exception("LedFixture: config contains no channel_order")
+
         if "geometry" not in config.keys():
             raise Exception("LedFixture: config contains no geometry")
-
-        if "line" not in config.keys():
-            raise Exception("LedFixture: config contains no line")
 
     def receive_command(self, command, value):
         if command["type"] == "pattern":
@@ -51,19 +68,22 @@ class LedFixture(Fixture):
         if command["type"] == "pattern":
             if command["name"] not in self.patterns:
                 if command["name"] == "smooth":
-                    self.patterns["smooth"] = Smooth()
+                    self.patterns["smooth"] = Smooth(self.leds)
 
                 elif command["name"] == "sparkle":
-                    self.patterns["sparkle"] = Sparkle(len(self.leds))
+                    self.patterns["sparkle"] = Sparkle(self.leds)
 
                 elif command["name"] == "fizzy_lifting_drink":
-                    self.patterns["fizzy_lifting_drink"] = FizzyLiftingDrink()
+                    self.patterns["fizzy_lifting_drink"] = FizzyLiftingDrink(self.leds)
 
                 elif command["name"] == "make_me_one_with_everything":
                     self.patterns["make_me_one_with_everything"] = MakeMeOneWithEverything()
 
                 elif command["name"] == "fire":
-                    self.patterns["fire"] = Fire(self.leds)
+                    self.patterns["fire"] = Fire(self.leds, self.pattern_map_by_polar)
+
+                elif command["name"] == "map_video":
+                    self.patterns["map_video"] = MapVideo(self.video_handler)
 
                 else:
                     raise Exception("LedFixture: unknown pattern {}".format(command["name"]))
@@ -77,8 +97,8 @@ class LedFixture(Fixture):
 
     def send(self):
         if len(self.leds) > 0:
-            for sender in self.senders:
-                sender.send(self.line, self.get_pixels())
+            for sender_info in self.senders_info:
+                sender_info.sender.send(sender_info.line, self.get_pixels(force_rgb=sender_info.sender.is_simulator))
 
     def update(self, time, palette, smoothness, master_brightness):
         if self.pattern not in self.patterns.keys():
@@ -91,16 +111,73 @@ class LedFixture(Fixture):
         if smoothness < 0 or smoothness > 1:
             raise Exception("illegal smoothness value of {}".format(smoothness))
 
-        for index, led in enumerate(self.leds):
-            old_value = led.colour
-            new_value = self.patterns[self.pattern].get_pixel_colour(self.leds, index, time, palette, self.palette_name, master_brightness)
+        self.colours *= smoothness
+        new_colours = self.patterns[self.pattern].get_pixel_colours(self.leds, time, palette, self.palette_name)
+        new_colours = new_colours[:len(self.colours)]
+        new_colours *= (1.0 - smoothness)
+        self.colours += new_colours
+        self.colours *= master_brightness
 
-            led.colour = [old_value[i] * smoothness + new_value[i] * (1.0 - smoothness) for i in range(3)]
-            # led.colour = old_value * smoothness + new_value * (1.0 - smoothness)
-            led.overlaid_colour = self.overlay_handler.calculate_overlaid_colour(led, time)
+        # led.overlaid_colour = self.overlay_handler.calculate_overlaid_colour(led, time)
 
-    def get_pixels(self):
-        return list(map(max, [0.0, 0.0, 0.0], map(min, led.overlaid_colour, [255.0, 255.0, 255.0])) for led in self.leds)
+    def get_pixels(self, force_rgb=False):
+        if force_rgb:
+            return self.get_byte_values("rgb", self.colours)
+        else:
+            return self.get_byte_values(self.channel_order, self.colours)
+
+    def get_byte_values(self, channel_order, pixels):
+        input_order = ["r", "g", "b"]
+        input_values = np.array([np.take(pixels, 0, axis=1),
+                                 np.take(pixels, 1, axis=1),
+                                 np.take(pixels, 2, axis=1)])
+
+        if "w" in channel_order:
+            w = np.min(pixels, axis=1)
+            np.subtract(input_values, w)
+            input_values = np.append(input_values, [w], axis=0)
+            input_order.append("w")
+
+        output_values = np.zeros(len(pixels) * len(channel_order), dtype=int)
+
+        for index, cha in enumerate(channel_order):
+            if cha not in input_order:
+                raise Exception("Unknown colour channel ", cha)
+
+            output_values[index::len(channel_order)] = input_values[input_order.index(cha)]
+
+        sentinel_map = output_values == ord('~')
+        sentinel_map += output_values == ord('|')
+
+        safe_output_values = output_values + sentinel_map
+        safe_output_values = np.clip(255.0, 0.0, safe_output_values)
+
+        if self.power_budget:
+            safe_output_values = self.power_limit(channel_order, safe_output_values)
+
+        return safe_output_values.astype(int)
+
+    def power_limit(self, channel_order, byte_values):
+        watts_per_rgb_bit = 0.00015  # watts per bit per rgb channel
+        watts_per_w_bit = 0.00029  # watts per bit per w channel
+
+        channel_total = np.sum(byte_values)
+
+        if "w" in channel_order:
+            w_total = np.sum(byte_values[channel_order.index("w")::len(channel_order)])
+            rgb_total = channel_total - w_total
+
+            total_draw = rgb_total * watts_per_rgb_bit + w_total * watts_per_w_bit
+
+        else:
+            total_draw = channel_total * watts_per_rgb_bit
+
+        if total_draw > self.power_budget:
+            downscale_factor = self.power_budget / total_draw
+
+            byte_values *= downscale_factor
+
+        return byte_values
 
     def get_coords(self):
         return list(list(led.coord.get("global", "cartesian")) for led in self.leds)
@@ -126,4 +203,4 @@ class LedFixture(Fixture):
             led.coord.rotate_theta_local(angle)
 
     def has_sender(self, name):
-        return name in list(sender.name for sender in self.senders)
+        return name in list(sender_info.sender.name for sender_info in self.senders_info)
