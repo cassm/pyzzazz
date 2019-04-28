@@ -54,12 +54,21 @@ class Cartesian:
         theta = math.atan(self.y / nonzero(self.x))
         phi = math.atan(math.sqrt(self.x ** 2 + self.y ** 2) / nonzero(self.z))
 
+        if self.y < 0:
+            phi += math.pi
+
+        if self.x < 0:
+            theta += math.pi
+
         return Spherical(r, theta, phi)
 
     def to_cylindrical(self):
         r = math.sqrt(self.x**2 + self.y**2)
         theta = math.atan(self.y / nonzero(self.x))
         z = self.z
+
+        if self.x < 0:
+            theta += math.pi
 
         return Cylindrical(r, theta, z)
 

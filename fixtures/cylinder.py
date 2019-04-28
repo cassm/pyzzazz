@@ -24,9 +24,6 @@ class Cylinder(LedFixture):
 
         angle_from_centre = fixture_origin.to_cylindrical().theta
 
-        if fixture_origin.x < 0:
-            angle_from_centre += math.pi
-
         leds = list()
 
         for i in range(num_pixels):
