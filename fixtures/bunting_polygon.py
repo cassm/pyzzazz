@@ -70,13 +70,13 @@ class BuntingPolygon(LedFixture):
 
         self.leds = np.array(leds)
 
-        max_x_offset = max((math.fabs(led.coord.get("local", "cartesian").x) for led in self.leds))
-        max_y_offset = max((math.fabs(led.coord.get("local", "cartesian").y) for led in self.leds))
+        max_x_offset = max((math.fabs(led.coord.get("global", "cartesian").x) for led in self.leds))
+        max_y_offset = max((math.fabs(led.coord.get("global", "cartesian").y) for led in self.leds))
 
         for led in self.leds:
             # between 0 and 1
-            map_x = (led.coord.get("local", "cartesian").x / max_x_offset) / 2.0 + 0.5
-            map_y = (led.coord.get("local", "cartesian").y / max_y_offset) / 2.0 + 0.5
+            map_x = (led.coord.get("global", "cartesian").x / max_x_offset) / 2.0 + 0.5
+            map_y = (led.coord.get("global", "cartesian").y / max_y_offset) / 2.0 + 0.5
 
             led.flat_mapping = (map_x, map_y)
 
