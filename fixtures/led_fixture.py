@@ -87,7 +87,7 @@ class LedFixture(Fixture):
                     self.patterns["fire"] = Fire(self.leds, self.pattern_map_by_polar)
 
                 elif command["name"] == "map_video":
-                    self.patterns["map_video"] = MapVideo(self.video_handler)
+                    self.patterns["map_video"] = MapVideo(self.leds, self.video_handler)
 
                 else:
                     raise Exception("LedFixture: unknown pattern {}".format(command["name"]))

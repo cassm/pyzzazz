@@ -1,6 +1,7 @@
 import time
 import os
 import cv2
+import numpy as np
 
 
 class VideoHandler:
@@ -84,8 +85,7 @@ class VideoHandler:
 
             self._switch_to_video(name)
 
-    def sample(self, flat_mapping):
-        mapped_x = int(flat_mapping[0]*self.scaling_factor + self.width_offset)
-        mapped_y = int(flat_mapping[1]*self.scaling_factor + self.height_offset)
-
-        return list(self.frame[mapped_y, mapped_x])
+    def sample(self, flat_mappings):
+        x_mappings = np.minimum((flat_mappings[...,0] * self.scaling_factor + self.width_offset).astype(int), self.frame.shape[0]-1)
+        y_mappings = np.minimum((flat_mappings[...,1] * self.scaling_factor + self.height_offset).astype(int), self.frame.shape[1]-1)
+        return self.frame[x_mappings, y_mappings].astype(np.float16)
