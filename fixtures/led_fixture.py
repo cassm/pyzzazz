@@ -4,6 +4,7 @@ from patterns.fizzy_lifting_drink import FizzyLiftingDrink
 from patterns.make_me_one_with_everything import MakeMeOneWithEverything
 from patterns.fire import Fire
 from patterns.smooth import Smooth
+from patterns.swirl import Swirl
 from patterns.map_video import MapVideo
 import numpy as np
 
@@ -69,6 +70,9 @@ class LedFixture(Fixture):
             if command["name"] not in self.patterns:
                 if command["name"] == "smooth":
                     self.patterns["smooth"] = Smooth(self.leds)
+
+                if command["name"] == "swirl":
+                    self.patterns["swirl"] = Swirl(self.leds)
 
                 elif command["name"] == "sparkle":
                     self.patterns["sparkle"] = Sparkle(self.leds)
