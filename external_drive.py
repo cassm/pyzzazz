@@ -6,9 +6,27 @@ from pathlib import Path
 
 class ExternalDrive:
     """An interface for getting config files off an external drive.
-    Reads MacOS Darwin and Unix filesystems."""
+    Reads MacOS (Darwin) and Unix filesystems.
+    Watch out for drives with extraneous .bmp and .mp4 files,
+    it'll hoover them all up indiscriminately.
 
-    _config_search_term = '**/conf.json'
+    - you can read config, palette and video paths separately;
+        they each return a list of corresponding file paths (or an empty list)
+
+        <drive>.read_palette_paths() => [PosixPath('/<...>/such_palette1.bmp', PosixPath('/<...>/such_palette2.bmp']
+        <drive>.read_config_paths() => [PosixPath('/<...>/very_conf.json', PosixPath('/<...>/so_conf.json']
+        <drive>.read_video_paths() => [PosixPath('/<...>/omg_video1.mp4', PosixPath('/<...>/omg_video2.mp4']
+
+    - alternatively, get all the Path objects in one flat list
+
+        <drive>.read_all_paths
+        =>> [   PosixPath('/<...>/such_palette1.bmp'),  <more palettes>,
+                PosixPath('/<...>/conf_file1.json'),    <more configs>,
+                PosixPath('/<...>/omg_video1.mp4')      <more mp4s>,
+            ] etc
+    """
+
+    _config_search_term = '**/*conf.json'
     _palette_search_term = '**/*.bmp'
     _video_search_term = "**/*.mp4"
 
@@ -18,13 +36,9 @@ class ExternalDrive:
         self._video_files = []
         self.__find_files__()
 
+    def read_all_paths(self):
 
-    def __call__(self):
-        return
-
-    def read_paths(self):
-
-        return self._config_files, self._palette_files, self._video_files
+        return sum(list(self._config_files, self._palette_files, self._video_files), [])
 
 
     def read_config_paths(self):
@@ -52,14 +66,16 @@ class ExternalDrive:
             raise e
 
     def __get_mount_points__(self):
-        """
-        MAC OS removable volume mount-point finder
-        Output: list(str), eg ["/Volumes/Flash", "/Volumes/Stick"]
-        """
+
         if sys.platform == 'darwin':
             external_drives = subprocess.check_output(["diskutil", "list", "-plist", "external"], text=True)
+            removables = re.findall(r'/Volumes/\w*', external_drives)
 
-        removables = re.findall(r'/Volumes/\w*', external_drives)
+        elif sys.platform == 'linux':
+            external_drives = subprocess.check_output(["lsblk"], text=True)
+            #TODO add regex
+            removables = ''
+
 
         if len(removables) == 0:
             raise Exception('Could not find a drive to read')
