@@ -7,6 +7,19 @@ import usb.core
 import usb.util
 
 
+class ConfigStorage:
+
+    def _init_(self):
+        self.mount_points = get_mount_points()
+        self.conf = get_conf_json()
+
+
+
+    def read_config(self):
+
+        return
+
+
 class FindRemovable(object):
     """
     usb device class callable matcher for use by (and courtesy of) usb.core.find;
@@ -77,14 +90,14 @@ def get_mount_points():
         return mount_points
 
 
-def get_conf_json(path_anchor, conf_search_str):
+def get_conf_json(path_anchors, conf_search_str):
 
-    return list(Path(path_anchor).glob(conf_search_str))
+    return list(Path(path_anchors).glob(conf_search_str))
 
 
-def get_palettes(path_anchor, palettes_search_str):
+def get_palettes(path_anchors, palettes_search_str):
 
-    return list(Path(path_anchor).glob(palettes_search_str))
+    return list(Path(path_anchors).glob(palettes_search_str))
 
 
 print(get_conf_json('/Volumes/KINGSTON', 'conf.json'))

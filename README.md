@@ -12,7 +12,9 @@ In order to launch the server, just run pyzzazz.py.
 
 If you have a controller specified with type=gui pyzzazz will launch a TCP server and connect to any correctly configured instances. In order to launch the actual tkinter-based gui controller, run gui_controller_launcher.py. Because the communication is taking place over websockets, so with a bit of elbow grease you should be able to get a gui working on any device on the network. The packet format is specified (implicitly) in common/packet-handler.py. A protocol specification will be, again, forthcoming.
 
-If you have a sender specified with type=opc and simulate=true, pyzzazz will generate layout files and launch the open pixel control gl_server, which will simulate the led fixtures which send to it
+If you have a sender specified with type=opc and is_simulator=true, pyzzazz will generate layout files and launch the open pixel control gl_server, which will simulate the led fixtures which send to it
+
+Power limiting is supported for LED fixtures. If the fixture is specified with a "power_budget" argument (in watts), pyzzazz will estimate the power consumption of a given frame and downscale it if necessary to avoid overdraw.
 
 ### Prerequisites
 

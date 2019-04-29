@@ -1,10 +1,12 @@
 from operator import add
 from overlays.flash import Flash
+from overlays.star_drive import StarDrive
+from overlays.ripple import Ripple
 import math
 
 
 class OverlayInfo:
-    # FIXME add regex?
+    # FIXME add keyword?
     def __init__(self, time, overlay):
         self.overlay = overlay
         self.max_contribution = 0.0
@@ -30,16 +32,23 @@ class OverlayInfo:
 
 class OverlayHandler:
     def __init__(self):
-        self.epsilon = 0.1
+        self.epsilon = 10
+        self.min_time = 2
         self.active_overlays = list()
 
-    def update(self):
-        self.active_overlays = list(overlay for overlay in self.active_overlays if overlay.get_max_contribution() > self.epsilon)
+    def update(self, time):
+        self.active_overlays = list(overlay for overlay in self.active_overlays if time - overlay.start_time < self.min_time or overlay.get_max_contribution() > self.epsilon)
 
     def receive_command(self, command, time):
         if command["type"] == "overlay":
             if command["name"] == "flash":
                 self.active_overlays.append(OverlayInfo(time, Flash(command["args"])))
+
+            elif command["name"] == "star_drive":
+                self.active_overlays.append(OverlayInfo(time, StarDrive(command["args"])))
+
+            elif command["name"] == "ripple":
+                self.active_overlays.append(OverlayInfo(time, Ripple(command["args"])))
 
             else:
                 raise Exception("OverlayHandler: unknown overlay {}".format(command["name"]))

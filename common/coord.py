@@ -167,6 +167,7 @@ class Coordinate:
         self._global_cartesian = self._local_cartesian + self._local_origin
         self._global_spherical = self._global_cartesian.to_spherical()
         self._global_cylindrical = self._global_cartesian.to_cylindrical()
+        self._local_delta = self._local_cartesian.get_magnitude()
         self._global_delta = self._global_cartesian.get_magnitude()
 
         self.access_dict = {"global":
@@ -201,6 +202,7 @@ class Coordinate:
             self._local_cartesian = self._global_cartesian - self._local_origin
             self._local_spherical = self._local_cartesian.to_spherical()
             self._local_cylindrical = self._local_cartesian.to_cylindrical()
+            self._local_delta = self._local_cartesian.get_magnitude()
             self._global_delta = self._global_cartesian.get_magnitude()
 
         elif variable == "global_spherical":
@@ -278,7 +280,6 @@ class Coordinate:
         else:
             raise Exception("unknown reference frame {}".format(reference_frame))
 
-    # FIXME change these names?
     # changes the local origin and leaves the point static in the LOCAL frame
     def set_local_origin(self, o):
         self._local_origin = o

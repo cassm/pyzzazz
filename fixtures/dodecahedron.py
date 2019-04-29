@@ -3,16 +3,18 @@ from fixtures.led_fixture import Led
 from common.coord import Coordinate
 from common.coord import Spherical
 from common.coord import Cartesian
+from common.utils import nonzero
+import numpy as np
 import math
 
 class Dodecahedron(LedFixture):
-    def __init__(self, config, sender, overlay_handler):
+    def __init__(self, config, senders, overlay_handler, video_handler):
         # dodecahedrons always have 60 pixels
         config["num_pixels"] = 60
 
         self.validate_config(config)
 
-        LedFixture.__init__(self, config, sender, overlay_handler)
+        LedFixture.__init__(self, config, senders, overlay_handler, video_handler)
 
         led_spherical_local_coords = ((60,   6),  (20,  30),  (45,  48),  (75,  18), (100, 348),
                                      (300,   6), (260, 348), (285,  18), (315,  48), (340,  30),
@@ -29,10 +31,24 @@ class Dodecahedron(LedFixture):
 
         fixture_origin = Cartesian(*config.get("location"))
 
+        leds = list()
+
         for coord in led_spherical_local_coords:
             led_local_spherical = Spherical(r=config["radius"], theta=math.radians(coord[0]), phi=math.radians(coord[1]))
             led_coord = Coordinate(local_origin=fixture_origin, local_spherical=led_local_spherical)
-            self.leds.append(Led(led_coord, [0.0, 0.0, 0.0]))
+            leds.append(Led(led_coord, [0.0, 0.0, 0.0]))
+
+        self.leds = np.array(leds)
+
+        max_x_offset = max((math.fabs(led.coord.get("local", "cartesian").x) for led in self.leds))
+        max_y_offset = max((math.fabs(led.coord.get("local", "cartesian").y) for led in self.leds))
+
+        for led in self.leds:
+            # between 0 and 1
+            map_x = (led.coord.get("local", "cartesian").x / max_x_offset) / 2.0 + 0.5
+            map_y = (led.coord.get("local", "cartesian").y / max_y_offset) / 2.0 + 0.5
+
+            led.flat_mapping = (map_x, map_y)
 
     def validate_config(self, config):
         if "radius" not in config.keys():

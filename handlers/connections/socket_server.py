@@ -1,35 +1,15 @@
+from handlers.connections.connection_handler import ConnectionHandler
+from handlers.connections.connection_handler import ClientHandler
+from handlers.connections.connection_handler import ClientState
 import socket
 import select
 import errno
-from copy import deepcopy
-from common.packet_handler import CommPacketHandler
-from common.packet_handler import CommHeader
-from enum import Enum
-
-class ClientState(Enum):
-    NEW = 0,
-    AWAITING_NAME = 1,
-    INITIALISED = 3
 
 
-class ClientHandler:
-    def __init__(self, address):
-        self.address = address
-        self.state = ClientState.NEW
-        self.name = None
-        self.packet_handler = CommPacketHandler()
-        self.outbound_byte_buffer = bytearray()
-        self.inbound_packet_buffer = list()
-
-    def send_bytes(self, bytes):
-        if len(self.outbound_byte_buffer) == 0:
-            self.outbound_byte_buffer = bytes
-        else:
-            self.outbound_byte_buffer.extend(bytes)
-
-
-class SocketServer:
+class SocketServer(ConnectionHandler):
     def __init__(self, port, host='', timeout=0.001):
+        ConnectionHandler.__init__(self)
+
         self._timeout = timeout
         self._server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -40,41 +20,6 @@ class SocketServer:
         print("SocketServer: listening on {}:{}".format(host, port))
 
         self.send_buffer = bytearray()
-        self._client_dict = dict()
-
-    def is_connected(self, client_name):
-        for client in self._client_dict.values():
-            if client.name == client_name and client.state == ClientState.INITIALISED:
-                return True
-
-        return False
-
-    def get_packets(self, client_name):
-        # just drop bytes for unknown clients for now
-        for client in self._client_dict.values():
-            if client.name == client_name:
-                return client.inbound_packet_buffer
-
-        return list()
-
-    def clear_packets(self, client_name):
-        # just drop bytes for unknown clients for now
-        for client in self._client_dict.values():
-            if client.name == client_name:
-                client.inbound_packet_buffer.clear()
-                break
-
-    def send_request(self, client_name, request):
-        # just drop request for unknown clients for now
-        for client in self._client_dict.values():
-            if client.name == client_name:
-                client.send_bytes(CommHeader(msgtype=request).get_bytes())
-
-    def send_bytes(self, client_name, bytes):
-        # just drop bytes for unknown clients for now
-        for client in self._client_dict.values():
-            if client.name == client_name:
-                client.send_bytes(bytes)
 
     def poll(self):
         readable, writeable, errored = select.select(list(self._client_dict.keys()) + [self._server_socket],
@@ -118,7 +63,7 @@ class SocketServer:
                 # don't do anything else until we have a name
                 if self._client_dict[s].state == ClientState.NEW:
                     print("sending name request to client at {}".format(self._client_dict[s].address))
-                    self._client_dict[s].send_bytes(CommHeader(msgtype="name_request").get_bytes())
+                    self._client_dict[s].send_request("name_request")
                     self._client_dict[s].state = ClientState.AWAITING_NAME
 
                 if len(self._client_dict[s].outbound_byte_buffer) > 0:
@@ -132,7 +77,8 @@ class SocketServer:
                             s.close()
                             self._client_dict.pop(s)
 
-                        print('Blocking with', len(self._client_dict[s].outbound_byte_buffer), 'remaining')
+                        else:
+                            print('Blocking with', len(self._client_dict[s].outbound_byte_buffer), 'remaining')
 
                     except Exception as e:
                         print("Lost connection with client {}".format(self._client_dict[s].name))
@@ -152,22 +98,3 @@ class SocketServer:
                 pass
 
         self.handle_received_packets()
-
-    def handle_received_packets(self):
-        for client in self._client_dict.values():
-            for packet in client.inbound_packet_buffer:
-                if packet["msgtype"] == "name_reply":
-                    if client.state == ClientState.AWAITING_NAME:
-                        client.name = packet["name"]
-                        print("Client at {} identified as {}".format(client.address, client.name))
-                        client.state = ClientState.INITIALISED
-
-                    else:
-                        if packet["name"] == client.name:
-                            print("Multiple name replies received from client {} at {}".format(client.name, client.address))
-                        else:
-                            print("Multiple conflicting name replies received from client {}. Old name = {} new name = {}".format(client.address, client.name, packet["name"]))
-
-                    client.inbound_packet_buffer.remove(packet)
-
-    # handle client available packets

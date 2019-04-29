@@ -1,8 +1,8 @@
 from tkinter import *
-from common.socket_client import SocketClient
-from common.packet_handler import CommHeader
-from common.packet_handler import StateReplyPayload
-from controllers.controller_handler import Control
+from handlers.connections.socket_client import SocketClient
+from handlers.packet_handler import CommHeader
+from handlers.packet_handler import StateReplyPayload
+from handlers.controllers.controller_handler import Control
 
 
 class GuiControllerWindow:
@@ -12,11 +12,14 @@ class GuiControllerWindow:
         self._window = Tk()
         self._window.title(name)
         self._window.configure(background=self._bg_colour)
+        self._window.protocol("WM_DELETE_WINDOW", self._on_closing)
+        # self._window.focus_force()
+        self._window.after(1, lambda: self._window.focus_force())
         self._buttons = dict()
         self._sliders = dict()
 
         for butt in buttons:
-            self._buttons[butt["id"]] = Control(butt["name"], butt["id"], butt["target_regex"], butt["command"], butt.get("default, 0"))
+            self._buttons[butt["id"]] = Control(butt["name"], butt["id"], butt["target_keyword"], butt["command"], butt.get("default, 0"))
 
             new_button = Button(self._window, highlightbackground=self._bg_colour, text=butt["name"],
                                 command=lambda n=butt["id"]: self.button_pressed(n))
@@ -24,7 +27,7 @@ class GuiControllerWindow:
             new_button.pack({'fill': 'x', 'expand': 1, 'padx': 5, 'pady': 3})
 
         for slider in sliders:
-            self._sliders[slider["id"]] = Control(slider["name"], slider["id"], slider["target_regex"], slider["command"], slider["default"])
+            self._sliders[slider["id"]] = Control(slider["name"], slider["id"], slider["target_keyword"], slider["command"], slider["default"])
             slider_label = Label(self._window, text=slider["name"], fg="#FFFFFF", bg=self._bg_colour)
             slider_label.pack({'fill': 'x', 'expand': 1, 'padx': 5, 'pady': 3})
 
@@ -66,7 +69,7 @@ class GuiControllerWindow:
         slider_state = list()
         for i in range(len(self._sliders.keys())):
             try:
-                slider_val = int(self._sliders[i].state / 100 * 1024)
+                slider_val = int(self._sliders[i].state / 100.0 * 1024)
                 slider_state.append(slider_val)
             except KeyError:
                 slider_state.append(0)
@@ -77,10 +80,13 @@ class GuiControllerWindow:
         for button in self._buttons.values():
             button.set_state(0)
 
+    def _on_closing(self):
+        self._window.destroy()
+
 
 class GuiController:
-    def __init__(self, config):
-        self.socket = SocketClient(name=config.get("name"), port=config.get("port"))
+    def __init__(self, config, host):
+        self.socket = SocketClient(name=config.get("name"), port=config.get("port"), host=host)
         self.window = GuiControllerWindow(config.get("name"), config.get("buttons"), config.get("sliders"))
         self.window.set_after(5, self.poll)
 
