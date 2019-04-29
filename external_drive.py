@@ -1,120 +1,70 @@
-import usb.core
-import usb.util
 import psutil
 import sys
+import subprocess
+import re
 from pathlib import Path
-import usb.core
-import usb.util
-
 
 class ExternalDrive:
+    """An interface for getting config files off an external drive.
+    Reads MacOS Darwin and Unix filesystems."""
 
-    def _init_(self):
+    _config_search_term = '**/conf.json'
+    _palette_search_term = '**/*.bmp'
+    _video_search_term = "**/*.mp4"
 
-        self._conf_search_term = 'conf.json'
-        self._palette_search_term = '*.bmp'
-        self._op_system = sys.platform
-        self._mount_points = get_mount_points()
-        self.conf = get_conf_json()
-
-
-
-    def read_files(self):
-        files = []
-
-        return files
+    def __init__(self):
+        self._config_files = []
+        self._palette_files = []
+        self._video_files = []
+        self.__find_files__()
 
 
+    def __call__(self):
+        return
 
-    def find_conf_files(self):
+    def read_paths(self):
 
-        paths = []
-
-        for directory in self._mount_points:
-            paths.extend(list(Path(directory).glob(self._conf_search_term)))
-
-        return paths
+        return self._config_files, self._palette_files, self._video_files
 
 
-    def get_mount_points(self):
+    def read_config_paths(self):
+
+        return self._config_files
+
+    def read_palette_paths(self):
+
+        return self._palette_files
+
+    def read_video_paths(self):
+
+        return _video_files
+
+    def __find_files__(self):
+
+        try:
+            for directory in self.__get_mount_points__():
+                self._config_files.extend(list(Path(directory).glob(self._config_search_term)))
+                self._palette_files.extend(list(Path(directory).glob(self._palette_search_term)))
+                self._video_files.extend(list(Path(directory).glob(self._video_search_term)))
+
+        except Exception as e:
+            print("Could not read files from drive")
+            raise e
+
+    def __get_mount_points__(self):
         """
         MAC OS removable volume mount-point finder
         Output: list(str), eg ["/Volumes/Flash", "/Volumes/Stick"]
         """
-        if self._op_system == 'darwin':
-            disk_drives = subprocess.check_output(["diskutil", "info", "-all"], text=True)
+        if sys.platform == 'darwin':
+            external_drives = subprocess.check_output(["diskutil", "list", "-plist", "external"], text=True)
 
-
-        removables = re.findall(r'.Volumes.\w*', disk_drives)
+        removables = re.findall(r'/Volumes/\w*', external_drives)
 
         if len(removables) == 0:
-            raise Exception('Could not find a USB to read')
+            raise Exception('Could not find a drive to read')
 
         else:
+            print("Found {} external filesystem(s): {}".format(len(removables), removables))
             return removables
 
-
-
-
-
-class FindRemovable(object):
-    """
-    usb device class callable matcher for use by (and courtesy of) usb.core.find;
-    necessary because devices keep their class tags in different config areas
-    """
-
-    def __init__(self, class_):
-        self._class = class_
-
-    def __call__(self, device):
-
-        if device.bDeviceClass == self._class:
-            return True
-
-        for configuration in device:
-            interface = usb.util.find_descriptor(
-                                        configuration,
-                                        bInterfaceClass=self._class)
-
-            if interface is not None:
-                return True
-
-        return False
-
-
-def mass_storage_check(device_class=8):
-    """
-    Searches through USB buses to check for removable storage.
-    device_class - literally number 8, which is USB for "mass storage".
-    Returns a list of dicts with some particulars, indexed by manufacturer
-    example output: [{'Kingston': {'port': 11, 'bus': 20, 'address': 2}}]
-    """
-
-    removables_generator = usb.core.find(find_all=1,
-                                         custom_match=FindRemovable(device_class))
-
-    removables = [{device.manufacturer: {"port":        device.port_number,
-                                         "bus":         device.bus,
-                                         "address":     device.address}
-                                                    for device in removables_generator}]
-
-    if len(removables) == 0:
-        raise Exception('Could not find a USB stick')
-
-    else:
-        return removables
-
-
-
-
-
-
-
-
-def get_palettes(path_anchors, palettes_search_str):
-
-    return list(Path(path_anchors).glob(palettes_search_str))
-
-
-print(get_conf_json('/Volumes/KINGSTON', 'conf.json'))
-print(get_palettes('/Volumes/KINGSTON', '*.bmp'))
