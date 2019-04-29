@@ -1,23 +1,60 @@
 import usb.core
 import usb.util
 import psutil
+import sys
 from pathlib import Path
-
 import usb.core
 import usb.util
 
 
-class ConfigStorage:
+class ExternalDrive:
 
     def _init_(self):
-        self.mount_points = get_mount_points()
+
+        self._conf_search_term = 'conf.json'
+        self._palette_search_term = '*.bmp'
+        self._op_system = sys.platform
+        self._mount_points = get_mount_points()
         self.conf = get_conf_json()
 
 
 
-    def read_config(self):
+    def read_files(self):
+        files = []
 
-        return
+        return files
+
+
+
+    def find_conf_files(self):
+
+        paths = []
+
+        for directory in self._mount_points:
+            paths.extend(list(Path(directory).glob(self._conf_search_term)))
+
+        return paths
+
+
+    def get_mount_points(self):
+        """
+        MAC OS removable volume mount-point finder
+        Output: list(str), eg ["/Volumes/Flash", "/Volumes/Stick"]
+        """
+        if self._op_system == 'darwin':
+            disk_drives = subprocess.check_output(["diskutil", "info", "-all"], text=True)
+
+
+        removables = re.findall(r'.Volumes.\w*', disk_drives)
+
+        if len(removables) == 0:
+            raise Exception('Could not find a USB to read')
+
+        else:
+            return removables
+
+
+
 
 
 class FindRemovable(object):
@@ -68,31 +105,10 @@ def mass_storage_check(device_class=8):
         return removables
 
 
-def get_mount_points():
-    """
-    MAC OS removable volume mount-point finder
-    Output: list(str), eg ["/Volumes/Flash", "/Volumes/Stick"]
-    """
-
-    partitions = psutil.disk_partitions()
-    mount_points = []
-
-    for partition in partitions:
-        root = partition.mountpoint
-
-        if root.split("/")[1] == "Volumes":
-            mount_points.append(root)
-
-    if len(mount_points) == 0:
-        raise Exception('Could not find a USB to read')
-
-    else:
-        return mount_points
 
 
-def get_conf_json(path_anchors, conf_search_str):
 
-    return list(Path(path_anchors).glob(conf_search_str))
+
 
 
 def get_palettes(path_anchors, palettes_search_str):
