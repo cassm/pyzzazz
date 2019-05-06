@@ -111,6 +111,7 @@ class PaletteHandler:
 
         total_progress = np.array((space_deltas * (self.palette_space_factor * space_factor)))
         total_progress -= time_delta
+        total_progress %= 1
         total_progress *= self.standard_palette_len
 
         while min(total_progress) < 0:
