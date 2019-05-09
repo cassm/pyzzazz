@@ -101,7 +101,7 @@ class Pyzzazz:
                 events = controller.get_events()
                 for event in events:
                     if event.is_overlay():
-                        self.overlay_handler.receive_command(event.command, self.effective_time)
+                        self.overlay_handler.receive_command(event.command)
 
                     else:
                         if event.is_video():
@@ -144,7 +144,7 @@ class Pyzzazz:
             fixture.update(self.effective_time, self.palette_handler, smoothness, brightness)
             fixture.send()
 
-        self.overlay_handler.update(self.effective_time)
+        self.overlay_handler.update()
 
     def init_senders(self):
         for sender_conf in self.config_parser.get_senders():
