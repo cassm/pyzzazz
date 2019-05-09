@@ -13,6 +13,9 @@ class MakeMeOneWithEverything(Pattern):
         self._white_level = 16
         self._swoosh_interval = 15
 
+        self._time_factor = 1.0/50
+        self._space_factor = 1.0
+
         self._next_swoosh = random.gauss(self._swoosh_interval, self._swoosh_interval / 4)
 
         self._origin_deltas = np.array(list(pixel.coord.get_delta("global") for pixel in pixels))
@@ -81,6 +84,11 @@ class MakeMeOneWithEverything(Pattern):
 
         # print(f"max swoosh level {max(swoosh_level)}")
         w = np.maximum(w, np.minimum(swoosh_level, 1)*128)
+
+        raw_colours = palette_handler.sample_radial_all(self._origin_deltas, time, self._space_factor, self._time_factor, palette_name).astype(np.float16)
+
+        rgb /= 2
+        rgb += raw_colours/2
 
         rgb += w[:,np.newaxis]
         rgb *= (swoosh_level[:,np.newaxis] + 1)
