@@ -2,6 +2,7 @@ from operator import add
 from overlays.flash import Flash
 from overlays.star_drive import StarDrive
 from overlays.ripple import Ripple
+from overlays.spark_shower import SparkShower
 import numpy as np
 import time
 
@@ -31,8 +32,8 @@ class OverlayInfo:
 
 class OverlayHandler:
     def __init__(self):
-        self.epsilon = 5
-        self.min_time = 2
+        self.epsilon = 10
+        self.min_time = 5
         self.active_overlays = list()
 
     def update(self):
@@ -49,6 +50,9 @@ class OverlayHandler:
 
             elif command["name"] == "ripple":
                 self.active_overlays.append(OverlayInfo(Ripple(command["args"])))
+
+            elif command["name"] == "spark_shower":
+                self.active_overlays.append(OverlayInfo(SparkShower(command["args"])))
 
             else:
                 raise Exception("OverlayHandler: unknown overlay {}".format(command["name"]))
