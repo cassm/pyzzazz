@@ -27,6 +27,11 @@ class VideoHandler:
 
         self._switch_to_video(list(self.videos.keys())[0])
 
+        self._global_scaling_factor = 0.5
+
+    def set_scaling_factor(self, scaling_factor):
+        self._global_scaling_factor = max(0.0, min(1.0, scaling_factor))
+
     def _switch_to_video(self, name):
         if name not in self.videos.keys():
             raise Exception("Unknown video ", name)
@@ -86,6 +91,9 @@ class VideoHandler:
             self._switch_to_video(name)
 
     def sample(self, flat_mappings):
-        x_mappings = np.minimum((flat_mappings[...,0] * self.scaling_factor + self.width_offset).astype(int), self.frame.shape[0]-1)
-        y_mappings = np.minimum((flat_mappings[...,1] * self.scaling_factor + self.height_offset).astype(int), self.frame.shape[1]-1)
-        return self.frame[x_mappings, y_mappings].astype(np.float16)
+        centralised_x_mappings = flat_mappings[...,0] - 0.5
+        centralised_y_mappings = flat_mappings[...,1] - 0.5
+        x_mappings = np.minimum((centralised_x_mappings * self.scaling_factor * self._global_scaling_factor + self.frame.shape[0]/2).astype(int), self.frame.shape[0]-1)
+        y_mappings = np.minimum((centralised_y_mappings * self.scaling_factor * self._global_scaling_factor + self.frame.shape[1]/2).astype(int), self.frame.shape[1]-1)
+
+        return self.frame[x_mappings.astype(int), y_mappings.astype(int)].astype(np.float16)

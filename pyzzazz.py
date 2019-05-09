@@ -88,6 +88,9 @@ class Pyzzazz:
         self.palette_handler.set_palette_space_factor(self.setting_handlers["master_settings"].get_value("space_per_palette", 0.5))
         self.palette_handler.set_palette_time_factor(self.setting_handlers["master_settings"].get_value("time_per_palette", 0.5))
 
+        for video_handler in self.video_handlers.values():
+            video_handler.set_scaling_factor(self.setting_handlers["master_settings"].get_value("space_per_palette", 0.5) / 2 + 0.5)
+
         for controller in self.controllers:
             if not controller.is_connected():
                 controller.try_connect()
