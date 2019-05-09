@@ -61,10 +61,25 @@ class PaletteHandler:
         if not palette_name:
             palette_to_use = self.master_palette_name
 
+        palette_index = self.palette_names.index(palette_to_use)
+
         assert 0.0 <= position <= 1.0, "sample_positional: position must be between 0 and 1"
 
-        index = int(position * self.standard_palette_len-1)
-        return self.palettes[palette_to_use][index]
+        index = int(position * (self.standard_palette_len-1))
+        return self.palettes[palette_index][index]
+
+    def sample_positional_all(self, positions, palette_name):
+        palette_to_use = palette_name
+
+        if not palette_name:
+            palette_to_use = self.master_palette_name
+
+        palette_index = self.palette_names.index(palette_to_use)
+
+        positions %= 1.0
+
+        indices = positions * (self.standard_palette_len-1)
+        return self.palettes[palette_index][list(indices.astype(int))].astype(np.float16)
 
     def sample_radial(self, space_delta, time_delta, space_factor, time_factor, palette_name):
         assert 0 <= time_factor <= 1.0, "Time factor must be between 0 and 1"
