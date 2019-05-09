@@ -14,8 +14,8 @@ class Sparkle(Pattern):
     def __init__(self, leds):
         # sane defaults
         self._max_sparkles_percent = 4
-        self._sparkle_probability = 0.0005
-        self._background_brightness = 0.25
+        self._sparkle_probability = 0.025
+        self._background_brightness = 0.5
 
         self._last_refresh = 0
         self._nominal_fps = 30
@@ -52,9 +52,9 @@ class Sparkle(Pattern):
         # do not allow zero, because we divide by this
         time_deltas = time - self._sparkle_times
         time_deltas *= 2
-        time_deltas = np.clip(999, 0.1, time_deltas)
+        time_deltas = np.clip(999, 0.75, time_deltas)
         sparkle_intensities = 1.0 / time_deltas.astype(np.float16)
-        sparkle_intensities = np.clip(1.0, 0.0, sparkle_intensities)
+        # sparkle_intensities = np.clip(1.0, 0.0, sparkle_intensities)
         sparkle_colours = self._sparkle_colours*sparkle_intensities[:,np.newaxis]
 
         # background_colours = []
