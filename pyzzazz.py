@@ -34,9 +34,9 @@ class Pyzzazz:
 
         self.video_handlers = dict()
 
-        self.video_handlers["icosahedron"] = VideoHandler(video_path)
-        self.video_handlers["cylinder"] = VideoHandler(video_path)
-        self.video_handlers["bunting"] = VideoHandler(video_path)
+        self.video_handlers["led_fix_icosahedron"] = VideoHandler(video_path)
+        self.video_handlers["led_fix_cylinder"] = VideoHandler(video_path)
+        self.video_handlers["led_fix_bunting"] = VideoHandler(video_path)
 
         self.usb_serial_manager = UsbSerialHandler()
         self.effective_time = 0.0
@@ -176,15 +176,15 @@ class Pyzzazz:
 
                 if fixture_conf.get("geometry", "") == "dodecahedron":
                     print("Creating dodecahedron {} with senders {}".format(fixture_conf.get("name", ""), fixture_conf.get("senders", [])))
-                    self.fixtures.append(Dodecahedron(fixture_conf, fixture_senders, self.overlay_handler, self.video_handlers["icosahedron"]))
+                    self.fixtures.append(Dodecahedron(fixture_conf, fixture_senders, self.overlay_handler, self.video_handlers["led_fix_icosahedron"]))
 
                 elif fixture_conf.get("geometry", "") == "cylinder":
                     print("Creating cylinder {} with senders {}".format(fixture_conf.get("name", ""), fixture_conf.get("senders", [])))
-                    self.fixtures.append(Cylinder(fixture_conf, fixture_senders, self.overlay_handler, self.video_handlers["cylinder"]))
+                    self.fixtures.append(Cylinder(fixture_conf, fixture_senders, self.overlay_handler, self.video_handlers["led_fix_cylinder"]))
 
                 elif fixture_conf.get("geometry", "") == "bunting_polygon":
                     print("Creating bunting polygon {} with senders {}".format(fixture_conf.get("name", ""), fixture_conf.get("senders", [])))
-                    self.fixtures.append(BuntingPolygon(fixture_conf, fixture_senders, self.overlay_handler, self.video_handlers["bunting"]))
+                    self.fixtures.append(BuntingPolygon(fixture_conf, fixture_senders, self.overlay_handler, self.video_handlers["led_fix_bunting"]))
 
                 else:
                     raise Exception("Unknown fixture geometry {}".format(fixture_conf.get("geometry", "")))
