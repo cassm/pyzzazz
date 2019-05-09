@@ -23,7 +23,7 @@ class Ripple(Overlay):
         time_since_front = front_progress - self.deltas[fixture_name]
         time_since_front = np.maximum(1, time_since_front)
 
-        front_intensity = 1.0 / (time_since_front / 4.0)
+        front_intensity = 1.0 / (time_since_front / 4.5)
 
         front_intensity[self.deltas[fixture_name] > time_since_front] = 0
 

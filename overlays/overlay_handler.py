@@ -10,7 +10,7 @@ class OverlayInfo:
     # FIXME add keyword?
     def __init__(self, overlay):
         self.overlay = overlay
-        self.max_contribution = 0.0
+        self.max_contribution_per_led = 0.0
         self.start_time = time.time()
 
     def get_overlaid_colours(self, colours, leds, fixture_name):
@@ -18,24 +18,26 @@ class OverlayInfo:
 
         total_contribution = np.sum(np.abs((overlaid_colours - colours).flatten()))
 
-        self.max_contribution = max(total_contribution, self.max_contribution)
+        self.max_contribution_per_led = max(total_contribution / len(leds), self.max_contribution_per_led)
 
         return overlaid_colours
 
-    def get_max_contribution(self):
-        max_contribution = self.max_contribution
-        self.max_contribution = 0.0
-        return max_contribution
+    def get_max_contribution_per_led(self):
+        print (self.max_contribution_per_led)
+        max_contribution_per_led = self.max_contribution_per_led
+        self.max_contribution_per_led = 0.0
+        return max_contribution_per_led
 
 
 class OverlayHandler:
     def __init__(self):
-        self.epsilon = 10
+        self.epsilon = 5
         self.min_time = 2
         self.active_overlays = list()
 
     def update(self):
-        self.active_overlays = list(overlay for overlay in self.active_overlays if time.time() - overlay.start_time < self.min_time or overlay.get_max_contribution() > self.epsilon)
+        self.active_overlays = list(overlay for overlay in self.active_overlays if time.time() - overlay.start_time < self.min_time or overlay.get_max_contribution_per_led() > self.epsilon)
+        print(len(self.active_overlays))
 
     def receive_command(self, command):
         if command["type"] == "overlay":
