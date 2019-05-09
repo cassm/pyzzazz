@@ -13,8 +13,8 @@ class OverlayInfo:
         self.max_contribution = 0.0
         self.start_time = time.time()
 
-    def get_overlaid_colours(self, colours, leds):
-        overlaid_colours = self.overlay.get_overlaid_colours(colours, leds, time.time() - self.start_time)
+    def get_overlaid_colours(self, colours, leds, fixture_name):
+        overlaid_colours = self.overlay.get_overlaid_colours(colours, leds, time.time() - self.start_time, fixture_name)
 
         total_contribution = np.sum(np.abs((overlaid_colours - colours).flatten()))
 
@@ -54,10 +54,10 @@ class OverlayHandler:
         else:
             raise Exception("OverlayHandler: unknown command type {}".format(command["type"]))
 
-    def calculate_overlaid_colours(self, leds, colours):
+    def calculate_overlaid_colours(self, leds, colours, fixture_name):
         overlaid_colours = colours
 
         for overlay in self.active_overlays:
-            overlaid_colours = overlay.get_overlaid_colours(overlaid_colours, leds)
+            overlaid_colours = overlay.get_overlaid_colours(overlaid_colours, leds, fixture_name)
 
         return overlaid_colours

@@ -81,7 +81,7 @@ class LedFixture(Fixture):
                     self.patterns["fizzy_lifting_drink"] = FizzyLiftingDrink(self.leds)
 
                 elif command["name"] == "make_me_one_with_everything":
-                    self.patterns["make_me_one_with_everything"] = MakeMeOneWithEverything()
+                    self.patterns["make_me_one_with_everything"] = MakeMeOneWithEverything(self.leds)
 
                 elif command["name"] == "fire":
                     self.patterns["fire"] = Fire(self.leds, self.pattern_map_by_polar)
@@ -120,15 +120,16 @@ class LedFixture(Fixture):
         new_colours = new_colours[:len(self.colours)]
         new_colours *= (1.0 - smoothness)
         self.colours += new_colours
-        self.colours *= master_brightness
 
-        # led.overlaid_colour = self.overlay_handler.calculate_overlaid_colour(led, time)
+        self.overlaid_colours = self.overlay_handler.calculate_overlaid_colours(self.leds, self.colours, self.name)
+        self.overlaid_colours *= master_brightness
+
 
     def get_pixels(self, force_rgb=False):
         if force_rgb:
-            return self.get_byte_values("rgb", self.colours)
+            return self.get_byte_values("rgb", self.overlaid_colours)
         else:
-            return self.get_byte_values(self.channel_order, self.colours)
+            return self.get_byte_values(self.channel_order, self.overlaid_colours)
 
     def get_byte_values(self, channel_order, pixels):
         input_order = ["r", "g", "b"]

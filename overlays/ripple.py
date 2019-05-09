@@ -1,39 +1,38 @@
 from overlays.overlay import Overlay
-from common.utils import nonzero
-from common.utils import clamp
-import math
+import numpy as np
 
 
 class Ripple(Overlay):
     def __init__(self, args):
         Overlay.__init__(self, args)
+        self.deltas = {}
         self.intensities = {}
 
-    def get_overlaid_colour(self, colour, led, time_since_start):
-        intensity_smoothness = 0.5
-        front_speed = 1.5
+    def get_overlaid_colours(self, colours, leds, time_since_start, fixture_name):
+        if fixture_name not in self.deltas.keys():
+            self.deltas[fixture_name] = np.array(list(led.coord.get_delta("global") for led in leds))
+            self.intensities[fixture_name] = np.zeros(len(leds))
+
+        front_speed = 3.0
         front_progress = front_speed * time_since_start
 
-        delay = 0.5
+        delay = 0.0
 
         front_progress -= delay
 
-        if led not in self.intensities.keys():
-            self.intensities[led] = 0.0
+        time_since_front = front_progress - self.deltas[fixture_name]
+        time_since_front = np.maximum(1, time_since_front)
 
-        time_since_front = max(0.0, front_progress - led.coord.get_delta("global"))
+        front_intensity = 1.0 / (time_since_front / 4.0)
 
-        front_intensity = 1.0/nonzero(time_since_front/2)
+        front_intensity[self.deltas[fixture_name] > time_since_front] = 0
 
-        if front_progress < led.coord.get_delta("global"):
-            time_until_front = led.coord.get_delta("global") - front_progress
-            front_intensity = 1.0 - nonzero(min(1.0, time_until_front/delay))
+        ripple_level = np.sin(self.deltas[fixture_name]*7.5 - time_since_start*front_speed)
+        ripple_level *= front_intensity
+        ripple_level *= -1
 
-        self.intensities[led] = self.intensities[led] * intensity_smoothness + front_intensity * (1.0-intensity_smoothness)
+        ripple_level += 1
 
-        ripple_level = math.sin(led.coord.get_delta("global")*30 - time_since_start*front_speed)
+        ripple_level = ripple_level[:len(colours)]
 
-        colour_factor = 1.0 + ripple_level*min(self.intensities[led], 1.0)
-
-        return [channel * colour_factor for channel in colour]
-
+        return colours * ripple_level[:,np.newaxis]
