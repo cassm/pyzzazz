@@ -3,6 +3,7 @@ from overlays.flash import Flash
 from overlays.star_drive import StarDrive
 from overlays.ripple import Ripple
 from overlays.spark_shower import SparkShower
+from overlays.hue_shift import HueShift
 import numpy as np
 import time
 
@@ -53,6 +54,9 @@ class OverlayHandler:
 
             elif command["name"] == "spark_shower":
                 self.active_overlays.append(OverlayInfo(SparkShower(command["args"])))
+
+            elif command["name"] == "hue_shift":
+                self.active_overlays.append(OverlayInfo(HueShift(command["args"])))
 
             else:
                 raise Exception("OverlayHandler: unknown overlay {}".format(command["name"]))
