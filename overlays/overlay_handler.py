@@ -25,7 +25,6 @@ class OverlayInfo:
         return overlaid_colours
 
     def get_max_contribution_per_led(self):
-        print (self.max_contribution_per_led)
         max_contribution_per_led = self.max_contribution_per_led
         self.max_contribution_per_led = 0.0
         return max_contribution_per_led
@@ -39,7 +38,6 @@ class OverlayHandler:
 
     def update(self):
         self.active_overlays = list(overlay for overlay in self.active_overlays if time.time() - overlay.start_time < self.min_time or overlay.get_max_contribution_per_led() > self.epsilon)
-        print(len(self.active_overlays))
 
     def receive_command(self, command):
         if command["type"] == "overlay":
