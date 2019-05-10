@@ -1,5 +1,4 @@
 from overlays.overlay import Overlay
-from common.utils import mode_rows
 import numpy as np
 import random
 import time
