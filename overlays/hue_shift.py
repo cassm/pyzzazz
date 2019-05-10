@@ -18,7 +18,6 @@ class HueShift(Overlay):
 
         if front_progress - band_width < self.min_deltas[fixture_name] < front_progress:
             proportion_through_band = (front_progress - self.min_deltas[fixture_name]) / band_width
-            print(proportion_through_band)
 
             shift_amount = 0.5 * (1.0 - proportion_through_band)
 
