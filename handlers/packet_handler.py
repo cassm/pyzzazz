@@ -142,13 +142,13 @@ class StateReplyPayload:
 
         # button bitfield width
         bitfield_width = len(button_bitfield.tobytes())
-        state_bytes.extend(bitfield_width.to_bytes(1, signed=False))
+        state_bytes.extend(bitfield_width.to_bytes(1, signed=False, byteorder="big"))
 
         # button bitfield
         state_bytes.extend(button_bitfield.tobytes())
 
         # number of slider vals
-        state_bytes.extend(len(self.slider_state).to_bytes(1, signed=False))
+        state_bytes.extend(len(self.slider_state).to_bytes(1, signed=False, byteorder="big"))
 
         # slider vals
         for slider_val in self.slider_state:
@@ -181,11 +181,9 @@ class CommPacketHandler:
 
             if self.header is not None and len(self.buffer) == self.header.payload_len:
                 if CommHeader.ops_by_byte[self.header.opcode] == "name_request":
-                    # print("received name request")
                     self.available_packets.append(self.header.get_dict())
 
                 elif CommHeader.ops_by_byte[self.header.opcode] == "name_reply":
-                    # print("received name reply")
                     payload = NameReplyPayload(bytes=self.buffer)
                     self.available_packets.append(payload.get_dict())
 
