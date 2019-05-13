@@ -47,17 +47,21 @@ class MakeMeOneWithEverything(Pattern):
     def get_pixel_colours(self, leds, time, palette_handler, palette_name):
         mangled_deltas = np.maximum(self._origin_deltas + np.sin(self._global_theta + time/20 * (math.sin(time/7)/6 + 1))/2, 0)
 
-        rgb = np.array(list([np.sin(-time / -2 + delta * (5 + np.cos(-time / 2 + delta) + 0.25)),
-                        np.sin(-time / -2 + delta * (5 + np.cos(-time / 2.2 + delta))) + 0.25,
-                        np.sin(-time / -2 + delta * (5 + np.cos(-time / 2.5 + delta))) + 0.25] for delta in mangled_deltas))
+        rgb = np.zeros((len(leds), 3))
+        rgb[..., 0] = np.sin(-time / -2 + mangled_deltas * (5 + np.cos(-time / 2 + mangled_deltas) + 0.25))
+        rgb[..., 1] = np.sin(-time / -2 + mangled_deltas * (5 + np.cos(-time / 2.2 + mangled_deltas))) + 0.25
+        rgb[..., 2] = np.sin(-time / -2 + mangled_deltas * (5 + np.cos(-time / 2.5 + mangled_deltas))) + 0.25
 
-        # rgb = np.zeros([len(leds), 3])
         rgb *= self._shimmer_level
 
-        w = np.array(list(self._white_level + math.sin(-time / -8 + self._origin_deltas[i] / 3) * self._shimmer_level + math.sin(-time / -10 + self._origin_deltas[i] / 1.4) * self._shimmer_level / 4 - sum(rgb[i]) for i in range(len(self._origin_deltas))))
-        w *= 0.8
+        w_major = self._white_level + np.sin(-time / -8 + self._origin_deltas / 3) * self._shimmer_level
+        w_minor = np.sin(-time / -10 + self._origin_deltas / 1.4) * self._shimmer_level / 4
+        intensity = np.sum(rgb, 1)
+
+        w = w_major + w_minor - intensity
+
+        w *= 0.5
         w += 0.25
-        # w = np.zeros(len(leds))
 
         swoosh_level = np.zeros(len(leds))
 
@@ -86,7 +90,7 @@ class MakeMeOneWithEverything(Pattern):
 
 
         # print(f"max swoosh level {max(swoosh_level)}")
-        w = np.maximum(w, np.minimum(swoosh_level, 1)*128)
+        w = np.maximum(w, np.minimum(swoosh_level, 1)*64)
 
         raw_colours = palette_handler.sample_radial_all(self._origin_deltas, time, self._space_factor, self._time_factor, palette_name).astype(np.float16)
 
