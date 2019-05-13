@@ -22,10 +22,10 @@ class SenderInfo:
 
 
 class LedFixture(Fixture):
-    def __init__(self, config, senders, overlay_handler, video_handler):
+    def __init__(self, config, senders, overlay_handler, video_handler, calibration_handler):
         self.validate_config(config)
 
-        Fixture.__init__(self, config, overlay_handler, video_handler)
+        Fixture.__init__(self, config, overlay_handler, video_handler, calibration_handler)
 
         self.geometry = config.get("geometry", "No geometry present in fixture definition")
         self.channel_order = config.get("channel_order", "No channel_order present in fixture definition")
@@ -53,6 +53,9 @@ class LedFixture(Fixture):
 
         if "geometry" not in config.keys():
             raise Exception("LedFixture: config contains no geometry")
+
+    def toggle_calibrate(self):
+        self.calibrate = not self.calibrate
 
     def receive_command(self, command, value):
         if command["type"] == "pattern":
@@ -105,6 +108,17 @@ class LedFixture(Fixture):
                 sender_info.sender.send(sender_info.line, self.get_pixels(force_rgb=sender_info.sender.is_simulator))
 
     def update(self, time, palette, smoothness, master_brightness):
+        if self.calibration_handler.get_angle(self.name) != self.calibration_angle:
+            angle_delta = self.calibration_handler.get_angle(self.name) - self.calibration_angle
+
+            for led in self.leds:
+                led.coord.rotate("theta", "local", angle_delta)
+
+            for pattern in self.patterns.values():
+                pattern.cache_positions(self.leds)
+
+            self.calibration_angle = self.calibration_handler.get_angle(self.name)
+
         if self.pattern not in self.patterns.keys():
             raise Exception("LedFixture: unknown pattern {}".format(self.pattern))
 
@@ -115,21 +129,50 @@ class LedFixture(Fixture):
         if smoothness < 0 or smoothness > 1:
             raise Exception("illegal smoothness value of {}".format(smoothness))
 
-        self.colours *= smoothness
-        new_colours = self.patterns[self.pattern].get_pixel_colours(self.leds, time, palette, self.palette_name)
-        new_colours = new_colours[:len(self.colours)]
-        new_colours *= (1.0 - smoothness)
-        self.colours += new_colours
+        if self.calibrate:
+            self.overlaid_colours = self.get_calibration_colours()
 
-        self.overlaid_colours = self.overlay_handler.calculate_overlaid_colours(self.leds, self.colours, self.name)
-        self.overlaid_colours *= master_brightness
+        else:
+            self.colours *= smoothness
+            new_colours = self.patterns[self.pattern].get_pixel_colours(self.leds, time, palette, self.palette_name)
+            new_colours = new_colours[:len(self.colours)]
+            new_colours *= (1.0 - smoothness)
+            self.colours += new_colours
 
+            self.overlaid_colours = self.overlay_handler.calculate_overlaid_colours(self.leds, self.colours, self.name)
+            self.overlaid_colours *= master_brightness
 
     def get_pixels(self, force_rgb=False):
         if force_rgb:
             return self.get_byte_values("rgb", self.overlaid_colours)
         else:
             return self.get_byte_values(self.channel_order, self.overlaid_colours)
+
+    def get_calibration_colours(self):
+        colours = np.zeros_like(self.overlaid_colours)
+
+        if self.calibration_handler.get_selection() == self.name:
+            x_vals = np.array(list(led.coord.get("local", "cartesian").x for led in self.leds))
+            x_vals = x_vals[:len(self.overlaid_colours)]
+            factor = 255 / np.max(x_vals)
+            x_vals *= factor
+            x_vals = np.maximum(x_vals, 0)
+
+            deltas = np.array(list(led.coord.get_delta("global") for led in self.leds))
+            deltas = deltas[:len(self.overlaid_colours)]
+            min_delta = np.min(deltas)
+            max_delta = np.max(deltas)
+            delta_range = max_delta - min_delta
+            deltas -= min_delta
+            deltas -= delta_range / 2
+            deltas *= -1
+            deltas *= (254 / (delta_range / 2))
+            deltas = np.maximum(0, deltas)
+
+            colours[...,0] = x_vals
+            colours[...,1] = deltas
+
+        return colours
 
     def get_byte_values(self, channel_order, pixels):
         input_order = ["r", "g", "b"]

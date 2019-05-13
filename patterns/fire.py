@@ -13,6 +13,9 @@ class Fire(Pattern):
         self.pixel_info = list()
         self.sample_radial = sample_radial
 
+        self.cache_positions(leds)
+
+    def cache_positions(self, leds):
         max_delta = max(led.coord.get_delta("local") for led in leds)
         min_delta = min(led.coord.get_delta("local") for led in leds)
         delta_conversion_factor = 1.0 / (max_delta - min_delta)
@@ -26,7 +29,7 @@ class Fire(Pattern):
         self.local_phi = np.array(list(led.coord.get("local", "spherical").phi for led in leds))
         self.global_x = np.array(list(led.coord.get("global", "cartesian").x for led in leds))
 
-        if sample_radial:
+        if self.sample_radial:
             self.normalised_offset = np.array(list((led.coord.get_delta("local") - min_delta) * delta_conversion_factor for led in leds))
         else:
             self.normalised_offset = np.array(list((-led.coord.get("local", "cartesian").z - min_z) * z_conversion_factor for led in leds))

@@ -8,12 +8,12 @@ import math
 
 
 class BuntingPolygon(LedFixture):
-    def __init__(self, config, senders, overlay_handler, video_handler):
+    def __init__(self, config, senders, overlay_handler, video_handler, calibration_handler):
         self.validate_config(config)
 
         config["num_pixels"] = config.get("leds_per_strand") * config.get("num_strands")
 
-        LedFixture.__init__(self, config, senders, overlay_handler, video_handler)
+        LedFixture.__init__(self, config, senders, overlay_handler, video_handler, calibration_handler)
 
         self.pattern_map_by_polar = True
 

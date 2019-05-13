@@ -11,12 +11,17 @@ from fixtures.dodecahedron import Dodecahedron
 from fixtures.cylinder import Cylinder
 from fixtures.bunting_polygon import BuntingPolygon
 from handlers.setting_handler import SettingHandler
+from handlers.calibration_handler import CalibrationHandler
+from handlers.hotkey_handler import HotKeyHandler
 from overlays.overlay_handler import OverlayHandler
 from common.graceful_killer import GracefulKiller
 
 import time
 import traceback
 from pathlib import Path
+import sys
+import tty
+import termios
 
 # TODO fixture groups
 
@@ -25,12 +30,14 @@ start_palette = "auto"
 default_port = 48945
 
 conf_file = "conf/elephant_conf.json"
+calibration_file = "conf/calibration.json"
 
 class Pyzzazz:
-    def __init__(self, conf_path, palette_path, video_path):
+    def __init__(self, conf_path, palette_path, video_path, calibration_path):
         self._src_dir = Path(__file__).parent
         self.config_parser = ConfigHandler(conf_path)
         self.palette_handler = PaletteHandler(palette_path)
+        self.calibration_handler = CalibrationHandler(calibration_path)
 
         self.video_handlers = dict()
 
@@ -67,6 +74,8 @@ class Pyzzazz:
         self.register_commands()
         self.generate_opc_layout_files()
 
+        self.hotkey_handler = HotKeyHandler(self.fixtures, self.calibration_handler)
+
     def needs_socket_server(self):
         for controller_conf in self.config_parser.get_controllers():
             if controller_conf["type"] == "gui":
@@ -77,6 +86,8 @@ class Pyzzazz:
     def update(self):
         if self.socket_server:
             self.socket_server.poll()
+
+        self.hotkey_handler.poll()
 
         self.usb_serial_manager.update()
 
@@ -179,15 +190,15 @@ class Pyzzazz:
 
                 if fixture_conf.get("geometry", "") == "dodecahedron":
                     print("Creating dodecahedron {} with senders {}".format(fixture_conf.get("name", ""), fixture_conf.get("senders", [])))
-                    self.fixtures.append(Dodecahedron(fixture_conf, fixture_senders, self.overlay_handler, self.video_handlers["led_fix_icosahedron"]))
+                    self.fixtures.append(Dodecahedron(fixture_conf, fixture_senders, self.overlay_handler, self.video_handlers["led_fix_icosahedron"], self.calibration_handler))
 
                 elif fixture_conf.get("geometry", "") == "cylinder":
                     print("Creating cylinder {} with senders {}".format(fixture_conf.get("name", ""), fixture_conf.get("senders", [])))
-                    self.fixtures.append(Cylinder(fixture_conf, fixture_senders, self.overlay_handler, self.video_handlers["led_fix_cylinder"]))
+                    self.fixtures.append(Cylinder(fixture_conf, fixture_senders, self.overlay_handler, self.video_handlers["led_fix_cylinder"], self.calibration_handler))
 
                 elif fixture_conf.get("geometry", "") == "bunting_polygon":
                     print("Creating bunting polygon {} with senders {}".format(fixture_conf.get("name", ""), fixture_conf.get("senders", [])))
-                    self.fixtures.append(BuntingPolygon(fixture_conf, fixture_senders, self.overlay_handler, self.video_handlers["led_fix_bunting"]))
+                    self.fixtures.append(BuntingPolygon(fixture_conf, fixture_senders, self.overlay_handler, self.video_handlers["led_fix_bunting"], self.calibration_handler))
 
                 else:
                     raise Exception("Unknown fixture geometry {}".format(fixture_conf.get("geometry", "")))
@@ -282,6 +293,9 @@ class Pyzzazz:
 
 
 if __name__ == "__main__":
+    old_settings = termios.tcgetattr(sys.stdin)
+    tty.setcbreak(sys.stdin.fileno())
+
     killer = GracefulKiller()
 
     pyzzazz = None
@@ -292,13 +306,15 @@ if __name__ == "__main__":
         # FIXME check for conf on usb stick
         # FIXME grab palettes off usb stick
         # FIXME grab videos off usb stick
-        pyzzazz = Pyzzazz(conf_file, "palettes/", "videos/")
+        pyzzazz = Pyzzazz(conf_file, "palettes/", "videos/", calibration_file)
 
         print("Running...")
         while True:
             pyzzazz.update()
 
-            if killer.kill_now:
+            if killer.kill_now or pyzzazz.hotkey_handler.exit:
+                termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
+
                 if pyzzazz:
                     pyzzazz.shut_down()
 
@@ -309,6 +325,7 @@ if __name__ == "__main__":
         traceback.print_exc()
 
     finally:
+        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
         pyzzazz.shut_down()
 
     print("have a nice day :)")

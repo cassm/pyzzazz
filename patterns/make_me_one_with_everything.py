@@ -18,6 +18,9 @@ class MakeMeOneWithEverything(Pattern):
 
         self._next_swoosh = random.gauss(self._swoosh_interval, self._swoosh_interval / 4)
 
+        self.cache_positions(pixels)
+
+    def cache_positions(self, pixels):
         self._origin_deltas = np.array(list(pixel.coord.get_delta("global") for pixel in pixels))
         self._local_phi = np.array(list(pixel.coord.get("local", "spherical").phi for pixel in pixels))
         self._local_theta = np.array(list(pixel.coord.get("local", "spherical").theta for pixel in pixels))

@@ -23,6 +23,9 @@ class Sparkle(Pattern):
         self._time_factor = 1.0 / 50
         self._space_factor = 1.0
 
+        self.cache_positions(leds)
+
+    def cache_positions(self, leds):
         num_pixels = len(leds)
         self._sparkle_times = np.zeros(num_pixels, dtype=np.float16)
         self._sparkle_colours = np.zeros((num_pixels, 3), dtype=np.float16)

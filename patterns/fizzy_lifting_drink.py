@@ -9,6 +9,9 @@ class FizzyLiftingDrink(Pattern):
         self._time_factor = 1.0/50
         self._space_factor = 1.0
 
+        self.cache_positions(leds)
+
+    def cache_positions(self, leds):
         self._led_deltas = np.array(list(led.coord.get_delta("global") for led in leds), dtype=np.float16)
         self._led_thetas = np.array(list(led.coord.get("global", "spherical").theta for led in leds), dtype=np.float16)
 
