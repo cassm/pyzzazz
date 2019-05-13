@@ -7,6 +7,7 @@ from patterns.smooth import Smooth
 from patterns.swirl import Swirl
 from patterns.map_video import MapVideo
 import numpy as np
+import math
 
 
 class Led:
@@ -152,11 +153,14 @@ class LedFixture(Fixture):
         colours = np.zeros_like(self.overlaid_colours)
 
         if self.calibration_handler.get_selection() == self.name:
-            x_vals = np.array(list(led.coord.get("local", "cartesian").x for led in self.leds))
-            x_vals = x_vals[:len(self.overlaid_colours)]
-            factor = 255 / np.max(x_vals)
-            x_vals *= factor
-            x_vals = np.maximum(x_vals, 0)
+            thetas = np.array(list(led.coord.get("local", "spherical").theta for led in self.leds))
+            thetas = thetas[:len(self.overlaid_colours)]
+            thetas %= (2*math.pi)
+            thetas -= math.pi
+            thetas = np.abs(thetas)
+            thetas -= math.pi / 2
+            thetas *= (255.0 / (math.pi / 2.0))
+            thetas = np.maximum(0, thetas)
 
             deltas = np.array(list(led.coord.get_delta("global") for led in self.leds))
             deltas = deltas[:len(self.overlaid_colours)]
@@ -169,7 +173,7 @@ class LedFixture(Fixture):
             deltas *= (254 / (delta_range / 2))
             deltas = np.maximum(0, deltas)
 
-            colours[...,0] = x_vals
+            colours[...,0] = thetas
             colours[...,1] = deltas
 
         return colours
