@@ -43,7 +43,12 @@ class FizzyLiftingDrink(Pattern):
         # np.put_along_axis(output, [[0]] * num_leds, r, 1)
         # np.put_along_axis(output, [1], g, 1)
         # np.put_along_axis(output, [2], b, 1)
-        output = np.array(list([r[i], g[i], b[i]] for i in range(len(leds))))
+        # output = np.array(list([r[i], g[i], b[i]] for i in range(len(leds))))
+
+        output = np.zeros((len(leds), 3), dtype=np.float16)
+        output[..., 0] = r
+        output[..., 1] = g
+        output[..., 2] = b
 
         output += 1
         output *= 127
