@@ -75,7 +75,7 @@ class LedFixture(Fixture):
                 if command["name"] == "smooth":
                     self.patterns["smooth"] = Smooth(self.leds)
 
-                if command["name"] == "swirl":
+                elif command["name"] == "swirl":
                     self.patterns["swirl"] = Swirl(self.leds)
 
                 elif command["name"] == "sparkle":
