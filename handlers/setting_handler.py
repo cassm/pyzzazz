@@ -26,9 +26,6 @@ class SettingHandler:
             # sliders are 0 - 1024 and we want them as 0 - 1
             self.settings[command["name"]] = float(value) / 1024.0
 
-            if "smoothness" in command["name"]:
-                self.settings[command["name"]] *= 0.8
-
         elif command["type"] == "palette":
             self.settings["palette"] = command["name"]
 

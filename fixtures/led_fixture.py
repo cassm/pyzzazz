@@ -134,10 +134,8 @@ class LedFixture(Fixture):
             self.overlaid_colours = self.get_calibration_colours()
 
         else:
-            # self.colours *= smoothness
             new_colours = self.patterns[self.pattern].get_pixel_colours(self.leds, time, palette, self.palette_name)
             new_colours = new_colours[:len(self.colours)]
-            # new_colours *= (1.0 - smoothness)
             self.colours = self.colours * smoothness + new_colours * (1.0 - smoothness)
 
             self.overlaid_colours = self.overlay_handler.calculate_overlaid_colours(self.leds, self.colours, self.name)
