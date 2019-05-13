@@ -35,7 +35,7 @@ class PaletteHandler:
                     image = imageio.imread(os.path.join(self.palette_path, filename))
                     indices = list(int(i * (len(image[0]) - 1) / self.standard_palette_len) for i in range(self.standard_palette_len))
 
-                    rgb_buffer = np.array(image[0])[indices].astype(np.float16)
+                    rgb_buffer = np.array(image[0])[indices].astype(np.float32)
 
                     print("Palette: parsed palette file {} of length {}".format(filename, len(rgb_buffer)))
 
@@ -47,7 +47,7 @@ class PaletteHandler:
                     print("Palette: failed to parse palette file {}".format(filename))
                     raise e
 
-        self.palettes = np.array(palettes).astype(np.float16)
+        self.palettes = np.array(palettes).astype(np.float32)
 
     def set_palette_space_factor(self, value):
         self.palette_space_factor = (1.0 / max(value, 0.01)) / 12.0  # expect 0 to 1
@@ -79,7 +79,7 @@ class PaletteHandler:
         positions %= 1.0
 
         indices = positions * (self.standard_palette_len-1)
-        return self.palettes[palette_index][list(indices.astype(int))].astype(np.float16)
+        return self.palettes[palette_index][list(indices.astype(int))].astype(np.float32)
 
     def sample_radial(self, space_delta, time_delta, space_factor, time_factor, palette_name):
         assert 0 <= time_factor <= 1.0, "Time factor must be between 0 and 1"
@@ -134,4 +134,4 @@ class PaletteHandler:
 
         total_progress %= self.standard_palette_len
 
-        return self.palettes[palette_index][list(total_progress.astype(int))].astype(np.float16)
+        return self.palettes[palette_index][list(total_progress.astype(int))].astype(np.float32)

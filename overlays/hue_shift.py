@@ -23,7 +23,7 @@ class HueShift(Overlay):
 
             hsv = rgb_to_hsv(colours)
             hsv[..., 0] = (hsv[..., 0]+shift_amount) % 1.0
-            return hsv_to_rgb(hsv).astype('float16')
+            return hsv_to_rgb(hsv).astype('float32')
 
         else:
             return colours

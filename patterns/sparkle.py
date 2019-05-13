@@ -27,9 +27,9 @@ class Sparkle(Pattern):
 
     def cache_positions(self, leds):
         num_pixels = len(leds)
-        self._sparkle_times = np.zeros(num_pixels, dtype=np.float16)
-        self._sparkle_colours = np.zeros((num_pixels, 3), dtype=np.float16)
-        self._led_deltas = np.array(list(led.coord.get_delta("global") for led in leds), dtype=np.float16)
+        self._sparkle_times = np.zeros(num_pixels, dtype=np.float32)
+        self._sparkle_colours = np.zeros((num_pixels, 3), dtype=np.float32)
+        self._led_deltas = np.array(list(led.coord.get_delta("global") for led in leds), dtype=np.float32)
 
     def set_vars(self, command):
         self._max_sparkles_percent = command.get("max_sparkles_percent", self._max_sparkles_percent)
@@ -56,18 +56,18 @@ class Sparkle(Pattern):
         time_deltas = time - self._sparkle_times
         time_deltas *= 2
         time_deltas = np.clip(999, 0.75, time_deltas)
-        sparkle_intensities = 1.0 / time_deltas.astype(np.float16)
+        sparkle_intensities = 1.0 / time_deltas.astype(np.float32)
         # sparkle_intensities = np.clip(1.0, 0.0, sparkle_intensities)
         sparkle_colours = self._sparkle_colours*sparkle_intensities[:,np.newaxis]
 
         # background_colours = []
         # for i in range(len(leds)):
         #     background_colours.append(palette_handler.sample_radial(self._led_deltas[i]*20, time*2.5, self._space_factor, self._time_factor, palette_name))
-        # background_colours = np.array(background_colours, dtype=np.float16)
+        # background_colours = np.array(background_colours, dtype=np.float32)
         # print(type(self._background_brightness))
         # background_colours *= self._background_brightness
 
-        background_colours = palette_handler.sample_radial_all(self._led_deltas, time, self._space_factor, self._time_factor, palette_name).astype(np.float16)
+        background_colours = palette_handler.sample_radial_all(self._led_deltas, time, self._space_factor, self._time_factor, palette_name).astype(np.float32)
         background_colours *= self._background_brightness
         return np.maximum(sparkle_colours, background_colours)
 

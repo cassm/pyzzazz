@@ -40,8 +40,8 @@ class LedFixture(Fixture):
         self.patterns = {}
 
         self.leds = np.array([])
-        self.colours = np.zeros((self.num_pixels, 3), dtype=np.float16)
-        self.overlaid_colours = np.zeros((self.num_pixels, 3), dtype=np.float16)
+        self.colours = np.zeros((self.num_pixels, 3), dtype=np.float32)
+        self.overlaid_colours = np.zeros((self.num_pixels, 3), dtype=np.float32)
 
         self.pattern_map_by_polar = False
 

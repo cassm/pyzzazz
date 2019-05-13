@@ -92,7 +92,7 @@ class MakeMeOneWithEverything(Pattern):
         # print(f"max swoosh level {max(swoosh_level)}")
         w = np.maximum(w, np.minimum(swoosh_level, 1)*64)
 
-        raw_colours = palette_handler.sample_radial_all(self._origin_deltas, time, self._space_factor, self._time_factor, palette_name).astype(np.float16)
+        raw_colours = palette_handler.sample_radial_all(self._origin_deltas, time, self._space_factor, self._time_factor, palette_name).astype(np.float32)
 
         rgb /= 2
         rgb += raw_colours/2

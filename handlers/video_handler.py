@@ -101,4 +101,4 @@ class VideoHandler:
         x_mappings = np.minimum((centralised_x_mappings * self.scaling_factor * self._global_scaling_factor + self.frame.shape[0]/2).astype(int), self.frame.shape[0]-1)
         y_mappings = np.minimum((centralised_y_mappings * self.scaling_factor * self._global_scaling_factor + self.frame.shape[1]/2).astype(int), self.frame.shape[1]-1)
 
-        return self.frame[x_mappings.astype(int), y_mappings.astype(int)].astype(np.float16)
+        return self.frame[x_mappings.astype(int), y_mappings.astype(int)].astype(np.float32)
