@@ -41,6 +41,7 @@ class VideoHandler:
 
         self.vidcap.set(cv2.CAP_PROP_POS_AVI_RATIO, 1)
         self.vid_length = self.vidcap.get(cv2.CAP_PROP_POS_MSEC)
+        self.num_frames = self.vidcap.get(cv2.CAP_PROP_FRAME_COUNT)
 
         self._update_sampling_factors()
 
@@ -68,16 +69,20 @@ class VideoHandler:
         self.scaling_factor = min(width, height) - 1
 
     def update(self, time):
-        if time - self._last_update > self._time_per_frame * 3:
-            self.vidcap.set(cv2.CAP_PROP_POS_MSEC, (time*1000) % self.vid_length)
+        video_time = time % self.vid_length
+        if video_time + self._time_per_frame >= self.vid_length:
+            video_time = 0
+
+        if video_time < self._last_update or video_time - self._last_update > self._time_per_frame * 3:
+            self.vidcap.set(cv2.CAP_PROP_POS_MSEC, (video_time*1000) % self.vid_length)
             success, self.frame = self.vidcap.read()
-            self._last_update = time
+            self._last_update = video_time
 
             if not success:
                 raise Exception("Failed to read video frame")
 
         else:
-            while self._last_update + self._time_per_frame < time:
+            while self._last_update + self._time_per_frame < video_time:
                 success, self.frame = self.vidcap.read()
                 self._last_update += self._time_per_frame
 
