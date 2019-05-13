@@ -10,7 +10,7 @@ class HotKeyHandler:
         self.exit = False
 
     def poll(self):
-        if self.is_data():
+        while self.is_data():
             c = sys.stdin.read(1)
 
             if c == "c":
