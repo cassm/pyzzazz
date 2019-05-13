@@ -21,10 +21,10 @@ class HotKeyHandler:
                 self.calibration_handler.increment_selection()
 
             elif c == "h":
-                self.calibration_handler.add_angle_to_selection(math.pi/6.0)
+                self.calibration_handler.add_angle_to_selection(math.pi/-6.0)
 
             elif c == "l":
-                self.calibration_handler.add_angle_to_selection(math.pi/-6.0)
+                self.calibration_handler.add_angle_to_selection(math.pi/6.0)
 
             elif c == 'q':
                 self.exit = True
