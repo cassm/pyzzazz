@@ -70,7 +70,7 @@ class VideoHandler:
 
     def update(self, time):
         video_time = time % self.vid_length
-        if video_time + self._time_per_frame >= self.vid_length:
+        if video_time + self._time_per_frame*2 >= self.vid_length:
             video_time = 0
 
         if video_time < self._last_update or video_time - self._last_update > self._time_per_frame * 3:
