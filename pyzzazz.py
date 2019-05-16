@@ -27,7 +27,6 @@ default_port = 48945
 conf_file = "conf/elephant_conf.json"
 
 class Pyzzazz:
-
     def __init__(self, conf_path, palette_path, video_path):
         self._src_dir = Path(__file__).parent
         self.config_parser = ConfigHandler(conf_path)
@@ -40,7 +39,6 @@ class Pyzzazz:
         self.video_handlers["bunting"] = VideoHandler(video_path)
 
         self.usb_serial_manager = UsbSerialHandler()
-
         self.effective_time = 0.0
         self.last_update = time.time()
         self.subprocesses = list()

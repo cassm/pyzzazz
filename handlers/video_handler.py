@@ -1,6 +1,7 @@
 import time
 import os
 import cv2
+import numpy as np
 
 
 class VideoHandler:
@@ -26,6 +27,11 @@ class VideoHandler:
 
         self._switch_to_video(list(self.videos.keys())[0])
 
+        self._global_scaling_factor = 0.5
+
+    def set_scaling_factor(self, scaling_factor):
+        self._global_scaling_factor = max(0.0, min(1.0, scaling_factor))
+
     def _switch_to_video(self, name):
         if name not in self.videos.keys():
             raise Exception("Unknown video ", name)
@@ -35,6 +41,7 @@ class VideoHandler:
 
         self.vidcap.set(cv2.CAP_PROP_POS_AVI_RATIO, 1)
         self.vid_length = self.vidcap.get(cv2.CAP_PROP_POS_MSEC)
+        self.num_frames = self.vidcap.get(cv2.CAP_PROP_FRAME_COUNT)
 
         self._update_sampling_factors()
 
@@ -62,21 +69,15 @@ class VideoHandler:
         self.scaling_factor = min(width, height) - 1
 
     def update(self, time):
-        if time - self._last_update > self._time_per_frame * 3:
-            self.vidcap.set(cv2.CAP_PROP_POS_MSEC, (time*1000) % self.vid_length)
+        while self._last_update + self._time_per_frame < time:
+            if self.vidcap.get(cv2.CAP_PROP_POS_FRAMES) >= self.num_frames - 1:
+                self.vidcap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+
             success, self.frame = self.vidcap.read()
-            self._last_update = time
+            self._last_update += self._time_per_frame
 
             if not success:
                 raise Exception("Failed to read video frame")
-
-        else:
-            while self._last_update + self._time_per_frame < time:
-                success, self.frame = self.vidcap.read()
-                self._last_update += self._time_per_frame
-
-                if not success:
-                    raise Exception("Failed to read video frame")
 
     def receive_command(self, command):
         if command["type"] == "pattern" and command["name"] == "map_video":
@@ -84,8 +85,10 @@ class VideoHandler:
 
             self._switch_to_video(name)
 
-    def sample(self, flat_mapping):
-        mapped_x = int(flat_mapping[0]*self.scaling_factor + self.width_offset)
-        mapped_y = int(flat_mapping[1]*self.scaling_factor + self.height_offset)
+    def sample(self, flat_mappings):
+        centralised_x_mappings = flat_mappings[...,0] - 0.5
+        centralised_y_mappings = flat_mappings[...,1] - 0.5
+        x_mappings = np.minimum((centralised_x_mappings * self.scaling_factor * self._global_scaling_factor + self.frame.shape[0]/2).astype(int), self.frame.shape[0]-1)
+        y_mappings = np.minimum((centralised_y_mappings * self.scaling_factor * self._global_scaling_factor + self.frame.shape[1]/2).astype(int), self.frame.shape[1]-1)
 
-        return list(self.frame[mapped_y, mapped_x])
+        return self.frame[x_mappings.astype(int), y_mappings.astype(int)].astype(np.float32)

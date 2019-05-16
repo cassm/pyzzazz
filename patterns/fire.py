@@ -1,14 +1,8 @@
 from patterns.pattern import Pattern
 from common.utils import nonzero
+import numpy as np
 import random
 import math
-
-
-class PixelInfo:
-    def __init__(self, normalised_space_offset):
-        self.spark_intensity = 0.0
-        self.last_sparked = 0.0
-        self.normalised_space_offset = normalised_space_offset
 
 
 class Fire(Pattern):
@@ -19,6 +13,9 @@ class Fire(Pattern):
         self.pixel_info = list()
         self.sample_radial = sample_radial
 
+        self.cache_positions(leds)
+
+    def cache_positions(self, leds):
         max_delta = max(led.coord.get_delta("local") for led in leds)
         min_delta = min(led.coord.get_delta("local") for led in leds)
         delta_conversion_factor = 1.0 / (max_delta - min_delta)
@@ -27,33 +24,32 @@ class Fire(Pattern):
         min_z = min(led.coord.get("local", "cartesian").z for led in leds)
         z_conversion_factor = 1.0 / (max_z - min_z)
 
-        for i in range(len(leds)):
-            normalised_z_offset = (-leds[i].coord.get("local", "cartesian").z - min_z) * z_conversion_factor
-            normalised_delta_offset = (leds[i].coord.get_delta("local") - min_delta) * delta_conversion_factor
+        self.spark_intensity = np.zeros(len(leds))
+        self.last_sparked = np.zeros(len(leds))
+        self.local_phi = np.array(list(led.coord.get("local", "spherical").phi for led in leds))
+        self.global_x = np.array(list(led.coord.get("global", "cartesian").x for led in leds))
 
-            normalised_space_offset = normalised_delta_offset if self.sample_radial else normalised_z_offset
-            self.pixel_info.append(PixelInfo(normalised_space_offset))
+        if self.sample_radial:
+            self.normalised_offset = np.array(list((led.coord.get_delta("local") - min_delta) * delta_conversion_factor for led in leds))
+        else:
+            self.normalised_offset = np.array(list((-led.coord.get("local", "cartesian").z - min_z) * z_conversion_factor for led in leds))
 
     def update(self, leds, time, palette_handler, palette_name):
         if time > self.next_spark:
             self.next_spark = time + random.gauss(self.spark_interval, self.spark_interval / 4.0)
-            spark = random.choice(self.pixel_info)
-            spark.last_sparked = time
-            spark.intensity = random.gauss(1.0/8.0, 1.0/16.0)
+            spark = random.randrange(0,len(leds))
+            self.last_sparked[spark] = time
+            self.spark_intensity[spark] = random.gauss(1.0/8.0, 1.0/16.0)
 
-    def get_pixel_colour(self, pixels, index, time, palette_handler, palette_name, master_brightness):
-        assert index < len(self.pixel_info), "out of bounds led index"
-        time_since_spark = nonzero(time - self.pixel_info[index].last_sparked)
+    def get_pixel_colours(self, leds, time, palette_handler, palette_name):
+        time_since_spark = np.maximum(1.0, time - self.last_sparked)
+        spark_val = 1.0 / time_since_spark
 
-        spark_val = min(1.0 / time_since_spark, 1.0)
+        time_sine = math.sin(-time + 0.03 * self.fixture_offset) + math.sin(time / -(0.4 + 0.02 * self.fixture_offset)) / 4
+        space_sine = np.sin(self.local_phi) / 3 + np.sin(time / -2 + self.global_x)
 
-        sine_vals = [math.sin(-time + 0.03 * self.fixture_offset),
-                     math.sin(time / -(0.4 + 0.02 * self.fixture_offset)) / 4,
-                     math.sin(pixels[index].coord.get("local", "spherical").phi) / 3,
-                     math.sin(time / -2 + pixels[index].coord.get("global", "cartesian").x)]
+        total_sine_val = (time_sine + space_sine) / 16.0
+        palette_position = self.normalised_offset + spark_val + total_sine_val
+        palette_position = np.clip(1.0, 0.0, palette_position)
 
-        total_sine_val = sum(sine_vals) / 16.0
-
-        palette_position = max(0, min(1, self.pixel_info[index].normalised_space_offset + spark_val + total_sine_val))
-
-        return list(channel * master_brightness for channel in palette_handler.sample_positional(palette_position, "fire"))
+        return palette_handler.sample_positional_all(palette_position, "fire")
