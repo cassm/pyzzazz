@@ -8,12 +8,12 @@ import math
 
 
 class BuntingPolygon(LedFixture):
-    def __init__(self, config, senders, overlay_handler, video_handler):
+    def __init__(self, config, senders, overlay_handler, video_handler, calibration_handler):
         self.validate_config(config)
 
         config["num_pixels"] = config.get("leds_per_strand") * config.get("num_strands")
 
-        LedFixture.__init__(self, config, senders, overlay_handler, video_handler)
+        LedFixture.__init__(self, config, senders, overlay_handler, video_handler, calibration_handler)
 
         self.pattern_map_by_polar = True
 
@@ -70,13 +70,13 @@ class BuntingPolygon(LedFixture):
 
         self.leds = np.array(leds)
 
-        max_x_offset = max((math.fabs(led.coord.get("local", "cartesian").x) for led in self.leds))
-        max_y_offset = max((math.fabs(led.coord.get("local", "cartesian").y) for led in self.leds))
+        max_x_offset = max((math.fabs(led.coord.get("global", "cartesian").x) for led in self.leds))
+        max_y_offset = max((math.fabs(led.coord.get("global", "cartesian").y) for led in self.leds))
 
         for led in self.leds:
             # between 0 and 1
-            map_x = (led.coord.get("local", "cartesian").x / max_x_offset) / 2.0 + 0.5
-            map_y = (led.coord.get("local", "cartesian").y / max_y_offset) / 2.0 + 0.5
+            map_x = (led.coord.get("global", "cartesian").x / max_x_offset) / 2.0 + 0.5
+            map_y = (led.coord.get("global", "cartesian").y / max_y_offset) / 2.0 + 0.5
 
             led.flat_mapping = (map_x, map_y)
 

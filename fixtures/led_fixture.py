@@ -4,8 +4,10 @@ from patterns.fizzy_lifting_drink import FizzyLiftingDrink
 from patterns.make_me_one_with_everything import MakeMeOneWithEverything
 from patterns.fire import Fire
 from patterns.smooth import Smooth
+from patterns.swirl import Swirl
 from patterns.map_video import MapVideo
 import numpy as np
+import math
 
 
 class Led:
@@ -21,10 +23,10 @@ class SenderInfo:
 
 
 class LedFixture(Fixture):
-    def __init__(self, config, senders, overlay_handler, video_handler):
+    def __init__(self, config, senders, overlay_handler, video_handler, calibration_handler):
         self.validate_config(config)
 
-        Fixture.__init__(self, config, overlay_handler, video_handler)
+        Fixture.__init__(self, config, overlay_handler, video_handler, calibration_handler)
 
         self.geometry = config.get("geometry", "No geometry present in fixture definition")
         self.channel_order = config.get("channel_order", "No channel_order present in fixture definition")
@@ -38,8 +40,8 @@ class LedFixture(Fixture):
         self.patterns = {}
 
         self.leds = np.array([])
-        self.colours = np.zeros((self.num_pixels, 3), dtype=np.float16)
-        self.overlaid_colours = np.zeros((self.num_pixels, 3), dtype=np.float16)
+        self.colours = np.zeros((self.num_pixels, 3), dtype=np.float32)
+        self.overlaid_colours = np.zeros((self.num_pixels, 3), dtype=np.float32)
 
         self.pattern_map_by_polar = False
 
@@ -52,6 +54,9 @@ class LedFixture(Fixture):
 
         if "geometry" not in config.keys():
             raise Exception("LedFixture: config contains no geometry")
+
+    def toggle_calibrate(self):
+        self.calibrate = not self.calibrate
 
     def receive_command(self, command, value):
         if command["type"] == "pattern":
@@ -70,6 +75,9 @@ class LedFixture(Fixture):
                 if command["name"] == "smooth":
                     self.patterns["smooth"] = Smooth(self.leds)
 
+                elif command["name"] == "swirl":
+                    self.patterns["swirl"] = Swirl(self.leds)
+
                 elif command["name"] == "sparkle":
                     self.patterns["sparkle"] = Sparkle(self.leds)
 
@@ -77,13 +85,13 @@ class LedFixture(Fixture):
                     self.patterns["fizzy_lifting_drink"] = FizzyLiftingDrink(self.leds)
 
                 elif command["name"] == "make_me_one_with_everything":
-                    self.patterns["make_me_one_with_everything"] = MakeMeOneWithEverything()
+                    self.patterns["make_me_one_with_everything"] = MakeMeOneWithEverything(self.leds)
 
                 elif command["name"] == "fire":
                     self.patterns["fire"] = Fire(self.leds, self.pattern_map_by_polar)
 
                 elif command["name"] == "map_video":
-                    self.patterns["map_video"] = MapVideo(self.video_handler)
+                    self.patterns["map_video"] = MapVideo(self.leds, self.video_handler)
 
                 else:
                     raise Exception("LedFixture: unknown pattern {}".format(command["name"]))
@@ -101,6 +109,17 @@ class LedFixture(Fixture):
                 sender_info.sender.send(sender_info.line, self.get_pixels(force_rgb=sender_info.sender.is_simulator))
 
     def update(self, time, palette, smoothness, master_brightness):
+        if self.calibration_handler.get_angle(self.name) != self.calibration_angle:
+            angle_delta = self.calibration_handler.get_angle(self.name) - self.calibration_angle
+
+            for led in self.leds:
+                led.coord.rotate("theta", "local", angle_delta)
+
+            for pattern in self.patterns.values():
+                pattern.cache_positions(self.leds)
+
+            self.calibration_angle = self.calibration_handler.get_angle(self.name)
+
         if self.pattern not in self.patterns.keys():
             raise Exception("LedFixture: unknown pattern {}".format(self.pattern))
 
@@ -111,20 +130,51 @@ class LedFixture(Fixture):
         if smoothness < 0 or smoothness > 1:
             raise Exception("illegal smoothness value of {}".format(smoothness))
 
-        self.colours *= smoothness
-        new_colours = self.patterns[self.pattern].get_pixel_colours(self.leds, time, palette, self.palette_name)
-        new_colours = new_colours[:len(self.colours)]
-        new_colours *= (1.0 - smoothness)
-        self.colours += new_colours
-        self.colours *= master_brightness
+        if self.calibrate:
+            self.overlaid_colours = self.get_calibration_colours()
 
-        # led.overlaid_colour = self.overlay_handler.calculate_overlaid_colour(led, time)
+        else:
+            new_colours = self.patterns[self.pattern].get_pixel_colours(self.leds, time, palette, self.palette_name)
+            new_colours = new_colours[:len(self.colours)]
+            self.colours = self.colours * smoothness + new_colours * (1.0 - smoothness)
+
+            self.overlaid_colours = self.overlay_handler.calculate_overlaid_colours(self.leds, self.colours, self.name)
+            self.overlaid_colours *= master_brightness
 
     def get_pixels(self, force_rgb=False):
         if force_rgb:
-            return self.get_byte_values("rgb", self.colours)
+            return self.get_byte_values("rgb", self.overlaid_colours)
         else:
-            return self.get_byte_values(self.channel_order, self.colours)
+            return self.get_byte_values(self.channel_order, self.overlaid_colours)
+
+    def get_calibration_colours(self):
+        colours = np.zeros_like(self.overlaid_colours)
+
+        if self.calibration_handler.get_selection() == self.name:
+            thetas = np.array(list(led.coord.get("local", "spherical").theta for led in self.leds))
+            thetas = thetas[:len(self.overlaid_colours)]
+            thetas %= (2*math.pi)
+            thetas -= math.pi
+            thetas = np.abs(thetas)
+            thetas -= math.pi / 2
+            thetas *= (255.0 / (math.pi / 2.0))
+            thetas = np.maximum(0, thetas)
+
+            deltas = np.array(list(led.coord.get_delta("global") for led in self.leds))
+            deltas = deltas[:len(self.overlaid_colours)]
+            min_delta = np.min(deltas)
+            max_delta = np.max(deltas)
+            delta_range = max_delta - min_delta
+            deltas -= min_delta
+            deltas -= delta_range / 2
+            deltas *= -1
+            deltas *= (254 / (delta_range / 2))
+            deltas = np.maximum(0, deltas)
+
+            colours[...,0] = thetas
+            colours[...,1] = deltas
+
+        return colours
 
     def get_byte_values(self, channel_order, pixels):
         input_order = ["r", "g", "b"]

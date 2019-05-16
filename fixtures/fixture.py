@@ -1,5 +1,5 @@
 class Fixture:
-    def __init__(self, config, overlay_handler, video_handler):
+    def __init__(self, config, overlay_handler, video_handler, calibration_handler):
         self.validate_config(config)
 
         self.name = config.get("name")
@@ -7,6 +7,11 @@ class Fixture:
         self.palette_name = None
         self.overlay_handler = overlay_handler
         self.video_handler = video_handler
+        self.calibration_handler = calibration_handler
+        self.calibration_angle = 0
+        self.calibrate = False
+
+        self.calibration_handler.register_fixture(self.name)
 
     def validate_config(self, config):
         if "name" not in config.keys():
@@ -17,6 +22,9 @@ class Fixture:
 
         if "sender" not in config.keys():
             raise Exception("Fixture: config contains no sender")
+
+    def toggle_calibrate(self):
+        pass
 
     def send(self):
         pass

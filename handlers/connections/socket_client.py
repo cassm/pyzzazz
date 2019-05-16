@@ -31,7 +31,6 @@ class SocketClient:
 
         if self._last_connection_attempt + self._connection_attempt_interval < time.time():
             self._last_connection_attempt = time.time()
-            print("Trying to connect...")
 
             try:
                 self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

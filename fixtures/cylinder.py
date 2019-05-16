@@ -8,7 +8,7 @@ import math
 
 
 class Cylinder(LedFixture):
-    def __init__(self, config, senders, overlay_handler, video_handler):
+    def __init__(self, config, senders, overlay_handler, video_handler, calibration_handler):
         self.validate_config(config)
 
         num_pixels = config.get("num_pixels")
@@ -20,12 +20,9 @@ class Cylinder(LedFixture):
         theta_per_pixel = num_turns * 2*math.pi / num_pixels
         z_per_pixel = height/num_pixels
 
-        LedFixture.__init__(self, config, senders, overlay_handler, video_handler)
+        LedFixture.__init__(self, config, senders, overlay_handler, video_handler, calibration_handler)
 
         angle_from_centre = fixture_origin.to_cylindrical().theta
-
-        if fixture_origin.x < 0:
-            angle_from_centre += math.pi
 
         leds = list()
 

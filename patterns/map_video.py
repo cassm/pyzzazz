@@ -1,9 +1,14 @@
 from patterns.pattern import Pattern
+import numpy as np
 
 
 class MapVideo(Pattern):
-    def __init__(self, image_src):
+    def __init__(self, pixels, image_src):
         self.video_handler = image_src
+        self.cache_positions(pixels)
 
-    def get_pixel_colour(self, pixels, index, time, palette_handler, palette_name, master_brightness):
-        return list(value * master_brightness for value in self.video_handler.sample(pixels[index].flat_mapping))
+    def cache_positions(self, pixels):
+        self.flat_mappings = np.array(list(pixel.flat_mapping for pixel in pixels))
+
+    def get_pixel_colours(self, leds, time, palette_handler, palette_name):
+        return self.video_handler.sample(self.flat_mappings)
