@@ -72,9 +72,8 @@ class ExternalDrive:
             removables = re.findall(r'/Volumes/\w*', external_drives)
 
         elif sys.platform == 'linux':
-            external_drives = subprocess.check_output(["lsblk"], text=True)
-            #TODO add regex
-            removables = ''
+            block_devices = subprocess.getoutput(["lsblk -o RM,TYPE,MOUNTPOINT -J"]).split("\n ")
+            removables = [device.split(" ")[-1] for device in block_devices if device[0:6]=='1 part']
 
 
         if len(removables) == 0:
