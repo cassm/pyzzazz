@@ -26,7 +26,7 @@ import termios
 # TODO fixture groups
 
 start_pattern = "smooth"
-start_palette = "auto"
+start_palette = "jellyfish"
 default_port = 48945
 
 conf_file = "conf/elephant_conf.json"
