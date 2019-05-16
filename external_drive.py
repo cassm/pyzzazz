@@ -10,16 +10,21 @@ class ExternalDrive:
     Watch out for drives with extraneous .bmp and .mp4 files,
     it'll hoover them all up indiscriminately.
 
+	-	first make the drive
+
+		drive = ExternalDrive()
+		=>> Found 1 external filesystem(s): ['<path string>']
+
     - you can read config, palette and video paths separately;
         they each return a list of corresponding file paths (or an empty list)
 
-        <drive>.read_palette_paths() => [PosixPath('/<...>/such_palette1.bmp', PosixPath('/<...>/such_palette2.bmp']
-        <drive>.read_config_paths() => [PosixPath('/<...>/very_conf.json', PosixPath('/<...>/so_conf.json']
-        <drive>.read_video_paths() => [PosixPath('/<...>/omg_video1.mp4', PosixPath('/<...>/omg_video2.mp4']
+        drive.read_palette_paths() => [PosixPath('/<...>/such_palette1.bmp', PosixPath('/<...>/such_palette2.bmp']
+        drive.read_config_paths() => [PosixPath('/<...>/very_conf.json', PosixPath('/<...>/so_conf.json']
+        drive.read_video_paths() => [PosixPath('/<...>/omg_video1.mp4', PosixPath('/<...>/omg_video2.mp4']
 
     - alternatively, get all the Path objects in one flat list
 
-        <drive>.read_all_paths
+        drive.read_all_paths()
         =>> [   PosixPath('/<...>/such_palette1.bmp'),  <more palettes>,
                 PosixPath('/<...>/conf_file1.json'),    <more configs>,
                 PosixPath('/<...>/omg_video1.mp4')      <more mp4s>,
@@ -38,7 +43,7 @@ class ExternalDrive:
 
     def read_all_paths(self):
 
-        return sum(list(self._config_files, self._palette_files, self._video_files), [])
+        return sum([self._config_files, self._palette_files, self._video_files], [])
 
 
     def read_config_paths(self):
@@ -51,7 +56,7 @@ class ExternalDrive:
 
     def read_video_paths(self):
 
-        return _video_files
+        return self._video_files
 
     def __find_files__(self):
 
@@ -72,7 +77,7 @@ class ExternalDrive:
             removables = re.findall(r'/Volumes/\w*', external_drives)
 
         elif sys.platform == 'linux':
-            block_devices = subprocess.getoutput(["lsblk -o RM,TYPE,MOUNTPOINT -J"]).split("\n ")
+            block_devices = subprocess.getoutput(["lsblk -o RM,TYPE,MOUNTPOINT"]).split("\n ")
             removables = [device.split(" ")[-1] for device in block_devices if device[0:6]=='1 part']
 
 
