@@ -66,9 +66,8 @@ class ExternalDriveHandler:
                 self._palette_files.extend(list(Path(directory).glob(self._palette_search_term)))
                 self._video_files.extend(list(Path(directory).glob(self._video_search_term)))
 
-        except Exception as e:
-            print("Could not read files from drive")
-            raise e
+        except:
+            pass
 
     def __get_mount_points__(self):
         if sys.platform == 'darwin':
