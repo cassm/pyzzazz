@@ -7,6 +7,7 @@ from handlers.senders.opc_sender_handler import OpcSenderHandler
 from handlers.palette_handler import PaletteHandler
 from handlers.video_handler import VideoHandler
 from handlers.connections.socket_server import SocketServer
+from handlers.external_drive_handler import ExternalDriveHandler
 from fixtures.dodecahedron import Dodecahedron
 from fixtures.cylinder import Cylinder
 from fixtures.bunting_polygon import BuntingPolygon
@@ -17,6 +18,7 @@ from common.graceful_killer import GracefulKiller
 import time
 import traceback
 from pathlib import Path
+from shutil import copyfile
 
 # TODO fixture groups
 
@@ -29,6 +31,21 @@ conf_file = "conf/elephant_conf.json"
 class Pyzzazz:
     def __init__(self, conf_path, palette_path, video_path):
         self._src_dir = Path(__file__).parent
+
+        self.external_drive_handler = ExternalDriveHandler()
+
+        if len(self.external_drive_handler.get_config_paths()) > 0:
+            copyfile(self.external_drive_handler.get_config_paths()[0], conf_path)
+
+        if len(self.external_drive_handler.get_calibration_paths()) > 0:
+            copyfile(self.external_drive_handler.get_calibration_paths()[0], conf_path)
+
+        for path in self.external_drive_handler.get_palette_paths():
+            copyfile(path, palette_path)
+
+        for path in self.external_drive_handler.get_video_paths():
+            copyfile(path, video_path)
+
         self.config_parser = ConfigHandler(conf_path)
         self.palette_handler = PaletteHandler(palette_path)
 
