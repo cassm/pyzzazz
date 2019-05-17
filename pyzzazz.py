@@ -12,24 +12,30 @@ from fixtures.dodecahedron import Dodecahedron
 from fixtures.cylinder import Cylinder
 from fixtures.bunting_polygon import BuntingPolygon
 from handlers.setting_handler import SettingHandler
+from handlers.calibration_handler import CalibrationHandler
+from handlers.hotkey_handler import HotKeyHandler
 from overlays.overlay_handler import OverlayHandler
 from common.graceful_killer import GracefulKiller
 
 import time
 import traceback
 from pathlib import Path
+import sys
+import tty
+import termios
 from shutil import copyfile
 
 # TODO fixture groups
 
 start_pattern = "smooth"
-start_palette = "auto"
+start_palette = "jellyfish"
 default_port = 48945
 
 conf_file = "conf/elephant_conf.json"
+calibration_file = "conf/calibration.json"
 
 class Pyzzazz:
-    def __init__(self, conf_path, palette_path, video_path):
+    def __init__(self, conf_path, palette_path, video_path, calibration_path):
         self._src_dir = Path(__file__).parent
 
         self.external_drive_handler = ExternalDriveHandler()
@@ -48,6 +54,7 @@ class Pyzzazz:
 
         self.config_parser = ConfigHandler(conf_path)
         self.palette_handler = PaletteHandler(palette_path)
+        self.calibration_handler = CalibrationHandler(calibration_path)
 
         self.video_handlers = dict()
 
@@ -84,6 +91,8 @@ class Pyzzazz:
         self.register_commands()
         self.generate_opc_layout_files()
 
+        self.hotkey_handler = HotKeyHandler(self.fixtures, self.calibration_handler)
+
     def needs_socket_server(self):
         for controller_conf in self.config_parser.get_controllers():
             if controller_conf["type"] == "gui":
@@ -95,6 +104,8 @@ class Pyzzazz:
         if self.socket_server:
             self.socket_server.poll()
 
+        self.hotkey_handler.poll()
+
         self.usb_serial_manager.update()
 
         smoothness = self.setting_handlers["master_settings"].get_value("smoothness", 0.5)
@@ -104,6 +115,9 @@ class Pyzzazz:
         self.palette_handler.set_master_palette_name(self.setting_handlers["master_settings"].get_value("palette", start_palette))
         self.palette_handler.set_palette_space_factor(self.setting_handlers["master_settings"].get_value("space_per_palette", 0.5))
         self.palette_handler.set_palette_time_factor(self.setting_handlers["master_settings"].get_value("time_per_palette", 0.5))
+
+        for video_handler in self.video_handlers.values():
+            video_handler.set_scaling_factor(self.setting_handlers["master_settings"].get_value("space_per_palette", 0.5) / 2 + 0.5)
 
         for controller in self.controllers:
             if not controller.is_connected():
@@ -115,7 +129,7 @@ class Pyzzazz:
                 events = controller.get_events()
                 for event in events:
                     if event.is_overlay():
-                        self.overlay_handler.receive_command(event.command, self.effective_time)
+                        self.overlay_handler.receive_command(event.command)
 
                     else:
                         if event.is_video():
@@ -158,7 +172,7 @@ class Pyzzazz:
             fixture.update(self.effective_time, self.palette_handler, smoothness, brightness)
             fixture.send()
 
-        self.overlay_handler.update(self.effective_time)
+        self.overlay_handler.update()
 
     def init_senders(self):
         for sender_conf in self.config_parser.get_senders():
@@ -193,15 +207,15 @@ class Pyzzazz:
 
                 if fixture_conf.get("geometry", "") == "dodecahedron":
                     print("Creating dodecahedron {} with senders {}".format(fixture_conf.get("name", ""), fixture_conf.get("senders", [])))
-                    self.fixtures.append(Dodecahedron(fixture_conf, fixture_senders, self.overlay_handler, self.video_handlers["icosahedron"]))
+                    self.fixtures.append(Dodecahedron(fixture_conf, fixture_senders, self.overlay_handler, self.video_handlers["icosahedron"], self.calibration_handler))
 
                 elif fixture_conf.get("geometry", "") == "cylinder":
                     print("Creating cylinder {} with senders {}".format(fixture_conf.get("name", ""), fixture_conf.get("senders", [])))
-                    self.fixtures.append(Cylinder(fixture_conf, fixture_senders, self.overlay_handler, self.video_handlers["cylinder"]))
+                    self.fixtures.append(Cylinder(fixture_conf, fixture_senders, self.overlay_handler, self.video_handlers["cylinder"], self.calibration_handler))
 
                 elif fixture_conf.get("geometry", "") == "bunting_polygon":
                     print("Creating bunting polygon {} with senders {}".format(fixture_conf.get("name", ""), fixture_conf.get("senders", [])))
-                    self.fixtures.append(BuntingPolygon(fixture_conf, fixture_senders, self.overlay_handler, self.video_handlers["bunting"]))
+                    self.fixtures.append(BuntingPolygon(fixture_conf, fixture_senders, self.overlay_handler, self.video_handlers["bunting"], self.calibration_handler))
 
                 else:
                     raise Exception("Unknown fixture geometry {}".format(fixture_conf.get("geometry", "")))
@@ -316,7 +330,7 @@ if __name__ == "__main__":
         # FIXME check for conf on usb stick
         # FIXME grab palettes off usb stick
         # FIXME grab videos off usb stick
-        pyzzazz = Pyzzazz(conf_file, "palettes/", "videos/")
+        pyzzazz = Pyzzazz(conf_file, "palettes/", "videos/", calibration_file)
 
         print("Running...")
         while True:
@@ -336,6 +350,9 @@ if __name__ == "__main__":
         traceback.print_exc()
 
     finally:
+        if term_saved:
+            termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
+
         pyzzazz.shut_down()
 
     print("have a nice day :)")
