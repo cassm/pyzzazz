@@ -296,6 +296,261 @@
           "default": 50
         }
       ]
+    },
+    {
+      "name": "USB_CONTROLLER_000",
+      "type": "usb_serial",
+      "port": 48945,
+
+      "buttons": [
+        {
+          "name": "smooth_all",
+          "id": 0,
+          "target_keyword": "led_fix_",
+          "command": "{'type': 'pattern', 'name': 'smooth', 'args': {}}"
+        },
+        {
+          "name": "smooth_icosahedron",
+          "id": 1,
+          "target_keyword": "led_fix_icosahedron_",
+          "command": "{'type': 'pattern', 'name': 'smooth', 'args': {}}"
+        },
+        {
+          "name": "smooth_bunting",
+          "id": 2,
+          "target_keyword": "led_fix_bunting_",
+          "command": "{'type': 'pattern', 'name': 'smooth', 'args': {}}"
+        },
+        {
+          "name": "smooth_cylinder",
+          "id": 3,
+          "target_keyword": "led_fix_cylinder_",
+          "command": "{'type': 'pattern', 'name': 'smooth', 'args': {}}"
+        },
+        {
+          "name": "sparkle_all",
+          "id": 4,
+          "target_keyword": "led_fix_",
+          "command": "{'type': 'pattern', 'name': 'sparkle', 'args': {}}"
+        },
+        {
+          "name": "sparkle_icosahedron",
+          "id": 5,
+          "target_keyword": "led_fix_icosahedron_",
+          "command": "{'type': 'pattern', 'name': 'sparkle', 'args': {}}"
+        },
+        {
+          "name": "sparkle_bunting",
+          "id": 6,
+          "target_keyword": "led_fix_bunting_",
+          "command": "{'type': 'pattern', 'name': 'sparkle', 'args': {}}"
+        },
+        {
+          "name": "sparkle_cylinder",
+          "id": 7,
+          "target_keyword": "led_fix_cylinder_",
+          "command": "{'type': 'pattern', 'name': 'sparkle', 'args': {}}"
+        },
+        {
+          "name": "swirl_all",
+          "id": 8,
+          "target_keyword": "led_fix_",
+          "command": "{'type': 'pattern', 'name': 'swirl', 'args': {}}"
+        },
+        {
+          "name": "swirl_icosahedron",
+          "id": 9,
+          "target_keyword": "led_fix_icosahedron_",
+          "command": "{'type': 'pattern', 'name': 'swirl', 'args': {}}"
+        },
+        {
+          "name": "swirl_bunting",
+          "id": 10,
+          "target_keyword": "led_fix_bunting_",
+          "command": "{'type': 'pattern', 'name': 'swirl', 'args': {}}"
+        },
+        {
+          "name": "swirl_cylinder",
+          "id": 11,
+          "target_keyword": "led_fix_cylinder_",
+          "command": "{'type': 'pattern', 'name': 'swirl', 'args': {}}"
+        },
+        {
+          "name": "fizzy_lifting_drink_all",
+          "id": 12,
+          "target_keyword": "led_fix_",
+          "command": "{'type': 'pattern', 'name': 'fizzy_lifting_drink', 'args': {}}"
+        },
+        {
+          "name": "fizzy_lifting_drink_icosahedron",
+          "id": 13,
+          "target_keyword": "led_fix_icosahedron_",
+          "command": "{'type': 'pattern', 'name': 'fizzy_lifting_drink', 'args': {}}"
+        },
+        {
+          "name": "fizzy_lifting_drink_bunting",
+          "id": 14,
+          "target_keyword": "led_fix_bunting_",
+          "command": "{'type': 'pattern', 'name': 'fizzy_lifting_drink', 'args': {}}"
+        },
+        {
+          "name": "fizzy_lifting_drink_cylinder",
+          "id": 15,
+          "target_keyword": "led_fix_cylinder_",
+          "command": "{'type': 'pattern', 'name': 'fizzy_lifting_drink', 'args': {}}"
+        },
+        {
+          "name": "make_me_one_with_everything_all",
+          "id": 16,
+          "target_keyword": "led_fix_",
+          "command": "{'type': 'pattern', 'name': 'make_me_one_with_everything', 'args': {}}"
+        },
+        {
+          "name": "make_me_one_with_everything_icosahedron",
+          "id": 17,
+          "target_keyword": "led_fix_icosahedron_",
+          "command": "{'type': 'pattern', 'name': 'make_me_one_with_everything', 'args': {}}"
+        },
+        {
+          "name": "make_me_one_with_everything_bunting",
+          "id": 18,
+          "target_keyword": "led_fix_bunting_",
+          "command": "{'type': 'pattern', 'name': 'make_me_one_with_everything', 'args': {}}"
+        },
+        {
+          "name": "make_me_one_with_everything_cylinder",
+          "id": 19,
+          "target_keyword": "led_fix_cylinder_",
+          "command": "{'type': 'pattern', 'name': 'make_me_one_with_everything', 'args': {}}"
+        },
+        {
+          "name": "sexy_plaid_all",
+          "id": 20,
+          "target_keyword": "led_fix_",
+          "command": "{'type': 'pattern', 'name': 'map_video', 'video_name': 'sexy_plaid.mp4', 'args': {}}"
+        },
+        {
+          "name": "sexy_plaid_icosahedron",
+          "id": 21,
+          "target_keyword": "icosahedron",
+          "command": "{'type': 'pattern', 'name': 'map_video', 'video_name': 'sexy_plaid.mp4', 'args': {}}"
+        },
+        {
+          "name": "sexy_plaid_bunting",
+          "id": 22,
+          "target_keyword": "bunting",
+          "command": "{'type': 'pattern', 'name': 'map_video', 'video_name': 'sexy_plaid.mp4', 'args': {}}"
+        },
+        {
+          "name": "sexy_plaid_cylinder",
+          "id": 23,
+          "target_keyword": "cylinder",
+          "command": "{'type': 'pattern', 'name': 'map_video', 'video_name': 'sexy_plaid.mp4', 'args': {}}"
+        },
+        {
+          "name": "fire_all",
+          "id": 24,
+          "target_keyword": "led_fix_",
+          "command": "{'type': 'pattern', 'name': 'fire', 'args': {}}"
+        },
+        {
+          "name": "fire_icosahedron",
+          "id": 25,
+          "target_keyword": "led_fix_icosahedron_",
+          "command": "{'type': 'pattern', 'name': 'fire', 'args': {}}"
+        },
+        {
+          "name": "fire_bunting",
+          "id": 26,
+          "target_keyword": "led_fix_bunting_",
+          "command": "{'type': 'pattern', 'name': 'fire', 'args': {}}"
+        },
+        {
+          "name": "fire_cylinder",
+          "id": 27,
+          "target_keyword": "led_fix_cylinder_",
+          "command": "{'type': 'pattern', 'name': 'fire', 'args': {}}"
+        },
+        {
+          "name": "forest-sheep_all",
+          "id": 28,
+          "target_keyword": "led_fix_",
+          "command": "{'type': 'pattern', 'name': 'map_video', 'video_name': 'forest-sheep-mpeg2.mp4', 'args': {}}"
+        },
+        {
+          "name": "forest-sheep_icosahedron",
+          "id": 29,
+          "target_keyword": "icosahedron",
+          "command": "{'type': 'pattern', 'name': 'map_video', 'video_name': 'forest-sheep-mpeg2.mp4', 'args': {}}"
+        },
+        {
+          "name": "forest-sheep_bunting",
+          "id": 30,
+          "target_keyword": "bunting",
+          "command": "{'type': 'pattern', 'name': 'map_video', 'video_name': 'forest-sheep-mpeg2.mp4', 'args': {}}"
+        },
+        {
+          "name": "forest-sheep_cylinder",
+          "id": 31,
+          "target_keyword": "cylinder",
+          "command": "{'type': 'pattern', 'name': 'map_video', 'video_name': 'forest-sheep-mpeg2.mp4', 'args': {}}"
+        },
+        {
+          "name": "star drive",
+          "id": 32,
+          "target_keyword": "",
+          "command": "{'type': 'overlay', 'name': 'star_drive', 'args': {'decay_factor': 1.0}}"
+        },
+        {
+          "name": "ripple",
+          "id": 33,
+          "target_keyword": "",
+          "command": "{'type': 'overlay', 'name': 'ripple', 'args': {'decay_factor': 1.0}}"
+        },
+        {
+          "name": "fireworks",
+          "id": 34,
+          "target_keyword": "",
+          "command": "{'type': 'overlay', 'name': 'spark_shower', 'args': {}}"
+        },
+        {
+          "name": "hue_shift",
+          "id": 35,
+          "target_keyword": "",
+          "command": "{'type': 'overlay', 'name': 'hue_shift', 'args': {}}"
+        }
+      ],
+
+      "sliders": [
+        {
+          "name": "master brightness",
+          "id": 0,
+          "target_keyword": "master_settings",
+          "command": "{'type': 'slider', 'name': 'brightness'}",
+          "default": 50
+        },
+        {
+          "name": "master speed",
+          "id": 1,
+          "target_keyword": "master_settings",
+          "command": "{'type': 'slider', 'name': 'speed'}",
+          "default": 100
+        },
+        {
+          "name": "master smoothness",
+          "id": 2,
+          "target_keyword": "master_settings",
+          "command": "{'type': 'slider', 'name': 'smoothness'}",
+          "default": 33
+        },
+        {
+          "name": "space_per_palette",
+          "id": 3,
+          "target_keyword": "master_settings",
+          "command": "{'type': 'slider', 'name': 'space_per_palette'}",
+          "default": 50
+        }
+      ]
     }
   ]
 }
