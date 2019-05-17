@@ -293,8 +293,15 @@ class Pyzzazz:
 
 
 if __name__ == "__main__":
-    old_settings = termios.tcgetattr(sys.stdin)
-    tty.setcbreak(sys.stdin.fileno())
+    term_saved = False
+    old_settings = None
+
+    try:
+        old_settings = termios.tcgetattr(sys.stdin)
+        tty.setcbreak(sys.stdin.fileno())
+        term_saved = False
+    except:
+        pass
 
     killer = GracefulKiller()
 
@@ -313,7 +320,8 @@ if __name__ == "__main__":
             pyzzazz.update()
 
             if killer.kill_now or pyzzazz.hotkey_handler.exit:
-                termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
+                if term_saved:
+                    termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
 
                 if pyzzazz:
                     pyzzazz.shut_down()
