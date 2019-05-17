@@ -1,6 +1,7 @@
 from handlers.packet_handler import CommPacketHandler
 from handlers.packet_handler import CommHeader
 from enum import Enum
+import time
 
 
 class ClientState(Enum):
@@ -18,6 +19,7 @@ class ClientHandler:
         self.packet_handler = CommPacketHandler()
         self.outbound_byte_buffer = bytearray()
         self.inbound_packet_buffer = list()
+        self.found_time = time.time()
 
     def send_request(self, request_name):
         bytes = CommHeader(msgtype=request_name).get_bytes()

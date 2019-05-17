@@ -18,7 +18,7 @@ class SparkShower(Overlay):
         if fixture_name not in self.last_sparkles.keys():
             self.deltas[fixture_name] = np.array(list(led.coord.get_delta("global") for led in leds))
             self.last_sparkles[fixture_name] = np.zeros(len(leds))
-            self.colour_factors[fixture_name] = np.random.normal(1.0, 0.3, (len(leds), 3))
+            self.colour_factors[fixture_name] = np.random.normal(1.0, 0.1, (len(leds), 3))
 
         # determine sparkle front probability
         front_speed = 1.0
