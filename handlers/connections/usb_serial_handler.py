@@ -73,7 +73,7 @@ class UsbSerialHandler(ConnectionHandler):
                 except:
                     client_handler.errored = True
 
-            elif client_handler.state == ClientState.NEW:
+            elif client_handler.state == ClientState.NEW and time.time() > client_handler.found_time + 2.0:
                 try:
                     print("sending name request to client at {}".format(port))
                     client_handler.send_request("name_request")
@@ -85,7 +85,7 @@ class UsbSerialHandler(ConnectionHandler):
 
         # Read data from ports and put into packet handlers
         for port, client_handler in self._client_dict.items():
-            if client_handler.srl.isOpen():
+            if client_handler.state != ClientState.NEW and client_handler.srl.isOpen():
                 if len(client_handler.outbound_byte_buffer) > 0:
                     try:
                         client_handler.srl.write(client_handler.outbound_byte_buffer)
