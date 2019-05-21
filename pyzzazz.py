@@ -11,6 +11,7 @@ from handlers.external_drive_handler import ExternalDriveHandler
 from fixtures.dodecahedron import Dodecahedron
 from fixtures.cylinder import Cylinder
 from fixtures.bunting_polygon import BuntingPolygon
+from fixtures.arch import Arch
 from handlers.setting_handler import SettingHandler
 from handlers.calibration_handler import CalibrationHandler
 from handlers.hotkey_handler import HotKeyHandler
@@ -216,6 +217,10 @@ class Pyzzazz:
                 elif fixture_conf.get("geometry", "") == "bunting_polygon":
                     print("Creating bunting polygon {} with senders {}".format(fixture_conf.get("name", ""), fixture_conf.get("senders", [])))
                     self.fixtures.append(BuntingPolygon(fixture_conf, fixture_senders, self.overlay_handler, self.video_handlers["led_fix_bunting"], self.calibration_handler))
+
+                elif fixture_conf.get("geometry", "") == "arch":
+                    print("Creating arch {} with senders {}".format(fixture_conf.get("name", ""), fixture_conf.get("senders", [])))
+                    self.fixtures.append(Arch(fixture_conf, fixture_senders, self.overlay_handler, self.video_handlers["led_fix_bunting"], self.calibration_handler))
 
                 else:
                     raise Exception("Unknown fixture geometry {}".format(fixture_conf.get("geometry", "")))
