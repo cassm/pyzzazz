@@ -333,7 +333,7 @@ if __name__ == "__main__":
     try:
         old_settings = termios.tcgetattr(sys.stdin)
         tty.setcbreak(sys.stdin.fileno())
-        term_saved = False
+        term_saved = True
     except:
         pass
 
