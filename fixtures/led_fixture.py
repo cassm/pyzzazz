@@ -33,6 +33,11 @@ class LedFixture(Fixture):
         self.num_pixels = config.get("num_pixels", 0)
         self.senders_info = list(SenderInfo(sender[0], sender[1]) for sender in senders)
 
+        # deal with hex values
+        for sender_info in self.senders_info:
+            if isinstance(sender_info.line, str):
+                sender_info.line = int(sender_info.line, 16)
+
         self.power_budget = config.get("power_budget", None) # watts
 
         self.pattern = config.get("default_pattern")
