@@ -88,8 +88,8 @@ class UsbSerialHandler(ConnectionHandler):
             if client_handler.state != ClientState.NEW and client_handler.srl.isOpen():
                 while len(client_handler.outbound_byte_buffer) > 0 and port not in self.stale_ports:
                     try:
-                        client_handler.srl.write(client_handler.outbound_byte_buffer)
-                        client_handler.outbound_byte_buffer = bytearray()
+                        len_sent = client_handler.srl.write(client_handler.outbound_byte_buffer)
+                        client_handler.outbound_byte_buffer = bytearray(client_handler.outbound_byte_buffer[len_sent:])
 
                     except Exception as e:
                         print(e)
