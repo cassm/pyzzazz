@@ -179,6 +179,7 @@ class Pyzzazz:
         for fixture in self.fixtures:
             fixture.update(self.effective_time, self.palette_handler, smoothness, brightness)
             fixture.send()
+            self.usb_serial_manager.update()
 
         self.overlay_handler.update()
 
