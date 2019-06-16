@@ -9,13 +9,17 @@ class CommHeader:
                    0x01: "name_reply",
                    0x02: "state_request",
                    0x03: "state_reply",
-                   0x04: "frame_update"}
+                   0x04: "frame_update",
+                   0x05: "ping_request",
+                   0x06: "ping_reply"}
 
     ops_by_str = {"name_request": 0x00,
                   "name_reply": 0x01,
                   "state_request": 0x02,
                   "state_reply": 0x03,
-                  "frame_update": 0x04}
+                  "frame_update": 0x04,
+                  "ping_request": 0x05,
+                  "ping_reply": 0x06}
 
     header_len = 4
 
