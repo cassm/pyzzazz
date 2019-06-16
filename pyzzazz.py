@@ -99,6 +99,16 @@ class Pyzzazz:
 
         self.hotkey_handler = HotKeyHandler(self.fixtures, self.calibration_handler)
 
+        self.update_video = self.video_used()
+
+    def video_used(self):
+        for controller_conf in self.config_parser.get_controllers():
+            for button in controller_conf["buttons"]:
+                if button["command"]["name"] == "map_video":
+                    return True
+
+        return False
+
     def needs_socket_server(self):
         for controller_conf in self.config_parser.get_controllers():
             if controller_conf["type"] == "gui":
@@ -124,8 +134,9 @@ class Pyzzazz:
         self.palette_handler.set_palette_space_factor(self.setting_handlers["master_settings"].get_value("space_per_palette", 0.5))
         self.palette_handler.set_palette_time_factor(self.setting_handlers["master_settings"].get_value("time_per_palette", 0.5))
 
-        for video_handler in self.video_handlers.values():
-            video_handler.set_scaling_factor(self.setting_handlers["master_settings"].get_value("space_per_palette", 0.5) / 2 + 0.5)
+        if self.update_video:
+            for video_handler in self.video_handlers.values():
+                video_handler.set_scaling_factor(self.setting_handlers["master_settings"].get_value("space_per_palette", 0.5) / 2 + 0.5)
 
         for controller in self.controllers:
             if not controller.is_connected():
@@ -173,8 +184,9 @@ class Pyzzazz:
             if not sender.is_connected():
                 sender.try_connect()
 
-        for video_handler in self.video_handlers.values():
-            video_handler.update(self.effective_time)
+        if self.update_video:
+            for video_handler in self.video_handlers.values():
+                video_handler.update(self.effective_time)
 
         for fixture in self.fixtures:
             fixture.update(self.effective_time, self.palette_handler, smoothness, brightness)
