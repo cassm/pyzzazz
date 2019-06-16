@@ -7,6 +7,8 @@ from handlers.senders.opc_sender_handler import OpcSenderHandler
 from handlers.palette_handler import PaletteHandler
 from handlers.video_handler import VideoHandler
 from handlers.connections.socket_server import SocketServer
+from handlers.connections.udp_handler import UdpHandler
+from handlers.senders.udp_sender_handler import UdpSenderHandler
 from handlers.external_drive_handler import ExternalDriveHandler
 from fixtures.dodecahedron import Dodecahedron
 from fixtures.cylinder import Cylinder
@@ -30,7 +32,8 @@ from shutil import copyfile
 
 start_pattern = "smooth"
 start_palette = "jellyfish"
-default_port = 48945
+default_tcp_port = 48945
+default_udp_port = 2390
 
 conf_file = "conf/elephant_conf.json"
 calibration_file = "conf/calibration.json"
@@ -78,9 +81,11 @@ class Pyzzazz:
         self.setting_handlers = {}
 
         if self.needs_socket_server():
-            self.socket_server = SocketServer(port=default_port)
+            self.socket_server = SocketServer(port=default_tcp_port)
         else:
             self.socket_server = None
+
+        self.udp_handler = UdpHandler(default_udp_port)
 
         self.overlay_handler = OverlayHandler()
 
@@ -104,6 +109,8 @@ class Pyzzazz:
     def update(self):
         if self.socket_server:
             self.socket_server.poll()
+
+        self.udp_handler.poll()
 
         self.hotkey_handler.poll()
 
@@ -189,6 +196,10 @@ class Pyzzazz:
             elif sender_conf.get("type", "") == "opc":
                 print("Creating opc sender {} on port {}".format(name, sender_conf.get("port", "")))
                 self.senders[name] = OpcSenderHandler(sender_conf, self._src_dir)
+
+            elif sender_conf.get("type", "") == "udp":
+                print("Creating UDP sender {}".format(name))
+                self.senders[name] = UdpSenderHandler(sender_conf, self.udp_handler)
 
             else:
                 raise Exception("Unknown sender type {}".format(sender_conf.get("type", "")))
