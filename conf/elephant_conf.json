@@ -11,12 +11,17 @@
       "num_lines": 8
     },
     {
+      "name": "udp_0",
+      "type": "udp",
+      "num_lines": -1
+    },
+    {
       "name": "sim_0",
       "type": "opc",
-      "is_simulator": true,
+      "is_simulator": false,
       "ip": "127.0.0.1",
       "port": "7890",
-      "num_lines": 99
+      "num_lines": -1
     }
   ],
 
@@ -25,7 +30,7 @@
       "name": "led_fix_bunting_0",
       "type": "led",
       "default_pattern": "sparkle",
-      "channel_order": "rgb",
+      "channel_order": "grbw",
       "geometry": "bunting_polygon",
       "sides": 6,
       "arrangement": "hexagon",
@@ -35,7 +40,8 @@
       "radius": 1.245,
       "location": [0.0, 0.0, 0.4],
       "farthest_point": [3.9, 0.0, 0.4],
-      "senders": [["sim_0", 0], ["OCTO_SENDER_001", 0]]
+      "senders": [["udp_0", "0x00000001"],
+        ["sim_0", 0], ["OCTO_SENDER_001", 2]]
     },
     {
       "name": "led_fix_bunting_1",
@@ -65,7 +71,7 @@
       "radius": 2.075,
       "location": [0.0, 0.0, 0.2],
       "farthest_point": [3.9, 0.0, 0.4],
-      "senders": [["sim_0", 2], ["OCTO_SENDER_001", 2]]
+      "senders": [["sim_0", 2], ["OCTO_SENDER_001", 0]]
     },
     {
       "name": "led_fix_bunting_arch_dj",
@@ -80,109 +86,6 @@
       "width": 1,
       "floor": -1.5,
       "senders": [["sim_0", 3], ["OCTO_SENDER_001", 3]]
-    },
-    {
-      "name": "led_fix_icosahedron_0",
-      "type": "led",
-      "default_pattern": "sparkle",
-      "channel_order": "grbw",
-      "power_budget": 25,
-      "geometry": "dodecahedron",
-      "location": [0.0, 0.0, 0.3],
-      "radius": 0.45,
-      "senders": [["sim_0", 4], ["OCTO_SENDER_000", 0]]
-    },
-    {
-      "name": "led_fix_cylinder_0",
-      "type": "led",
-      "default_pattern": "sparkle",
-      "channel_order": "grbw",
-      "geometry": "cylinder",
-      "location": [2.2, 0.0, -0.5],
-      "radius": 0.1,
-      "height": 0.35,
-      "num_pixels": 150,
-      "num_turns": 13.9,
-      "senders": [["sim_0", 5], ["OCTO_SENDER_000", 1]]
-    },
-    {
-      "name": "led_fix_cylinder_1",
-      "type": "led",
-      "default_pattern": "sparkle",
-      "channel_order": "grbw",
-      "geometry": "cylinder",
-      "location": [1.1, 1.9, -0.5],
-      "radius": 0.1,
-      "height": 0.35,
-      "num_pixels": 150,
-      "num_turns": 13.9,
-      "senders": [["sim_0", 6], ["OCTO_SENDER_000", 2]]
-    },
-    {
-      "name": "led_fix_cylinder_2",
-      "type": "led",
-      "default_pattern": "sparkle",
-      "channel_order": "grbw",
-      "geometry": "cylinder",
-      "location": [-1.1, 1.9, -0.5],
-      "radius": 0.1,
-      "height": 0.35,
-      "num_pixels": 150,
-      "num_turns": 13.9,
-      "senders": [["sim_0", 7], ["OCTO_SENDER_000", 3]]
-    },
-    {
-      "name": "led_fix_cylinder_3",
-      "type": "led",
-      "default_pattern": "sparkle",
-      "channel_order": "grbw",
-      "geometry": "cylinder",
-      "location": [-2.2, 0.0, -0.5],
-      "radius": 0.1,
-      "height": 0.35,
-      "num_pixels": 150,
-      "num_turns": 13.9,
-      "senders": [["sim_0", 8], ["OCTO_SENDER_000", 4]]
-    },
-    {
-      "name": "led_fix_cylinder_4",
-      "type": "led",
-      "default_pattern": "sparkle",
-      "channel_order": "grbw",
-      "geometry": "cylinder",
-      "location": [-1.1, -1.9, -0.5],
-      "radius": 0.1,
-      "height": 0.35,
-      "num_pixels": 150,
-      "num_turns": 13.9,
-      "senders": [["sim_0", 9], ["OCTO_SENDER_000", 5]]
-    },
-    {
-      "name": "led_fix_cylinder_5",
-      "type": "led",
-      "default_pattern": "sparkle",
-      "channel_order": "grbw",
-      "geometry": "cylinder",
-      "location": [1.1, -1.9, -0.5],
-      "radius": 0.1,
-      "height": 0.35,
-      "num_pixels": 150,
-      "num_turns": 13.9,
-      "senders": [["sim_0", 10], ["OCTO_SENDER_000", 6]]
-    },
-    {
-      "name": "led_fix_bunting_arch_door",
-      "type": "led",
-      "default_pattern": "sparkle",
-      "channel_order": "rgb",
-      "geometry": "arch",
-      "num_pixels": 43,
-      "r": 2.4,
-      "theta": 1.57,
-      "height": 1,
-      "width": 1,
-      "floor": -1.5,
-      "senders": [["sim_0", 11], ["OCTO_SENDER_000", 7]]
     }
   ],
 
