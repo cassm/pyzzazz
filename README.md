@@ -41,12 +41,6 @@ Assuming you have the above installed, you can get started using the following s
 
 the pixel position and colour information are served as JSON at localhost:5001/position and localhost:5001/colour respectively.
 
-## Authors
-
-* **Cass May** - Most of it
-
-* **Vic Williams** - [Active contributor](github.com/pixelherd)
-
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
