@@ -1,0 +1,13 @@
+requirements.txt
+dockerise
+frontend visualiser page
+frontend calibration page
+frontend control page
+save and restore calibration and configuration
+
+fix video
+look over udp code
+write firmware for wireless nodes
+write node autodiscovery
+
+strong look over main loop
