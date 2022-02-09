@@ -1,5 +1,5 @@
 import os
-from flask import Flask
+from flask import Flask, jsonify
 
 
 def create_app(position_state, colour_state, test_config=None):
@@ -20,10 +20,10 @@ def create_app(position_state, colour_state, test_config=None):
 
     @app.route('/colour')
     def colour():
-        return colour_state.get_if_available()
+        return jsonify(colour_state.get_if_available())
 
     @app.route('/position')
     def position():
-        return position_state.get_if_available()
+        return jsonify(position_state.get_if_available())
 
     return app

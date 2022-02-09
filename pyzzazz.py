@@ -31,7 +31,6 @@ import sys
 import tty
 import termios
 from shutil import copyfile
-import json
 
 # TODO fixture groups
 
@@ -225,8 +224,8 @@ class Pyzzazz:
 
         self.overlay_handler.update()
 
-        self.pixel_position_state.set(json.dumps(self.get_coords()))
-        self.pixel_colour_state.set(json.dumps(self.get_colours()))
+        self.pixel_position_state.set(self.get_coords())
+        self.pixel_colour_state.set(self.get_colours())
 
     def init_senders(self):
         for sender_conf in self.config_parser.get_senders():
