@@ -16,19 +16,30 @@ If you have a sender specified with type=opc and is_simulator=true, pyzzazz will
 
 Power limiting is supported for LED fixtures. If the fixture is specified with a "power_budget" argument (in watts), pyzzazz will estimate the power consumption of a given frame and downscale it if necessary to avoid overdraw.
 
-### Prerequisites
-
-This project runs under Python 3.6 and above
-
-You will need the following libraries:
-- pyserial (NOT the package called serial, which has a clashing namespace)
-- tkinter
-- imageio
-- bitarray
-
 ### Installing
 
-Just download, install the libraries, and run!
+This project runs under Python 3.6 and above. Use of pip and virtualenv is recommended.
+Assuming you have the above installed, you can get started using the following steps under linux or macOS. These are largely generic instructions.
+
+    # clone the repository
+    git clone https://github.com/cassm/pyzzazz.git pyzzazz
+    cd pyzzazz
+
+    # create and activate the virtual environment
+    virtualenv venv
+    venv/bin/activate
+
+    # install the python dependencies
+    pip3 install -r requirements.txt
+
+    # initialise and update the git submodules (currently openpixelcontrol)
+    git submodule init
+    git submodule update
+
+    # run!
+    python3 pyzzazz.py
+
+the pixel position and colour information are served as JSON at localhost:5001/position and localhost:5001/colour respectively.
 
 ## Authors
 
