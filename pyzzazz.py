@@ -19,7 +19,9 @@ from handlers.calibration_handler import CalibrationHandler
 from handlers.hotkey_handler import HotKeyHandler
 from overlays.overlay_handler import OverlayHandler
 from common.graceful_killer import GracefulKiller
+from webserver.flaskr.app import create_app
 
+import threading
 import time
 import traceback
 from pathlib import Path
@@ -101,6 +103,13 @@ class Pyzzazz:
             self.hotkey_handler = HotKeyHandler(self.fixtures, self.calibration_handler)
 
             self.update_video = self.video_used()
+
+            def run_flask():
+                create_app().run(host='0.0.0.0', port=5001)
+
+            t = threading.Thread(target=run_flask)
+            t.setDaemon(True)
+            t.start()
 
         except:
             for p in self.subprocesses:
