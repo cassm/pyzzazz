@@ -40,66 +40,74 @@ calibration_file = "conf/calibration.json"
 
 class Pyzzazz:
     def __init__(self, conf_path, palette_path, video_path, calibration_path):
-        self._src_dir = Path(__file__).parent
+        try:
+            self._src_dir = Path(__file__).parent
 
-        self.external_drive_handler = ExternalDriveHandler()
+            self.external_drive_handler = ExternalDriveHandler()
 
-        if len(self.external_drive_handler.get_config_paths()) > 0:
-            copyfile(self.external_drive_handler.get_config_paths()[0], conf_path)
+            if len(self.external_drive_handler.get_config_paths()) > 0:
+                copyfile(self.external_drive_handler.get_config_paths()[0], conf_path)
 
-        if len(self.external_drive_handler.get_calibration_paths()) > 0:
-            copyfile(self.external_drive_handler.get_calibration_paths()[0], conf_path)
+            if len(self.external_drive_handler.get_calibration_paths()) > 0:
+                copyfile(self.external_drive_handler.get_calibration_paths()[0], conf_path)
 
-        for path in self.external_drive_handler.get_palette_paths():
-            copyfile(path, palette_path)
+            for path in self.external_drive_handler.get_palette_paths():
+                copyfile(path, palette_path)
 
-        for path in self.external_drive_handler.get_video_paths():
-            copyfile(path, video_path)
+            for path in self.external_drive_handler.get_video_paths():
+                copyfile(path, video_path)
 
-        self.config_parser = ConfigHandler(conf_path)
-        self.palette_handler = PaletteHandler(palette_path)
-        self.calibration_handler = CalibrationHandler(calibration_path)
+            self.config_parser = ConfigHandler(conf_path)
+            self.palette_handler = PaletteHandler(palette_path)
+            self.calibration_handler = CalibrationHandler(calibration_path)
 
-        self.video_handlers = dict()
+            self.video_handlers = dict()
 
-        self.video_handlers["led_fix_icosahedron"] = VideoHandler(video_path)
-        self.video_handlers["led_fix_cylinder"] = VideoHandler(video_path)
-        self.video_handlers["led_fix_bunting"] = VideoHandler(video_path)
+            self.video_handlers["led_fix_icosahedron"] = VideoHandler(video_path)
+            self.video_handlers["led_fix_cylinder"] = VideoHandler(video_path)
+            self.video_handlers["led_fix_bunting"] = VideoHandler(video_path)
 
-        self.usb_serial_manager = UsbSerialHandler()
-        self.effective_time = 0.0
-        self.last_update = time.time()
-        self.subprocesses = list()
+            self.usb_serial_manager = UsbSerialHandler()
+            self.effective_time = 0.0
+            self.last_update = time.time()
+            self.subprocesses = list()
 
-        self.fps = 30.0
-        self.time_per_frame = 1.0 / self.fps
+            self.fps = 30.0
+            self.time_per_frame = 1.0 / self.fps
 
-        self.senders = dict()
-        self.fixtures = []
-        self.controllers = []
+            self.senders = dict()
+            self.fixtures = []
+            self.controllers = []
 
-        self.setting_handlers = {}
+            self.setting_handlers = {}
 
-        if self.needs_socket_server():
-            self.socket_server = SocketServer(port=default_tcp_port)
-        else:
-            self.socket_server = None
+            if self.needs_socket_server():
+                self.socket_server = SocketServer(port=default_tcp_port)
+            else:
+                self.socket_server = None
 
-        self.udp_handler = UdpHandler(default_udp_port)
+            self.udp_handler = UdpHandler(default_udp_port)
 
-        self.overlay_handler = OverlayHandler()
+            self.overlay_handler = OverlayHandler()
 
-        # these must be done in this order
-        self.init_setting_handlers()
-        self.init_senders()
-        self.init_fixtures()
-        self.init_controllers()
-        self.register_commands()
-        self.generate_opc_layout_files()
+            # these must be done in this order
+            self.init_setting_handlers()
+            self.init_senders()
+            self.init_fixtures()
+            self.init_controllers()
+            self.register_commands()
+            self.generate_opc_layout_files()
 
-        self.hotkey_handler = HotKeyHandler(self.fixtures, self.calibration_handler)
+            self.hotkey_handler = HotKeyHandler(self.fixtures, self.calibration_handler)
 
-        self.update_video = self.video_used()
+            self.update_video = self.video_used()
+
+        except:
+            for p in self.subprocesses:
+                p.kill()
+
+            sys.exit(1)
+
 
     def video_used(self):
         return False
