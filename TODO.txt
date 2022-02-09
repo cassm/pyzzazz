@@ -2,7 +2,7 @@ requirements.txt
 dockerise
 frontend visualiser page
 frontend calibration page
-frontend control page
+frontend control page -> remove gui tcp code
 save and restore calibration and configuration
 
 fix video
