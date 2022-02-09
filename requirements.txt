@@ -1,0 +1,17 @@
+asgiref==3.5.0
+backports.zoneinfo==0.2.1
+bitarray==2.3.6
+click==8.0.3
+Flask==2.0.2
+imageio==2.15.0
+itsdangerous==2.0.1
+Jinja2==3.0.3
+MarkupSafe==2.0.1
+numpy==1.22.2
+opencv-python==4.5.5.62
+Pillow==9.0.1
+psutil==5.9.0
+pyserial==3.5
+sqlparse==0.4.2
+tk==0.1.0
+Werkzeug==2.0.3
