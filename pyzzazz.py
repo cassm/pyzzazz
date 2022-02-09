@@ -10,6 +10,7 @@ from handlers.connections.socket_server import SocketServer
 from handlers.connections.udp_handler import UdpHandler
 from handlers.senders.udp_sender_handler import UdpSenderHandler
 from handlers.external_drive_handler import ExternalDriveHandler
+from fixtures.led_fixture import LedFixture
 from fixtures.dodecahedron import Dodecahedron
 from fixtures.cylinder import Cylinder
 from fixtures.bunting_polygon import BuntingPolygon
@@ -19,6 +20,7 @@ from handlers.calibration_handler import CalibrationHandler
 from handlers.hotkey_handler import HotKeyHandler
 from overlays.overlay_handler import OverlayHandler
 from common.graceful_killer import GracefulKiller
+from common.shared_state import SharedState
 from webserver.flaskr.app import create_app
 
 import threading
@@ -29,6 +31,7 @@ import sys
 import tty
 import termios
 from shutil import copyfile
+import json
 
 # TODO fixture groups
 
@@ -104,8 +107,11 @@ class Pyzzazz:
 
             self.update_video = self.video_used()
 
+            self.pixel_position_state = SharedState()
+            self.pixel_colour_state = SharedState()
+
             def run_flask():
-                create_app().run(host='0.0.0.0', port=5001)
+                create_app(self.pixel_position_state, self.pixel_colour_state).run(host='0.0.0.0', port=5001)
 
             t = threading.Thread(target=run_flask)
             t.setDaemon(True)
@@ -133,6 +139,12 @@ class Pyzzazz:
                 return True
 
         return False
+
+    def get_colours(self):
+        return [x.get_pixels(force_rgb=True).tolist() for x in self.fixtures if isinstance(x, LedFixture)]
+
+    def get_coords(self):
+        return [x.get_coords() for x in self.fixtures if isinstance(x, LedFixture)]
 
     def update(self):
         if self.socket_server:
@@ -212,6 +224,9 @@ class Pyzzazz:
             self.usb_serial_manager.update()
 
         self.overlay_handler.update()
+
+        self.pixel_position_state.set(json.dumps(self.get_coords()))
+        self.pixel_colour_state.set(json.dumps(self.get_colours()))
 
     def init_senders(self):
         for sender_conf in self.config_parser.get_senders():

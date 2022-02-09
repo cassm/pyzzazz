@@ -2,7 +2,7 @@ import os
 from flask import Flask
 
 
-def create_app(test_config=None):
+def create_app(position_state, colour_state, test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY='dev'
@@ -18,8 +18,12 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    @app.route('/hello')
-    def hello():
-        return 'Hello World!'
+    @app.route('/colour')
+    def colour():
+        return colour_state.get_if_available()
+
+    @app.route('/position')
+    def position():
+        return position_state.get_if_available()
 
     return app
