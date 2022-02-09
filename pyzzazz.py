@@ -110,7 +110,7 @@ class Pyzzazz:
             self.pixel_colour_state = SharedState()
 
             def run_flask():
-                create_app(self.pixel_position_state, self.pixel_colour_state).run(host='0.0.0.0', port=5001)
+                create_app(self.pixel_position_state, self.pixel_colour_state).run(host='0.0.0.0', port=5000)
 
             t = threading.Thread(target=run_flask)
             t.setDaemon(True)
