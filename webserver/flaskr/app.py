@@ -1,6 +1,7 @@
 import os
-from flask import Flask, jsonify
-
+from flask import Flask
+from flask import jsonify
+from flask import render_template
 
 def create_app(position_state, colour_state, test_config=None):
     app = Flask(__name__, instance_relative_config=True)
@@ -17,6 +18,10 @@ def create_app(position_state, colour_state, test_config=None):
         os.makedirs(app.instance_path)
     except OSError:
         pass
+
+    @app.route('/')
+    def index():
+        return render_template('index.html')
 
     @app.route('/colour')
     def colour():
