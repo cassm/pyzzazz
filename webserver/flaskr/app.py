@@ -4,7 +4,9 @@ from flask import jsonify
 from flask import render_template
 
 def create_app(position_state, colour_state, test_config=None):
-    app = Flask(__name__, instance_relative_config=True)
+    app = Flask(__name__,
+                static_folder='./static')
+
     app.config.from_mapping(
         SECRET_KEY='dev'
     )
