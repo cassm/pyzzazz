@@ -1,4 +1,6 @@
-const THREE = window.THREE;
+import $ from 'jquery';
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 const params = {
     fps: 30,
@@ -7,7 +9,7 @@ const params = {
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 const renderer = new THREE.WebGLRenderer();
-const controls = new THREE.OrbitControls( camera, renderer.domElement );
+const controls = new OrbitControls( camera, renderer.domElement );
 
 renderer.setSize( window.innerWidth*0.99, window.innerHeight*0.98 );
 document.body.appendChild( renderer.domElement );
