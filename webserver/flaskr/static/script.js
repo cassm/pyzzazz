@@ -1,18 +1,41 @@
 import $ from 'jquery';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+
 
 const params = {
     fps: 30,
+    exposure: 1,
+    bloomStrength: 1.5,
+    bloomThreshold: 0,
+    bloomRadius: 0
 };
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-const renderer = new THREE.WebGLRenderer();
+const renderer = new THREE.WebGLRenderer({antialias: true});
 const controls = new OrbitControls( camera, renderer.domElement );
 
+
+renderer.setPixelRatio( window.devicePixelRatio );
 renderer.setSize( window.innerWidth*0.99, window.innerHeight*0.98 );
+renderer.toneMapping = THREE.ReinhardToneMapping;
 document.body.appendChild( renderer.domElement );
+
+const renderScene = new RenderPass( scene, camera );
+
+const bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
+bloomPass.threshold = params.bloomThreshold;
+bloomPass.strength = params.bloomStrength;
+bloomPass.radius = params.bloomRadius;
+
+const composer = new EffectComposer( renderer );
+composer.addPass( renderScene );
+composer.addPass( bloomPass );
+
 
 camera.position.z = 5;
 controls.update();
@@ -43,7 +66,7 @@ async function getState(url) {
 function animate() {
     requestAnimationFrame( animate );
     controls.update();
-    renderer.render( scene, camera );
+    composer.render();
 }
 
 function updateColours() {
