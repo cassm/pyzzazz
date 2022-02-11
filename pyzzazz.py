@@ -140,10 +140,23 @@ class Pyzzazz:
         return False
 
     def get_colours(self):
-        return [x.get_pixels(force_rgb=True).tolist() for x in self.fixtures if isinstance(x, LedFixture)]
+        colours = []
+        for x in self.fixtures:
+            if isinstance(x, LedFixture):
+                colours.extend(x.get_pixels(force_rgb=True).tolist())
+
+        return [colours[i:i+3] for i in range(0, len(colours), 3)]
 
     def get_coords(self):
-        return [x.get_coords() for x in self.fixtures if isinstance(x, LedFixture)]
+        coords = []
+        for x in self.fixtures:
+            if isinstance(x, LedFixture):
+                fixture_coords = x.get_coords()
+                if isinstance(x, BuntingPolygon):
+                    fixture_coords.pop()
+                coords.extend(fixture_coords)
+
+        return coords
 
     def update(self):
         if self.socket_server:
