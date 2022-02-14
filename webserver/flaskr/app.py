@@ -4,6 +4,7 @@ import inspect
 from flask import Flask
 from flask import jsonify
 from flask import render_template
+from flask_socketio import SocketIO, send, emit
 from multiprocessing.connection import Client
 import threading
 
@@ -48,8 +49,17 @@ def create_app(test_config=None):
     def position():
         return jsonify(pixel_position_state.get_if_available())
 
+    sock = SocketIO(app)
+
+    @sock.on('colour')
+    def colour():
+        emit('colour', pixel_colour_state.get_if_available())
+
+    return sock, app
+
+
 if __name__ == '__main__':
-    app = create_app()
+    socketio, app = create_app()
 
     def create_client():
         try:
@@ -65,4 +75,4 @@ if __name__ == '__main__':
     t.setDaemon(True)
     t.start()
 
-    return app
+    socketio.run(app, host='0.0.0.0', port=5000)

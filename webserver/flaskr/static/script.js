@@ -4,15 +4,44 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
-
+import { io } from 'socket.io-client'
 
 const params = {
-    fps: 30,
+    fps: 60,
     exposure: 1,
     bloomStrength: 1.5,
     bloomThreshold: 0,
     bloomRadius: 0
 };
+
+let coords = [];
+let colours = [];
+let leds = [];
+
+const socket = io.connect('http://localhost:5000');
+socket.on('connect', function() {
+    let colours_requested = false;
+    socket.on('colour', (data) => {
+        colours_requested = false;
+
+        if (data) {
+            data.forEach((pixel, pixelIndex) => {
+                pixel.forEach((colour, colourIndex) => {
+                    colours[pixelIndex][colourIndex] = colour;
+                })
+            })
+            updateColours();
+        }
+    })
+
+    function requestColours() {
+        if (colours_requested === false) {
+            colours_requested = true;
+            socket.emit('colour');
+        }
+    }
+    setInterval(requestColours, 1000/params.fps);
+});
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -36,13 +65,8 @@ const composer = new EffectComposer( renderer );
 composer.addPass( renderScene );
 composer.addPass( bloomPass );
 
-
 camera.position.z = 5;
 controls.update();
-
-let coords = [];
-let colours = [];
-let leds = [];
 
 function initLeds() {
     for (let i = 0; i < colours.length; i++) {
@@ -70,17 +94,15 @@ function animate() {
 }
 
 function updateColours() {
-    getState('http://localhost:5000/colour').then((res) => {
-        if (res != null) {
-            try {
-                for (let i = 0; i < res.length; i++) {
-                    leds[i].material.color.set(`rgb(${res[i][0]},${res[i][1]},${res[i][2]})`);
-                }
-            } catch (err) {
-                console.log(err);
-            }
+    try {
+        for (let i = 0; i < colours.length; i++) {
+            let luminosity = (colours[i].reduce((partialSum, a) => partialSum+a, 0)) / (128*3);
+            leds[i].scale.set(luminosity*1.5, luminosity*1.5, luminosity*1.5);
+            leds[i].material.color.set(`rgb(${colours[i][0]},${colours[i][1]},${colours[i][2]})`);
         }
-    });
+    } catch (err) {
+        console.log(err);
+    }
 }
 
 $(document).ready(() => {
@@ -90,7 +112,6 @@ $(document).ready(() => {
     }).then((res) => {
         colours = res;
         initLeds();
-        setInterval(updateColours, 1000/params.fps);
 
         animate();
     })
