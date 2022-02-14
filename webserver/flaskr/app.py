@@ -1,9 +1,24 @@
 import os
+import sys
+import inspect
 from flask import Flask
 from flask import jsonify
 from flask import render_template
+from multiprocessing.connection import Client
+import threading
 
-def create_app(position_state, colour_state, test_config=None):
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+parentparentdir = os.path.dirname(parentdir)
+sys.path.append(parentparentdir)
+
+from common.shared_state import SharedState
+
+pixel_position_state = SharedState()
+pixel_colour_state = SharedState()
+
+
+def create_app(test_config=None):
     app = Flask(__name__,
                 static_folder='./static')
 
@@ -27,10 +42,27 @@ def create_app(position_state, colour_state, test_config=None):
 
     @app.route('/colour')
     def colour():
-        return jsonify(colour_state.get_if_available())
+        return jsonify(pixel_colour_state.get_if_available())
 
     @app.route('/position')
     def position():
-        return jsonify(position_state.get_if_available())
+        return jsonify(pixel_position_state.get_if_available())
+
+if __name__ == '__main__':
+    app = create_app()
+
+    def create_client():
+        try:
+            with Client(('localhost', 6000)) as conn:
+                while True:
+                    [coords, colours] = conn.recv()
+                    pixel_position_state.set(coords)
+                    pixel_colour_state.set(colours)
+        finally:
+            conn.close()
+
+    t = threading.Thread(target=create_client)
+    t.setDaemon(True)
+    t.start()
 
     return app

@@ -20,7 +20,6 @@ from handlers.calibration_handler import CalibrationHandler
 from handlers.hotkey_handler import HotKeyHandler
 from overlays.overlay_handler import OverlayHandler
 from common.graceful_killer import GracefulKiller
-from common.shared_state import SharedState
 from webserver.flaskr.app import create_app
 
 import threading
@@ -31,6 +30,7 @@ import sys
 import tty
 import termios
 from shutil import copyfile
+from multiprocessing.connection import Listener
 
 # TODO fixture groups
 
@@ -106,13 +106,22 @@ class Pyzzazz:
 
             self.update_video = self.video_used()
 
-            self.pixel_position_state = SharedState()
-            self.pixel_colour_state = SharedState()
+            def create_listener():
+                with Listener(('localhost', 6000)) as listener:
+                    while True:
+                        with listener.accept() as conn:
+                            fps = 30
 
-            def run_flask():
-                create_app(self.pixel_position_state, self.pixel_colour_state).run(host='0.0.0.0', port=5000)
+                            while True:
+                                try:
+                                    conn.send([self.get_coords(), self.get_colours()])
+                                except:
+                                    conn.close()
+                                    break
 
-            t = threading.Thread(target=run_flask)
+                                time.sleep(1.0/fps)
+
+            t = threading.Thread(target=create_listener)
             t.setDaemon(True)
             t.start()
 
@@ -236,9 +245,6 @@ class Pyzzazz:
             self.usb_serial_manager.update()
 
         self.overlay_handler.update()
-
-        self.pixel_position_state.set(self.get_coords())
-        self.pixel_colour_state.set(self.get_colours())
 
     def init_senders(self):
         for sender_conf in self.config_parser.get_senders():
