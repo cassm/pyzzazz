@@ -114,7 +114,14 @@ class Pyzzazz:
 
                             while True:
                                 try:
-                                    conn.send([self.get_coords(), self.get_colours()])
+                                    conn.send(['colours', self.get_colours()])
+
+                                    while conn.poll():
+                                        keyword = conn.recv()
+
+                                        if keyword == 'coords':
+                                            conn.send(['coords', self.get_coords()])
+
                                 except:
                                     conn.close()
                                     break

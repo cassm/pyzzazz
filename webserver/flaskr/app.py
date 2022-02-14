@@ -64,10 +64,14 @@ if __name__ == '__main__':
     def create_client():
         try:
             with Client(('localhost', 6000)) as conn:
+                conn.send('coords')
+
                 while True:
-                    [coords, colours] = conn.recv()
-                    pixel_position_state.set(coords)
-                    pixel_colour_state.set(colours)
+                    [keyword, data] = conn.recv()
+                    if keyword == 'colours':
+                        pixel_colour_state.set(data)
+                    elif keyword == 'coords':
+                        pixel_position_state.set(data)
         finally:
             conn.close()
 
