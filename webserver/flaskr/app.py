@@ -1,82 +1,96 @@
 import os
 import sys
+import time
 import inspect
 from flask import Flask
 from flask import jsonify
 from flask import render_template
 from flask_socketio import SocketIO, send, emit
-from multiprocessing.connection import Client
+from multiprocessing import shared_memory
 import threading
 
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-parentparentdir = os.path.dirname(parentdir)
-sys.path.append(parentparentdir)
+fps = 30
+
+current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parent_dir = os.path.dirname(current_dir)
+parent_parent_dir = os.path.dirname(parent_dir)
+sys.path.append(parent_parent_dir)
 
 from common.shared_state import SharedState
 
-pixel_position_state = SharedState()
-pixel_colour_state = SharedState()
+avail_cmd_state = SharedState()
+
+shm_colours = shared_memory.SharedMemory(name='shm_pyzzazz_colours')
+shm_coords = shared_memory.ShareableList(name='shm_pyzzazz_coords')
 
 
-def create_app(test_config=None):
-    app = Flask(__name__,
-                static_folder='./static')
+def get_colours():
+    col = list(shm_colours.buf)
+    return [col[i:i + 3] for i in range(0, len(col), 3)]
 
-    app.config.from_mapping(
-        SECRET_KEY='dev'
-    )
 
-    if test_config is None:
-        app.config.from_pyfile('config.py', silent=True)
-    else:
-        app.config.from_mapping(test_config)
+app = Flask(__name__,
+            static_folder='./static')
 
-    try:
-        os.makedirs(app.instance_path)
-    except OSError:
-        pass
+app.config.from_mapping(
+    SECRET_KEY='dev'
+)
 
-    @app.route('/')
-    def index():
-        return render_template('index.html')
+try:
+    os.makedirs(app.instance_path)
+except OSError:
+    pass
 
-    @app.route('/colour')
-    def colour():
-        return jsonify(pixel_colour_state.get_if_available())
 
-    @app.route('/position')
-    def position():
-        return jsonify(pixel_position_state.get_if_available())
+@app.route('/')
+def index():
+    return render_template('index.html')
 
-    sock = SocketIO(app)
 
-    @sock.on('colour')
-    def colour():
-        emit('colour', pixel_colour_state.get_if_available())
+@app.route('/colour')
+def colour():
+    return jsonify(get_colours())
 
-    return sock, app
+
+@app.route('/position')
+def position():
+    coords = list(shm_coords)
+    return jsonify([coords[i:i + 3] for i in range(0, len(coords), 3)])
+
+
+# @app.route('/avail_cmds')
+# def avail_cmds():
+#     return jsonify(avail_cmd_state.get_if_available())
+
+socketio = SocketIO(app)
+
+
+@socketio.on('colours')
+def sock_colour():
+    emit('colours', get_colours())
+
+
+@socketio.on('avail_cmds')
+def sock_avail_cmds():
+    emit('avail_cmds', avail_cmd_state.get_if_available())
+
+
+def push_colours():
+    while True:
+        try:
+            socketio.emit('colours', get_colours())
+        except:
+            break
+
+        time.sleep(1.0 / fps)
+
+
+@socketio.on('connect')
+def colour_push():
+    col_thread = threading.Thread(target=push_colours)
+    col_thread.setDaemon(True)
+    col_thread.start()
 
 
 if __name__ == '__main__':
-    socketio, app = create_app()
-
-    def create_client():
-        try:
-            with Client(('localhost', 6000)) as conn:
-                conn.send('coords')
-
-                while True:
-                    [keyword, data] = conn.recv()
-                    if keyword == 'colours':
-                        pixel_colour_state.set(data)
-                    elif keyword == 'coords':
-                        pixel_position_state.set(data)
-        finally:
-            conn.close()
-
-    t = threading.Thread(target=create_client)
-    t.setDaemon(True)
-    t.start()
-
     socketio.run(app, host='0.0.0.0', port=5000)

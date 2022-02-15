@@ -20,9 +20,7 @@ from handlers.calibration_handler import CalibrationHandler
 from handlers.hotkey_handler import HotKeyHandler
 from overlays.overlay_handler import OverlayHandler
 from common.graceful_killer import GracefulKiller
-from webserver.flaskr.app import create_app
 
-import threading
 import time
 import traceback
 from pathlib import Path
@@ -30,7 +28,7 @@ import sys
 import tty
 import termios
 from shutil import copyfile
-from multiprocessing.connection import Listener
+from multiprocessing import shared_memory
 
 # TODO fixture groups
 
@@ -106,38 +104,24 @@ class Pyzzazz:
 
             self.update_video = self.video_used()
 
-            def create_listener():
-                with Listener(('localhost', 6000)) as listener:
-                    while True:
-                        with listener.accept() as conn:
-                            fps = 30
+            self.shm_colours = shared_memory.SharedMemory(name='shm_pyzzazz_colours',
+                                                          create=True,
+                                                          size=len(self.get_colours())*3)
 
-                            while True:
-                                try:
-                                    conn.send(['colours', self.get_colours()])
-
-                                    while conn.poll():
-                                        keyword = conn.recv()
-
-                                        if keyword == 'coords':
-                                            conn.send(['coords', self.get_coords()])
-
-                                except:
-                                    conn.close()
-                                    break
-
-                                time.sleep(1.0/fps)
-
-            t = threading.Thread(target=create_listener)
-            t.setDaemon(True)
-            t.start()
+            self.shm_coords = shared_memory.ShareableList(sequence=[coord for led in self.get_coords() for coord in led],
+                                                          name='shm_pyzzazz_coords')
 
         except:
             for p in self.subprocesses:
                 p.kill()
 
-            sys.exit(1)
+            if self.shm_coords:
+                self.shm_coords.shm.unlink()
 
+            if self.shm_colours:
+                self.shm_colours.unlink()
+
+            sys.exit(1)
 
     def video_used(self):
         return False
@@ -162,6 +146,9 @@ class Pyzzazz:
                 colours.extend(x.get_pixels(force_rgb=True).tolist())
 
         return [colours[i:i+3] for i in range(0, len(colours), 3)]
+
+    def update_colours(self):
+        self.shm_colours.buf[:] = bytes([channel for pixel in self.get_colours() for channel in pixel])
 
     def get_coords(self):
         coords = []
@@ -252,6 +239,9 @@ class Pyzzazz:
             self.usb_serial_manager.update()
 
         self.overlay_handler.update()
+
+        # feed and water shared memory
+        self.update_colours()
 
     def init_senders(self):
         for sender_conf in self.config_parser.get_senders():
@@ -394,6 +384,12 @@ class Pyzzazz:
         print("Shutting down...")
         for p in self.subprocesses:
             p.kill()
+
+        if self.shm_colours:
+            self.shm_colours.unlink()
+
+        if self.shm_coords:
+            self.shm_coords.shm.unlink()
 
 
 if __name__ == "__main__":

@@ -20,27 +20,12 @@ let leds = [];
 
 const socket = io.connect('http://localhost:5000');
 socket.on('connect', function() {
-    let colours_requested = false;
-    socket.on('colour', (data) => {
-        colours_requested = false;
-
+    socket.on('colours', (data) => {
         if (data) {
-            data.forEach((pixel, pixelIndex) => {
-                pixel.forEach((colour, colourIndex) => {
-                    colours[pixelIndex][colourIndex] = colour;
-                })
-            })
+            colours = data
             updateColours();
         }
     })
-
-    function requestColours() {
-        if (colours_requested === false) {
-            colours_requested = true;
-            socket.emit('colour');
-        }
-    }
-    setInterval(requestColours, 1000/params.fps);
 });
 
 const scene = new THREE.Scene();
