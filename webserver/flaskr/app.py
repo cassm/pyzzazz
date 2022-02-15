@@ -87,9 +87,7 @@ def push_colours():
 
 @socketio.on('ready')
 def colour_push():
-    col_thread = threading.Thread(target=push_colours)
-    col_thread.setDaemon(True)
-    col_thread.start()
+    socketio.start_background_task(target=push_colours)
 
 
 if __name__ == '__main__':
