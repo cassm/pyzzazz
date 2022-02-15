@@ -97,6 +97,7 @@ $(document).ready(() => {
     }).then((res) => {
         colours = res;
         initLeds();
+        socket.emit('ready');
 
         animate();
     })

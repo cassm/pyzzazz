@@ -85,7 +85,7 @@ def push_colours():
         time.sleep(1.0 / fps)
 
 
-@socketio.on('connect')
+@socketio.on('ready')
 def colour_push():
     col_thread = threading.Thread(target=push_colours)
     col_thread.setDaemon(True)
