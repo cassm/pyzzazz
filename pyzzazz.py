@@ -109,6 +109,7 @@ class Pyzzazz:
             self.state_handler = StateHandler()
             self.state_handler.update_colours(self.fixtures)
             self.state_handler.update_coords(self.fixtures)
+            self.state_handler.update_fixtures(self.fixtures)
 
         except:
             for p in self.subprocesses:

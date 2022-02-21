@@ -1,6 +1,8 @@
 from handlers.connections.redis_handler import RedisHandler
+from fixtures.fixture import Fixture
 from fixtures.led_fixture import LedFixture
 from fixtures.bunting_polygon import BuntingPolygon
+import inspect
 import json
 
 
@@ -31,3 +33,35 @@ class StateHandler:
                 coords.extend(fixture_coords)
 
         self.redis.set('pyzzazz:leds:coords', json.dumps(coords))
+
+    def update_fixtures(self, fixtures):
+        fixture_tree = {}
+
+        # build class and instance tree
+        for x in fixtures:
+            inheritance = [cls.__name__ for cls in inspect.getmro(type(x))]
+            inheritance.reverse()
+
+            # assume we're inheriting from fixture
+            inheritance = inheritance[inheritance.index(Fixture.__name__):]
+
+            # walk down fixture inheritance path, creating branches as necessary
+            ptr = fixture_tree
+            for y in inheritance:
+                if y not in ptr:
+                    ptr[y] = {}
+
+                ptr = ptr[y]
+
+            # add instances leaf if any exist
+            if 'instances' not in ptr:
+                ptr['instances'] = []
+
+            ptr['instances'].append(x.name)
+
+        self.redis.set('pyzzazz:fixtures', json.dumps(fixture_tree))
+
+
+
+
+
