@@ -1,6 +1,5 @@
-import redis
-
 from handlers.config_handler import ConfigHandler
+from handlers.state_handler import StateHandler
 from handlers.connections.usb_serial_handler import UsbSerialHandler
 from handlers.senders.usb_serial_sender_handler import UsbSerialSenderHandler
 from handlers.controllers.gui_controller_handler import GuiControllerHandler
@@ -107,9 +106,9 @@ class Pyzzazz:
 
             self.update_video = self.video_used()
 
-            self.redis = redis.Redis(host='localhost', port=6379, db=0)
-            self.redis.set('pyzzazz:leds:coords', json.dumps(self.get_coords()))
-            self.redis.set('pyzzazz:leds:colours', json.dumps(self.get_colours()))
+            self.state_handler = StateHandler()
+            self.state_handler.update_colours(self.fixtures)
+            self.state_handler.update_coords(self.fixtures)
 
         except:
             for p in self.subprocesses:
@@ -132,29 +131,6 @@ class Pyzzazz:
                 return True
 
         return False
-
-    def get_colours(self):
-        colours = []
-        for x in self.fixtures:
-            if isinstance(x, LedFixture):
-                colours.extend(x.get_pixels(force_rgb=True).tolist())
-
-        colours = [i/255.0 for i in colours]
-        return [colours[i:i+3] for i in range(0, len(colours), 3)]
-
-    def update_colours(self):
-        self.redis.set('pyzzazz:leds:colours', json.dumps(self.get_colours()))
-
-    def get_coords(self):
-        coords = []
-        for x in self.fixtures:
-            if isinstance(x, LedFixture):
-                fixture_coords = x.get_coords()
-                if isinstance(x, BuntingPolygon):
-                    fixture_coords.pop()
-                coords.extend(fixture_coords)
-
-        return coords
 
     def get_cmds(self):
         return self.config_parser.get_controllers()
@@ -238,8 +214,8 @@ class Pyzzazz:
 
         self.overlay_handler.update()
 
-        # feed and water shared memory
-        self.update_colours()
+        # update shared state
+        self.state_handler.update_colours(self.fixtures)
 
     def init_senders(self):
         for sender_conf in self.config_parser.get_senders():
