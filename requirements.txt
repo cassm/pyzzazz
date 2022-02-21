@@ -15,3 +15,5 @@ pyserial==3.5
 sqlparse==0.4.2
 tk==0.1.0
 Werkzeug==2.0.3
+
+redis~=4.1.4
