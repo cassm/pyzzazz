@@ -2,12 +2,12 @@ import os
 import sys
 import time
 import inspect
+import redis
+import json
 from flask import Flask
 from flask import jsonify
 from flask import render_template
-from flask_socketio import SocketIO, send, emit
-from multiprocessing import shared_memory
-import threading
+from flask_socketio import SocketIO, emit
 
 fps = 30
 
@@ -16,17 +16,11 @@ parent_dir = os.path.dirname(current_dir)
 parent_parent_dir = os.path.dirname(parent_dir)
 sys.path.append(parent_parent_dir)
 
-from common.shared_state import SharedState
-
-avail_cmd_state = SharedState()
-
-shm_colours = shared_memory.SharedMemory(name='shm_pyzzazz_colours')
-shm_coords = shared_memory.ShareableList(name='shm_pyzzazz_coords')
+r = redis.Redis(host='localhost', port=6379, db=0)
 
 
 def get_colours():
-    col = list(shm_colours.buf)
-    return [col[i:i + 3] for i in range(0, len(col), 3)]
+    return json.loads(r.get('pyzzazz:leds:colours'))
 
 
 app = Flask(__name__,
@@ -54,13 +48,9 @@ def colour():
 
 @app.route('/position')
 def position():
-    coords = list(shm_coords)
-    return jsonify([coords[i:i + 3] for i in range(0, len(coords), 3)])
+    coords = json.loads(r.get('pyzzazz:leds:coords'))
+    return jsonify(coords)
 
-
-# @app.route('/avail_cmds')
-# def avail_cmds():
-#     return jsonify(avail_cmd_state.get_if_available())
 
 socketio = SocketIO(app)
 
@@ -68,11 +58,6 @@ socketio = SocketIO(app)
 @socketio.on('colours')
 def sock_colour():
     emit('colours', get_colours())
-
-
-@socketio.on('avail_cmds')
-def sock_avail_cmds():
-    emit('avail_cmds', avail_cmd_state.get_if_available())
 
 
 def push_colours():

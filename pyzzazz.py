@@ -1,3 +1,5 @@
+import redis
+
 from handlers.config_handler import ConfigHandler
 from handlers.connections.usb_serial_handler import UsbSerialHandler
 from handlers.senders.usb_serial_sender_handler import UsbSerialSenderHandler
@@ -28,7 +30,7 @@ import sys
 import tty
 import termios
 from shutil import copyfile
-from multiprocessing import shared_memory
+import json
 
 # TODO fixture groups
 
@@ -39,6 +41,7 @@ default_udp_port = 2390
 
 conf_file = "conf/elephant_conf.json"
 calibration_file = "conf/calibration.json"
+
 
 class Pyzzazz:
     def __init__(self, conf_path, palette_path, video_path, calibration_path):
@@ -104,22 +107,13 @@ class Pyzzazz:
 
             self.update_video = self.video_used()
 
-            self.shm_colours = shared_memory.SharedMemory(name='shm_pyzzazz_colours',
-                                                          create=True,
-                                                          size=len(self.get_colours())*3)
-
-            self.shm_coords = shared_memory.ShareableList(sequence=[coord for led in self.get_coords() for coord in led],
-                                                          name='shm_pyzzazz_coords')
+            self.redis = redis.Redis(host='localhost', port=6379, db=0)
+            self.redis.set('pyzzazz:leds:coords', json.dumps(self.get_coords()))
+            self.redis.set('pyzzazz:leds:colours', json.dumps(self.get_colours()))
 
         except:
             for p in self.subprocesses:
                 p.kill()
-
-            if self.shm_coords:
-                self.shm_coords.shm.unlink()
-
-            if self.shm_colours:
-                self.shm_colours.unlink()
 
             sys.exit(1)
 
@@ -145,10 +139,11 @@ class Pyzzazz:
             if isinstance(x, LedFixture):
                 colours.extend(x.get_pixels(force_rgb=True).tolist())
 
+        colours = [i/255.0 for i in colours]
         return [colours[i:i+3] for i in range(0, len(colours), 3)]
 
     def update_colours(self):
-        self.shm_colours.buf[:] = bytes([channel for pixel in self.get_colours() for channel in pixel])
+        self.redis.set('pyzzazz:leds:colours', json.dumps(self.get_colours()))
 
     def get_coords(self):
         coords = []
@@ -160,6 +155,9 @@ class Pyzzazz:
                 coords.extend(fixture_coords)
 
         return coords
+
+    def get_cmds(self):
+        return self.config_parser.get_controllers()
 
     def update(self):
         if self.socket_server:
@@ -384,12 +382,6 @@ class Pyzzazz:
         print("Shutting down...")
         for p in self.subprocesses:
             p.kill()
-
-        if self.shm_colours:
-            self.shm_colours.unlink()
-
-        if self.shm_coords:
-            self.shm_coords.shm.unlink()
 
 
 if __name__ == "__main__":
