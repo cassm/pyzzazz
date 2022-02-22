@@ -5,7 +5,7 @@ import math
 
 
 class MakeMeOneWithEverything(Pattern):
-    def __init__(self, pixels):
+    def __init__(self, fixture):
         self._active_swooshes = []
 
         # sane defaults
@@ -18,7 +18,7 @@ class MakeMeOneWithEverything(Pattern):
 
         self._next_swoosh = random.gauss(self._swoosh_interval, self._swoosh_interval / 4)
 
-        self.cache_positions(pixels)
+        self.cache_positions(fixture.leds)
 
     def cache_positions(self, pixels):
         self._origin_deltas = np.array(list(pixel.coord.get_delta("global") for pixel in pixels))

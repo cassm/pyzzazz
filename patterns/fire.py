@@ -6,14 +6,14 @@ import math
 
 
 class Fire(Pattern):
-    def __init__(self, leds, sample_radial=False):
+    def __init__(self, fixture):
         self.next_spark = 0.0
         self.spark_interval = 0.2
         self.fixture_offset = random.random() * 10
         self.pixel_info = list()
-        self.sample_radial = sample_radial
+        self.sample_radial = fixture.pattern_map_by_polar
 
-        self.cache_positions(leds)
+        self.cache_positions(fixture.leds)
 
     def cache_positions(self, leds):
         max_delta = max(led.coord.get_delta("local") for led in leds)

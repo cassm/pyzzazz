@@ -11,7 +11,7 @@ class SparkleRecord:
 
 
 class Sparkle(Pattern):
-    def __init__(self, leds):
+    def __init__(self, fixture):
         # sane defaults
         self._max_sparkles_percent = 4
         self._sparkle_probability = 0.025
@@ -23,7 +23,7 @@ class Sparkle(Pattern):
         self._time_factor = 1.0 / 50
         self._space_factor = 1.0
 
-        self.cache_positions(leds)
+        self.cache_positions(fixture.leds)
 
     def cache_positions(self, leds):
         num_pixels = len(leds)
