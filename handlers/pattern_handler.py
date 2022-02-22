@@ -19,3 +19,6 @@ class PatternHandler:
                         snake_case_name = re.sub('([a-z0-9])([A-Z])', r'\1_\2', snake_case_name)
                         snake_case_name = snake_case_name.lower()
                         self.patterns[snake_case_name] = obj
+
+    def get_patterns(self):
+        return self.patterns

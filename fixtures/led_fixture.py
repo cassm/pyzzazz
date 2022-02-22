@@ -74,39 +74,9 @@ class LedFixture(Fixture):
         else:
             raise Exception("LedFixture: unknown command type {}".format(command["type"]))
 
-    def register_command(self, command):
-        if command["type"] == "pattern":
-            if command["name"] not in self.patterns:
-                if command["name"] == "smooth":
-                    self.patterns["smooth"] = Smooth(self.leds)
-
-                elif command["name"] == "swirl":
-                    self.patterns["swirl"] = Swirl(self.leds)
-
-                elif command["name"] == "sparkle":
-                    self.patterns["sparkle"] = Sparkle(self.leds)
-
-                elif command["name"] == "fizzy_lifting_drink":
-                    self.patterns["fizzy_lifting_drink"] = FizzyLiftingDrink(self.leds)
-
-                elif command["name"] == "make_me_one_with_everything":
-                    self.patterns["make_me_one_with_everything"] = MakeMeOneWithEverything(self.leds)
-
-                elif command["name"] == "fire":
-                    self.patterns["fire"] = Fire(self.leds, self.pattern_map_by_polar)
-
-                elif command["name"] == "map_video":
-                    self.patterns["map_video"] = MapVideo(self.leds, self.video_handler)
-
-                else:
-                    raise Exception("LedFixture: unknown pattern {}".format(command["name"]))
-
-        elif command["type"] == "palette":
-            # handled, but nothing to do
-            pass
-
-        else:
-            raise Exception("LedFixture: unknown command type {}".format(command["type"]))
+    def init_patterns(self, pattern_handler):
+        for name, pattern in pattern_handler.get_patterns().items():
+            self.patterns[name] = pattern(self)
 
     def send(self):
         if len(self.leds) > 0:

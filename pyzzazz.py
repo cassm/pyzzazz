@@ -277,6 +277,9 @@ class Pyzzazz:
             else:
                 raise Exception("Unknown fixture type {}".format(fixture_conf.get("type", "")))
 
+        for fixture in self.fixtures:
+            fixture.init_patterns(self.pattern_handler)
+
         print("\n")
 
     def init_controllers(self):
@@ -310,8 +313,8 @@ class Pyzzazz:
                 if control.command["type"] != "overlay":
                     matching_fixtures = list(fixture for fixture in self.fixtures if control.target_keyword in fixture.name)
 
-                    for fixture in matching_fixtures:
-                        fixture.register_command(control.command)
+                    # for fixture in matching_fixtures:
+                    #     fixture.register_command(control.command)
 
                     matching_setts = list(sett for sett in self.setting_handlers.keys() if control.target_keyword in sett)
 
