@@ -6,6 +6,7 @@ from handlers.controllers.gui_controller_handler import GuiControllerHandler
 from handlers.controllers.usb_serial_controller_handler import UsbSerialControllerHandler
 from handlers.senders.opc_sender_handler import OpcSenderHandler
 from handlers.palette_handler import PaletteHandler
+from handlers.pattern_handler import PatternHandler
 from handlers.video_handler import VideoHandler
 from handlers.connections.socket_server import SocketServer
 from handlers.connections.udp_handler import UdpHandler
@@ -63,6 +64,7 @@ class Pyzzazz:
 
             self.config_parser = ConfigHandler(conf_path)
             self.palette_handler = PaletteHandler(palette_path)
+            self.pattern_handler = PatternHandler()
             self.calibration_handler = CalibrationHandler(calibration_path)
 
             self.video_handlers = dict()
