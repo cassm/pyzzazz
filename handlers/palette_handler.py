@@ -23,6 +23,9 @@ class PaletteHandler:
         self.palette_time_factor = 1.0
         self.master_palette_name = self.palette_names[0]
 
+    def get_palette_names(self):
+        return self.palette_names
+
     def set_master_palette_name(self, name):
         self.master_palette_name = name
 
