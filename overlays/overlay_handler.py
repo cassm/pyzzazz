@@ -1,11 +1,9 @@
-from operator import add
-from overlays.flash import Flash
-from overlays.star_drive import StarDrive
-from overlays.ripple import Ripple
-from overlays.spark_shower import SparkShower
-from overlays.hue_shift import HueShift
+import overlays
+from overlays.overlay import Overlay
 import numpy as np
 import time
+import inspect
+import re
 
 
 class OverlayInfo:
@@ -32,30 +30,38 @@ class OverlayInfo:
 
 class OverlayHandler:
     def __init__(self):
+        self.overlays = self.init_overlays()
         self.epsilon = 10
         self.min_time = 5
         self.active_overlays = list()
+
+    def init_overlays(self):
+        overlay_dict = {}
+
+        # find all submodules of overlay module and store them by name
+        submodules = [obj for name, obj in inspect.getmembers(overlay_dict) if inspect.ismodule(obj)]
+        for submodule in submodules:
+            for name, obj in inspect.getmembers(submodule):
+                if inspect.isclass(obj) and issubclass(obj, Overlay):
+                    if obj != Overlay:
+                        # convert camelcase class name to snakecase identifier
+                        snake_case_name = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+                        snake_case_name = re.sub('([a-z0-9])([A-Z])', r'\1_\2', snake_case_name)
+                        snake_case_name = snake_case_name.lower()
+                        self.overlays[snake_case_name] = obj
+
+        return overlay_dict
+
+    def get_overlays(self):
+        return self.overlays
 
     def update(self):
         self.active_overlays = list(overlay for overlay in self.active_overlays if time.time() - overlay.start_time < self.min_time or overlay.get_max_contribution_per_led() > self.epsilon)
 
     def receive_command(self, command):
         if command["type"] == "overlay":
-            if command["name"] == "flash":
-                self.active_overlays.append(OverlayInfo(Flash(command["args"])))
-
-            elif command["name"] == "star_drive":
-                self.active_overlays.append(OverlayInfo(StarDrive(command["args"])))
-
-            elif command["name"] == "ripple":
-                self.active_overlays.append(OverlayInfo(Ripple(command["args"])))
-
-            elif command["name"] == "spark_shower":
-                self.active_overlays.append(OverlayInfo(SparkShower(command["args"])))
-
-            elif command["name"] == "hue_shift":
-                self.active_overlays.append(OverlayInfo(HueShift(command["args"])))
-
+            if command['name'] in self.overlays.keys():
+                self.active_overlays.append(OverlayInfo(self.overlays[command['name'](command['args'])]))
             else:
                 raise Exception("OverlayHandler: unknown overlay {}".format(command["name"]))
 
