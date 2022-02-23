@@ -136,9 +136,6 @@ class Pyzzazz:
 
         return False
 
-    def get_cmds(self):
-        return self.config_parser.get_controllers()
-
     def update(self):
         if self.socket_server:
             self.socket_server.poll()
