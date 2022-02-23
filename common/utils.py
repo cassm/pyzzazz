@@ -1,4 +1,5 @@
 import numpy as np
+import re
 
 
 def nonzero(value):
@@ -57,3 +58,9 @@ def hsv_to_rgb(hsv):
     rgb[..., 1] = np.select(conditions, [v, v, v, q, p, p], default=t)
     rgb[..., 2] = np.select(conditions, [v, p, t, v, v, q], default=p)
     return rgb.astype('uint8')
+
+
+def camel_to_snake(camel_text):
+    snake_text = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', camel_text)
+    snake_text = re.sub('([a-z0-9])([A-Z])', r'\1_\2', snake_text)
+    return snake_text.lower()

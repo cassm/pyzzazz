@@ -1,9 +1,10 @@
 import numpy as np
 import time
-import re
 import os
 from overlays.overlay import Overlay
 from common.dynamic_loader import get_module_classes
+from common.utils import camel_to_snake
+
 
 class OverlayInfo:
     # FIXME add keyword?
@@ -39,10 +40,7 @@ class OverlayHandler:
         classes = get_module_classes(overlays_dir)
         for name, obj in classes.items():
             if issubclass(obj, Overlay) and obj != Overlay:
-                # convert camelcase class name to snakecase identifier
-                snake_case_name = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
-                snake_case_name = re.sub('([a-z0-9])([A-Z])', r'\1_\2', snake_case_name)
-                snake_case_name = snake_case_name.lower()
+                snake_case_name = camel_to_snake(name)
                 self.overlays[snake_case_name] = obj
 
     def get_overlays(self):
