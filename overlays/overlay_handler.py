@@ -1,10 +1,11 @@
-import overlays
-from overlays.overlay import Overlay
 import numpy as np
 import time
-import inspect
 import re
-
+import os
+from inspect import isclass
+from pkgutil import iter_modules
+from importlib import import_module
+from overlays.overlay import Overlay
 
 class OverlayInfo:
     # FIXME add keyword?
@@ -30,27 +31,25 @@ class OverlayInfo:
 
 class OverlayHandler:
     def __init__(self):
-        self.overlays = self.init_overlays()
         self.epsilon = 10
         self.min_time = 5
         self.active_overlays = list()
+        self.overlays = {}
 
-    def init_overlays(self):
-        overlay_dict = {}
+        cwd = os.path.dirname(__file__)
+        overlays_dir = os.path.join(cwd, '..', 'overlays')
 
-        # find all submodules of overlay module and store them by name
-        submodules = [obj for name, obj in inspect.getmembers(overlay_dict) if inspect.ismodule(obj)]
-        for submodule in submodules:
-            for name, obj in inspect.getmembers(submodule):
-                if inspect.isclass(obj) and issubclass(obj, Overlay):
-                    if obj != Overlay:
-                        # convert camelcase class name to snakecase identifier
-                        snake_case_name = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
-                        snake_case_name = re.sub('([a-z0-9])([A-Z])', r'\1_\2', snake_case_name)
-                        snake_case_name = snake_case_name.lower()
-                        self.overlays[snake_case_name] = obj
-
-        return overlay_dict
+        # find all subclasses of Overlay and store them by name
+        for (_, module_name, _) in iter_modules([str(overlays_dir)]):
+            module = import_module(f"overlays.{module_name}")
+            for attr_name in dir(module):
+                attr = getattr(module, attr_name)
+                if isclass(attr) and issubclass(attr, Overlay) and attr != Overlay:
+                    # convert camelcase class name to snakecase identifier
+                    snake_case_name = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', attr_name)
+                    snake_case_name = re.sub('([a-z0-9])([A-Z])', r'\1_\2', snake_case_name)
+                    snake_case_name = snake_case_name.lower()
+                    self.overlays[snake_case_name] = attr
 
     def get_overlays(self):
         return self.overlays
