@@ -2,10 +2,8 @@ import numpy as np
 import time
 import re
 import os
-from inspect import isclass
-from pkgutil import iter_modules
-from importlib import import_module
 from overlays.overlay import Overlay
+from common.dynamic_loader import get_module_classes
 
 class OverlayInfo:
     # FIXME add keyword?
@@ -38,18 +36,14 @@ class OverlayHandler:
 
         cwd = os.path.dirname(__file__)
         overlays_dir = os.path.join(cwd, '..', 'overlays')
-
-        # find all subclasses of Overlay and store them by name
-        for (_, module_name, _) in iter_modules([str(overlays_dir)]):
-            module = import_module(f"overlays.{module_name}")
-            for attr_name in dir(module):
-                attr = getattr(module, attr_name)
-                if isclass(attr) and issubclass(attr, Overlay) and attr != Overlay:
-                    # convert camelcase class name to snakecase identifier
-                    snake_case_name = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', attr_name)
-                    snake_case_name = re.sub('([a-z0-9])([A-Z])', r'\1_\2', snake_case_name)
-                    snake_case_name = snake_case_name.lower()
-                    self.overlays[snake_case_name] = attr
+        classes = get_module_classes(overlays_dir)
+        for name, obj in classes.items():
+            if issubclass(obj, Overlay) and obj != Overlay:
+                # convert camelcase class name to snakecase identifier
+                snake_case_name = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+                snake_case_name = re.sub('([a-z0-9])([A-Z])', r'\1_\2', snake_case_name)
+                snake_case_name = snake_case_name.lower()
+                self.overlays[snake_case_name] = obj
 
     def get_overlays(self):
         return self.overlays
