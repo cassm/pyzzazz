@@ -19,7 +19,7 @@ from fixtures.arch import Arch
 from handlers.setting_handler import SettingHandler
 from handlers.calibration_handler import CalibrationHandler
 from handlers.hotkey_handler import HotKeyHandler
-from overlays.overlay_handler import OverlayHandler
+from handlers.overlay_handler import OverlayHandler
 from common.graceful_killer import GracefulKiller
 
 import time
