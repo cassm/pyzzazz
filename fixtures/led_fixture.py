@@ -1,11 +1,4 @@
 from fixtures.fixture import Fixture
-from patterns.sparkle import Sparkle
-from patterns.fizzy_lifting_drink import FizzyLiftingDrink
-from patterns.make_me_one_with_everything import MakeMeOneWithEverything
-from patterns.fire import Fire
-from patterns.smooth import Smooth
-from patterns.swirl import Swirl
-from patterns.map_video import MapVideo
 import numpy as np
 import math
 

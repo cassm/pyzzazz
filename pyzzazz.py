@@ -12,7 +12,6 @@ from handlers.connections.socket_server import SocketServer
 from handlers.connections.udp_handler import UdpHandler
 from handlers.senders.udp_sender_handler import UdpSenderHandler
 from handlers.external_drive_handler import ExternalDriveHandler
-from fixtures.led_fixture import LedFixture
 from fixtures.dodecahedron import Dodecahedron
 from fixtures.cylinder import Cylinder
 from fixtures.bunting_polygon import BuntingPolygon
@@ -30,7 +29,6 @@ import sys
 import tty
 import termios
 from shutil import copyfile
-import json
 
 # TODO fixture groups
 
