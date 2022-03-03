@@ -217,6 +217,7 @@ class Pyzzazz:
 
         # update shared state
         self.state_handler.update_colours(self.fixtures)
+        self.state_handler.update_fps()
 
     def init_senders(self):
         for sender_conf in self.config_parser.get_senders():

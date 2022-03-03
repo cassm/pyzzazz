@@ -4,11 +4,13 @@ from fixtures.led_fixture import LedFixture
 from fixtures.bunting_polygon import BuntingPolygon
 import inspect
 import json
+import datetime
 
 
 class StateHandler:
     def __init__(self, ):
         self.redis = RedisHandler.get_instance()
+        self.last_frame = None
 
     def update_colours(self, fixtures):
         # TODO keep as np array until last stage
@@ -61,6 +63,17 @@ class StateHandler:
             ptr['instances'].append(x.name)
 
         self.redis.set('pyzzazz:fixtures', json.dumps(fixture_tree))
+
+    def update_fps(self):
+        new_frame = datetime.datetime.now()
+        if self.last_frame:
+            interval_secs = (new_frame - self.last_frame).total_seconds()
+            frame_data = {
+                'fps': round(1.0/interval_secs, 1),
+            }
+            self.redis.set('pyzzazz:fps', json.dumps(frame_data))
+
+        self.last_frame = new_frame
 
     def update_patterns(self, pattern_handler):
         self.redis.set('pyzzazz:patterns', json.dumps(list(pattern_handler.get_patterns().keys())))
