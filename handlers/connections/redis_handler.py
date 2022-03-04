@@ -6,7 +6,7 @@ class RedisHandler:
 
     @staticmethod
     def create_instance():
-        RedisHandler.client = redis.Redis(host='localhost', port=6379, db=0)
+        RedisHandler.client = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)
 
     @staticmethod
     def get_instance():

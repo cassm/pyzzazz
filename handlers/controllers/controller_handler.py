@@ -56,7 +56,7 @@ class ControllerHandler():
 
     def validate_config(self, config):
         if "name" not in config.keys():
-            raise Exception("LedFixture: config contains no name")
+            raise Exception("ControllerHandler: config contains no name")
 
     def is_connected(self):
         pass

@@ -4,6 +4,7 @@ from handlers.connections.usb_serial_handler import UsbSerialHandler
 from handlers.senders.usb_serial_sender_handler import UsbSerialSenderHandler
 from handlers.controllers.gui_controller_handler import GuiControllerHandler
 from handlers.controllers.usb_serial_controller_handler import UsbSerialControllerHandler
+from handlers.controllers.redis_controller_handler import RedisControllerHandler
 from handlers.senders.opc_sender_handler import OpcSenderHandler
 from handlers.palette_handler import PaletteHandler
 from handlers.pattern_handler import PatternHandler
@@ -282,6 +283,8 @@ class Pyzzazz:
         print("\n")
 
     def init_controllers(self):
+        self.controllers.append(RedisControllerHandler())
+
         for controller_conf in self.config_parser.get_controllers():
             # check for duplicate names
             self.sanity_check_controller_conf(controller_conf)
