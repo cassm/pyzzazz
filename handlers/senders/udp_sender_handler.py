@@ -16,7 +16,7 @@ class UdpSenderHandler(SenderHandler):
         pass
 
     def send(self, node_id, byte_values):
-        byte_values = list(byte_values)
+        byte_values = [max(0, min(255, x)) for x in byte_values]
 
         packet = CommHeader(payload_len=len(byte_values), msgtype="frame_update").get_bytes()
         packet.extend(node_id.to_bytes(4, byteorder="big"))
