@@ -2,14 +2,11 @@ from handlers.config_handler import ConfigHandler
 from handlers.state_handler import StateHandler
 from handlers.connections.usb_serial_handler import UsbSerialHandler
 from handlers.senders.usb_serial_sender_handler import UsbSerialSenderHandler
-from handlers.controllers.gui_controller_handler import GuiControllerHandler
 from handlers.controllers.usb_serial_controller_handler import UsbSerialControllerHandler
 from handlers.controllers.redis_controller_handler import RedisControllerHandler
-from handlers.senders.opc_sender_handler import OpcSenderHandler
 from handlers.palette_handler import PaletteHandler
 from handlers.pattern_handler import PatternHandler
 from handlers.video_handler import VideoHandler
-from handlers.connections.socket_server import SocketServer
 from handlers.connections.udp_handler import UdpHandler
 from handlers.senders.udp_sender_handler import UdpSenderHandler
 from handlers.external_drive_handler import ExternalDriveHandler
@@ -86,11 +83,6 @@ class Pyzzazz:
 
             self.setting_handlers = {}
 
-            if self.needs_socket_server():
-                self.socket_server = SocketServer(port=default_tcp_port)
-            else:
-                self.socket_server = None
-
             self.udp_handler = UdpHandler(default_udp_port)
 
             self.overlay_handler = OverlayHandler()
@@ -101,7 +93,6 @@ class Pyzzazz:
             self.init_fixtures()
             self.init_controllers()
             self.register_commands()
-            self.generate_opc_layout_files()
 
             self.hotkey_handler = HotKeyHandler(self.fixtures, self.calibration_handler)
 
@@ -130,17 +121,7 @@ class Pyzzazz:
 
         return False
 
-    def needs_socket_server(self):
-        for controller_conf in self.config_parser.get_controllers():
-            if controller_conf["type"] == "gui":
-                return True
-
-        return False
-
     def update(self):
-        if self.socket_server:
-            self.socket_server.poll()
-
         self.udp_handler.poll()
 
         self.hotkey_handler.poll()
@@ -231,10 +212,6 @@ class Pyzzazz:
                 print("Creating usb serial sender handler {}".format(name))
                 self.senders[name] = UsbSerialSenderHandler(sender_conf, self.usb_serial_manager)
 
-            elif sender_conf.get("type", "") == "opc":
-                print("Creating opc sender {} on port {}".format(name, sender_conf.get("port", "")))
-                self.senders[name] = OpcSenderHandler(sender_conf, self._src_dir)
-
             elif sender_conf.get("type", "") == "udp":
                 print("Creating UDP sender {}".format(name))
                 self.senders[name] = UdpSenderHandler(sender_conf, self.udp_handler)
@@ -293,10 +270,6 @@ class Pyzzazz:
                 print("Creating usb serial controllers {} on port {}".format(controller_conf.get("name", ""), controller_conf.get("port", "")))
                 self.controllers.append(UsbSerialControllerHandler(controller_conf, self.usb_serial_manager))
 
-            elif controller_conf.get("type", "") == "gui":
-                print("Creating gui controllers {} on port {}".format(controller_conf.get("name", ""), controller_conf.get("port", "")))
-                self.controllers.append(GuiControllerHandler(controller_conf, self.socket_server))
-
             else:
                 raise Exception("Unknown controllers type {}".format(controller_conf.get("type", "")))
 
@@ -322,15 +295,6 @@ class Pyzzazz:
 
                     for sett in matching_setts:
                         self.setting_handlers[sett].register_command(control.command, control.default)
-
-    def generate_opc_layout_files(self):
-        for sender in self.senders.values():
-            if sender.type == "opc":
-                sender.generate_layout_files(self.fixtures)
-                opc_server_started = sender.start()
-
-                if opc_server_started:
-                    self.subprocesses.append(opc_server_started)
 
     def sanity_check_sender_conf(self, sender_conf):
         sender_names = tuple(self.senders.keys())

@@ -14,14 +14,6 @@
       "name": "udp_0",
       "type": "udp",
       "num_lines": -1
-    },
-    {
-      "name": "sim_0",
-      "type": "opc",
-      "is_simulator": false,
-      "ip": "127.0.0.1",
-      "port": "7890",
-      "num_lines": -1
     }
   ],
 
@@ -41,7 +33,7 @@
       "location": [0.0, 0.0, 0.4],
       "farthest_point": [3.9, 0.0, 0.4],
       "senders": [["udp_0", "0x00000001"],
-        ["sim_0", 0], ["OCTO_SENDER_001", 2]]
+        ["OCTO_SENDER_001", 2]]
     },
     {
       "name": "led_fix_bunting_1",
@@ -56,7 +48,7 @@
       "radius": 1.65,
       "location": [0.0, 0.0, 0.3],
       "farthest_point": [3.9, 0.0, 0.4],
-      "senders": [["sim_0", 1], ["OCTO_SENDER_001", 1]]
+      "senders": [["OCTO_SENDER_001", 1]]
     },
     {
       "name": "led_fix_bunting_2",
@@ -71,7 +63,7 @@
       "radius": 2.075,
       "location": [0.0, 0.0, 0.2],
       "farthest_point": [3.9, 0.0, 0.4],
-      "senders": [["sim_0", 2], ["OCTO_SENDER_001", 0]]
+      "senders": [["OCTO_SENDER_001", 0]]
     },
     {
       "name": "led_fix_bunting_arch_dj",
@@ -85,7 +77,7 @@
       "height": 1,
       "width": 1,
       "floor": -1.5,
-      "senders": [["sim_0", 3], ["OCTO_SENDER_001", 3]]
+      "senders": [["OCTO_SENDER_001", 3]]
     },
     {
       "name": "led_fix_cylinder_0",
@@ -168,129 +160,6 @@
   ],
 
   "Controllers": [
-    {
-      "name": "GUI_CONTROLLER_000",
-      "type": "gui",
-      "port": 48945,
-
-      "buttons": [
-        {
-          "name": "swirl",
-          "id": 0,
-          "target_keyword": "led_fix_",
-          "command": "{'type': 'pattern', 'name': 'swirl', 'args': {}}"
-        },
-        {
-          "name": "fizzy lifting drink",
-          "id": 1,
-          "target_keyword": "led_fix_",
-          "command": "{'type': 'pattern', 'name': 'fizzy_lifting_drink', 'args': {}}"
-        },
-        {
-          "name": "make_me_one_with_everything",
-          "id": 2,
-          "target_keyword": "led_fix_",
-          "command": "{'type': 'pattern', 'name': 'make_me_one_with_everything', 'args': {}}"
-        },
-        {
-          "name": "sparkle",
-          "id": 3,
-          "target_keyword": "led_fix_",
-          "command": "{'type': 'pattern', 'name': 'sparkle', 'args': {}}"
-        },
-        {
-          "name": "fire",
-          "id": 4,
-          "target_keyword": "led_fix_",
-          "command": "{'type': 'pattern', 'name': 'fire', 'args': {}}"
-        },
-        {
-          "name": "forest-sheep",
-          "id": 5,
-          "target_keyword": "led_fix_",
-          "command": "{'type': 'pattern', 'name': 'map_video', 'video_name': 'forest-sheep-mpeg2.mp4', 'args': {}}"
-        },
-        {
-          "name": "hx-01",
-          "id": 6,
-          "target_keyword": "led_fix_",
-          "command": "{'type': 'pattern', 'name': 'map_video', 'video_name': 'hx-01-mpeg2-smol.mp4', 'args': {}}"
-        },
-        {
-          "name": "sexy_plaid",
-          "id": 7,
-          "target_keyword": "led_fix_",
-          "command": "{'type': 'pattern', 'name': 'map_video', 'video_name': 'sexy_plaid.mp4', 'args': {}}"
-        },
-        {
-          "name": "master palette auto",
-          "id": 8,
-          "target_keyword": "master_settings",
-          "command": "{'type': 'palette', 'name': 'auto'}"
-        },
-        {
-          "name": "flash",
-          "id": 9,
-          "target_keyword": "",
-          "command": "{'type': 'overlay', 'name': 'flash', 'args': {'decay_factor': 1.0}}"
-        },
-        {
-          "name": "star drive",
-          "id": 10,
-          "target_keyword": "",
-          "command": "{'type': 'overlay', 'name': 'star_drive', 'args': {'decay_factor': 1.0}}"
-        },
-        {
-          "name": "ripple",
-          "id": 11,
-          "target_keyword": "",
-          "command": "{'type': 'overlay', 'name': 'ripple', 'args': {'decay_factor': 1.0}}"
-        },
-        {
-          "name": "fireworks",
-          "id": 12,
-          "target_keyword": "",
-          "command": "{'type': 'overlay', 'name': 'spark_shower', 'args': {}}"
-        },
-        {
-          "name": "hue_shift",
-          "id": 13,
-          "target_keyword": "",
-          "command": "{'type': 'overlay', 'name': 'hue_shift', 'args': {}}"
-        }
-      ],
-
-      "sliders": [
-        {
-          "name": "master smoothness",
-          "id": 0,
-          "target_keyword": "master_settings",
-          "command": "{'type': 'slider', 'name': 'smoothness'}",
-          "default": 50
-        },
-        {
-          "name": "master brightness",
-          "id": 1,
-          "target_keyword": "master_settings",
-          "command": "{'type': 'slider', 'name': 'brightness'}",
-          "default": 100
-        },
-        {
-          "name": "master speed",
-          "id": 2,
-          "target_keyword": "master_settings",
-          "command": "{'type': 'slider', 'name': 'speed'}",
-          "default": 33
-        },
-        {
-          "name": "space_per_palette",
-          "id": 3,
-          "target_keyword": "master_settings",
-          "command": "{'type': 'slider', 'name': 'space_per_palette'}",
-          "default": 50
-        }
-      ]
-    },
     {
       "name": "USB_CONTROLLER_000",
       "type": "usb_serial",
