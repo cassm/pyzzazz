@@ -2,12 +2,16 @@ class SettingHandler:
     def __init__(self, name):
         self.name = name
         self.settings = dict()
+        self.settings["sliders"] = dict()
+
+    def get_sliders(self):
+        return self.settings["sliders"]
 
     def register_command(self, command, default=None):
         if command["type"] == "slider":
-            if command["name"] not in self.settings.keys():
+            if command["name"] not in self.settings["sliders"].keys():
                 # start everything in the middle
-                self.settings[command["name"]] = default
+                self.settings["sliders"][command["name"]] = default
                 print("SettingHandler {} registering slider {} with default {}".format(self.name, command["name"], default))
 
         # FIXME how to verify these are present?
@@ -24,7 +28,7 @@ class SettingHandler:
 
         if command["type"] == "slider":
             # sliders are 0 - 1024 and we want them as 0 - 1
-            self.settings[command["name"]] = float(value) / 1024.0
+            self.settings["sliders"][command["name"]] = float(value) / 1024.0
 
         elif command["type"] == "palette":
             self.settings["palette"] = command["name"]
@@ -35,5 +39,7 @@ class SettingHandler:
     def get_value(self, setting_name, default):
         if setting_name in self.settings.keys():
             return self.settings[setting_name]
+        elif setting_name in self.settings["sliders"].keys():
+            return self.settings["sliders"][setting_name]
         else:
             return default
