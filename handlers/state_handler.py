@@ -84,3 +84,6 @@ class StateHandler:
     def update_overlays(self, overlay_handler):
         self.redis.set('pyzzazz:overlays', json.dumps(list(overlay_handler.get_overlays().keys())))
 
+    def update_sliders(self, settings_handler):
+        self.redis.set('pyzzazz:sliders', json.dumps(settings_handler.get_sliders()))
+

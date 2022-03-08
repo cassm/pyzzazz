@@ -105,6 +105,7 @@ class Pyzzazz:
             self.state_handler.update_patterns(self.pattern_handler)
             self.state_handler.update_palettes(self.palette_handler)
             self.state_handler.update_overlays(self.overlay_handler)
+            self.state_handler.update_sliders(self.setting_handlers["master_settings"])
 
         except:
             for p in self.subprocesses:
@@ -200,6 +201,7 @@ class Pyzzazz:
         # update shared state
         self.state_handler.update_colours(self.fixtures)
         self.state_handler.update_fps()
+        self.state_handler.update_sliders(self.setting_handlers["master_settings"])
 
     def init_senders(self):
         for sender_conf in self.config_parser.get_senders():
