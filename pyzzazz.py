@@ -182,7 +182,6 @@ class Pyzzazz:
         self.effective_time += (time.time() - self.last_update) * speed * 3  # we want to go from 0 to triple speed
         self.last_update = time.time()
 
-
         for sender in self.senders.values():
             if not sender.is_connected():
                 sender.try_connect()
