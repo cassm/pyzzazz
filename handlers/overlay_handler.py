@@ -52,7 +52,7 @@ class OverlayHandler:
     def receive_command(self, command):
         if command["type"] == "overlay":
             if command['name'] in self.overlays.keys():
-                self.active_overlays.append(OverlayInfo(self.overlays[command['name'](command['args'])]))
+                self.active_overlays.append(OverlayInfo(self.overlays[command['name']](command['args'])))
             else:
                 raise Exception("OverlayHandler: unknown overlay {}".format(command["name"]))
 
