@@ -14,15 +14,16 @@ class RedisControllerHandler(ControllerHandler):
         return True
 
     def update(self):
-        cmds = self.redis_client.lpop('pyzzazz:commands', 50)
+        cmdLists = self.redis_client.lpop('pyzzazz:commands', 50)
 
-        if not cmds:
+        if not cmdLists:
             return
 
-        for cmd in cmds:
-            cmd_obj = json.loads(cmd)
-            self._events.append(Event(
-                target_keyword=cmd_obj["target_keyword"],
-                command=cmd_obj["command"],
-                value=cmd_obj["value"]
-            ))
+        for cmds in cmdLists:
+            cmds_obj = json.loads(cmds)
+            for cmd in cmds_obj:
+                self._events.append(Event(
+                    target_keyword=cmd["target_keyword"],
+                    command=cmd["command"],
+                    value=cmd["value"]
+                ))
