@@ -76,7 +76,12 @@ class StateHandler:
         self.last_frame = new_frame
 
     def update_patterns(self, pattern_handler):
-        self.redis.set('pyzzazz:patterns', json.dumps(list(pattern_handler.get_patterns().keys())))
+        patterns = list(pattern_handler.get_patterns().keys())
+
+        # map video requires arguments and needs its own section
+        patterns.remove('map_video')
+
+        self.redis.set('pyzzazz:patterns', json.dumps(patterns))
 
     def update_palettes(self, palette_handler):
         self.redis.set('pyzzazz:palettes', json.dumps(palette_handler.get_palette_names()))
