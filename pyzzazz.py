@@ -199,6 +199,7 @@ class Pyzzazz:
 
         # update shared state
         self.state_handler.update_colours(self.fixtures)
+        self.state_handler.update_nodes(self.fixtures)
         self.state_handler.update_fps()
         self.state_handler.update_sliders(self.setting_handlers["master_settings"])
 
