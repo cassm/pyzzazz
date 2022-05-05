@@ -20,6 +20,7 @@ from handlers.hotkey_handler import HotKeyHandler
 from handlers.overlay_handler import OverlayHandler
 from common.graceful_killer import GracefulKiller
 
+from dotenv import load_dotenv
 import time
 import traceback
 from pathlib import Path
@@ -27,6 +28,8 @@ import sys
 import tty
 import termios
 from shutil import copyfile
+
+load_dotenv()
 
 # TODO fixture groups
 

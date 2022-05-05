@@ -17,3 +17,4 @@ tk==0.1.0
 Werkzeug==2.0.3
 
 redis~=4.2.2
+python-dotenv~=0.20.0

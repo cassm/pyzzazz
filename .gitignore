@@ -6,3 +6,4 @@ layouts/
 videos
 conf/calibration.json
 dump.rdb
+.env
