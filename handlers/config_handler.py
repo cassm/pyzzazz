@@ -4,8 +4,6 @@ import os
 
 class ConfigHandler:
     def __init__(self, conf_path):
-        conf_path = os.path.join(os.getcwd(), conf_path)
-
         try:
             with open(conf_path) as file:
                 try:

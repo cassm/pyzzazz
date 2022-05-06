@@ -39,8 +39,10 @@ start_palette = "jellyfish"
 default_tcp_port = 48945
 default_udp_port = 2390
 
-conf_file = "conf/elephant_conf.json"
-calibration_file = "conf/calibration.json"
+conf_file = Path(__file__).parent / "conf" / "elephant_conf.json"
+calibration_file = Path(__file__).parent / "conf" / "calibration.json"
+palette_path = Path(__file__).parent / "palettes"
+video_path = Path(__file__).parent / "videos"
 
 
 class Pyzzazz:
@@ -362,7 +364,7 @@ if __name__ == "__main__":
         # FIXME check for conf on usb stick
         # FIXME grab palettes off usb stick
         # FIXME grab videos off usb stick
-        pyzzazz = Pyzzazz(conf_file, "palettes/", "videos/", calibration_file)
+        pyzzazz = Pyzzazz(conf_file, palette_path, video_path, calibration_file)
 
         print("Running...")
         while True:
