@@ -4,6 +4,8 @@ import os
 
 class CalibrationHandler:
     def __init__(self, conf_path):
+        self.conf_path = conf_path
+
         if os.path.isfile(self.conf_path):
             with open(self.conf_path) as file:
                 try:
