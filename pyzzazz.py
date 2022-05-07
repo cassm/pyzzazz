@@ -89,7 +89,7 @@ class Pyzzazz:
 
             self.setting_handlers = {}
 
-            self.udp_handler = UdpHandler(default_udp_port)
+            #self.udp_handler = UdpHandler(default_udp_port)
 
             self.overlay_handler = OverlayHandler()
 
@@ -131,9 +131,7 @@ class Pyzzazz:
         return False
 
     def update(self):
-        self.udp_handler.poll()
-
-        self.hotkey_handler.poll()
+        #self.udp_handler.poll()
 
         self.usb_serial_manager.update()
 
@@ -190,9 +188,9 @@ class Pyzzazz:
         self.effective_time += (time.time() - self.last_update) * speed * 3  # we want to go from 0 to triple speed
         self.last_update = time.time()
 
-        for sender in self.senders.values():
-            if not sender.is_connected():
-                sender.try_connect()
+        #for sender in self.senders.values():
+        #    if not sender.is_connected():
+        #        sender.try_connect()
 
         if self.update_video:
             for video_handler in self.video_handlers.values():
@@ -224,8 +222,9 @@ class Pyzzazz:
                 self.senders[name] = UsbSerialSenderHandler(sender_conf, self.usb_serial_manager)
 
             elif sender_conf.get("type", "") == "udp":
-                print("Creating UDP sender {}".format(name))
-                self.senders[name] = UdpSenderHandler(sender_conf, self.udp_handler)
+                pass
+            #    print("Creating UDP sender {}".format(name))
+            #    self.senders[name] = UdpSenderHandler(sender_conf, self.udp_handler)
 
             else:
                 raise Exception("Unknown sender type {}".format(sender_conf.get("type", "")))
@@ -324,9 +323,9 @@ class Pyzzazz:
                         raise Exception("Pyzzazz: config specifies one or more fixtures with identical senders {} and lines {}".format(new_sender_info[0], new_sender_info[1]))
 
         # check sender exists
-        for sender_info in fixture_conf.get("senders", []):
-            if sender_info[0] not in list(sender.name for sender in self.senders.values()):
-                raise Exception("Pyzzazz: Fixture {} specified with undefined sender {}".format(fixture_conf.get("name", ""), sender_info[0]))
+        #for sender_info in fixture_conf.get("senders", []):
+        #    if sender_info[0] not in list(sender.name for sender in self.senders.values()):
+        #        raise Exception("Pyzzazz: Fixture {} specified with undefined sender {}".format(fixture_conf.get("name", ""), sender_info[0]))
 
     def sanity_check_controller_conf(self, controller_conf):
         button_ids = list(button["id"] for button in controller_conf.get("buttons", []))
