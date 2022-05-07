@@ -9,11 +9,6 @@
       "name": "OCTO_SENDER_001",
       "type": "usb_serial",
       "num_lines": 8
-    },
-    {
-      "name": "udp_0",
-      "type": "udp",
-      "num_lines": -1
     }
   ],
 
@@ -32,8 +27,7 @@
       "radius": 1.245,
       "location": [0.0, 0.0, 0.4],
       "farthest_point": [3.9, 0.0, 0.4],
-      "senders": [["udp_0", "0x00000001"],
-        ["OCTO_SENDER_001", 2]]
+      "senders": [["OCTO_SENDER_001", 2]]
     },
     {
       "name": "led_fix_bunting_1",
