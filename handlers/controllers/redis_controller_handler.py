@@ -14,7 +14,7 @@ class RedisControllerHandler(ControllerHandler):
         return True
 
     def update(self):
-        cmdLists = self.redis_client.lpop('pyzzazz:commands', 50)
+        cmdLists = RedisHandler.try_command(self.redis_client.lpop, 'pyzzazz:commands', 50)
 
         if not cmdLists:
             return

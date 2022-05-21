@@ -21,3 +21,18 @@ class RedisHandler:
             RedisHandler.create_instance()
 
         return RedisHandler.client
+
+    def try_command(f, *args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except redis.ConnectionError:
+            return None
+
+    @staticmethod
+    def is_connected():
+        try:
+            RedisHandler.get_instance().ping()
+            return True
+        except redis.ConnectionError:
+            print("noop")
+            return False

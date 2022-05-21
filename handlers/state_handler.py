@@ -24,10 +24,10 @@ class StateHandler:
 
         colours = [colours[i:i+3] for i in range(0, len(colours), 3)]
 
-        self.redis.set('pyzzazz:leds:colours', json.dumps(colours))
+        RedisHandler.try_command(self.redis.set, 'pyzzazz:leds:colours', json.dumps(colours))
 
     def update_nodes(self, fixtures):
-        nodeMapping = self.redis.hgetall('pyzzazz:clients')
+        nodeMapping = RedisHandler.try_command(self.redis.hgetall, 'pyzzazz:clients')
 
         for x in fixtures:
             if isinstance(x, LedFixture):
@@ -37,7 +37,7 @@ class StateHandler:
 
                 for node in nodeMapping.keys():
                     if nodeMapping[node] == x.name:
-                        self.redis.publish(f"pyzzazz:clients:{node}:leds", pixels_str)
+                        RedisHandler.try_command(self.redis.publish, f"pyzzazz:clients:{node}:leds", pixels_str)
 
     def update_coords(self, fixtures):
         coords = []
@@ -48,7 +48,7 @@ class StateHandler:
                     fixture_coords.pop()
                 coords.extend(fixture_coords)
 
-        self.redis.set('pyzzazz:leds:coords', json.dumps(coords))
+        RedisHandler.try_command(self.redis.set, 'pyzzazz:leds:coords', json.dumps(coords))
 
     def update_fixtures(self, fixtures):
         fixture_tree = {}
@@ -75,7 +75,7 @@ class StateHandler:
 
             ptr['instances'].append(x.name)
 
-        self.redis.set('pyzzazz:fixtures', json.dumps(fixture_tree))
+        RedisHandler.try_command(self.redis.set, 'pyzzazz:fixtures', json.dumps(fixture_tree))
 
     def update_fps(self):
         new_frame = datetime.datetime.now()
@@ -84,7 +84,7 @@ class StateHandler:
             frame_data = {
                 'fps': round(1.0/interval_secs, 1),
             }
-            self.redis.set('pyzzazz:fps', json.dumps(frame_data))
+            RedisHandler.try_command(self.redis.set, 'pyzzazz:fps', json.dumps(frame_data))
 
         self.last_frame = new_frame
 
@@ -94,14 +94,14 @@ class StateHandler:
         # map video requires arguments and needs its own section
         patterns.remove('map_video')
 
-        self.redis.set('pyzzazz:patterns', json.dumps(patterns))
+        RedisHandler.try_command(self.redis.set, 'pyzzazz:patterns', json.dumps(patterns))
 
     def update_palettes(self, palette_handler):
-        self.redis.set('pyzzazz:palettes', json.dumps(palette_handler.get_palette_names()))
+        RedisHandler.try_command(self.redis.set, 'pyzzazz:palettes', json.dumps(palette_handler.get_palette_names()))
 
     def update_overlays(self, overlay_handler):
-        self.redis.set('pyzzazz:overlays', json.dumps(list(overlay_handler.get_overlays().keys())))
+        RedisHandler.try_command(self.redis.set, 'pyzzazz:overlays', json.dumps(list(overlay_handler.get_overlays().keys())))
 
     def update_sliders(self, settings_handler):
-        self.redis.set('pyzzazz:sliders', json.dumps(settings_handler.get_sliders()))
+        RedisHandler.try_command(self.redis.set, 'pyzzazz:sliders', json.dumps(settings_handler.get_sliders()))
 

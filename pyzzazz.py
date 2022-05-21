@@ -1,4 +1,5 @@
 from handlers.config_handler import ConfigHandler
+from handlers.connections.redis_handler import RedisHandler
 from handlers.state_handler import StateHandler
 from handlers.connections.usb_serial_handler import UsbSerialHandler
 from handlers.senders.usb_serial_sender_handler import UsbSerialSenderHandler
@@ -102,13 +103,15 @@ class Pyzzazz:
             self.update_video = self.video_used()
 
             self.state_handler = StateHandler()
-            self.state_handler.update_colours(self.fixtures)
-            self.state_handler.update_coords(self.fixtures)
-            self.state_handler.update_fixtures(self.fixtures)
-            self.state_handler.update_patterns(self.pattern_handler)
-            self.state_handler.update_palettes(self.palette_handler)
-            self.state_handler.update_overlays(self.overlay_handler)
-            self.state_handler.update_sliders(self.setting_handlers["master_settings"])
+
+            if RedisHandler.is_connected():
+                self.state_handler.update_colours(self.fixtures)
+                self.state_handler.update_coords(self.fixtures)
+                self.state_handler.update_fixtures(self.fixtures)
+                self.state_handler.update_patterns(self.pattern_handler)
+                self.state_handler.update_palettes(self.palette_handler)
+                self.state_handler.update_overlays(self.overlay_handler)
+                self.state_handler.update_sliders(self.setting_handlers["master_settings"])
 
         except:
             for p in self.subprocesses:
@@ -201,10 +204,11 @@ class Pyzzazz:
         self.overlay_handler.update()
 
         # update shared state
-        self.state_handler.update_colours(self.fixtures)
-        self.state_handler.update_nodes(self.fixtures)
-        self.state_handler.update_fps()
-        self.state_handler.update_sliders(self.setting_handlers["master_settings"])
+        if RedisHandler.is_connected():
+            self.state_handler.update_colours(self.fixtures)
+            self.state_handler.update_nodes(self.fixtures)
+            self.state_handler.update_fps()
+            self.state_handler.update_sliders(self.setting_handlers["master_settings"])
 
     def init_senders(self):
         for sender_conf in self.config_parser.get_senders():
