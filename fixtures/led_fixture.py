@@ -164,16 +164,9 @@ class LedFixture(Fixture):
 
             output_values[index::len(channel_order)] = input_values[input_order.index(cha)]
 
-        sentinel_map = output_values == ord('~')
-        sentinel_map += output_values == ord('|')
+        np.clip(output_values, 0.0, 254.0)
 
-        safe_output_values = output_values + sentinel_map
-        safe_output_values = np.clip(255.0, 0.0, safe_output_values)
-
-        if self.power_budget:
-            safe_output_values = self.power_limit(channel_order, safe_output_values)
-
-        return safe_output_values.astype(int)
+        return output_values.astype(int)
 
     def power_limit(self, channel_order, byte_values):
         watts_per_rgb_bit = 0.00015  # watts per bit per rgb channel
