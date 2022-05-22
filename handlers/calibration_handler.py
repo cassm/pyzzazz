@@ -36,6 +36,15 @@ class CalibrationHandler:
         self.config[self.get_selection()] += angle
         self.save_conf()
 
+    def add_angle_to_fixture(self, fixture, angle):
+        if fixture in self.config:
+            print(f"Rotating ${fixture} from ${self.config[fixture]} by ${angle}")
+            self.config[fixture] += angle
+            self.save_conf()
+        else:
+            print(f"Cannot rotate unknown fixture ${fixture}")
+
+
     def increment_selection(self):
         self.current_selection += 1
         self.current_selection %= len(self.config.keys())

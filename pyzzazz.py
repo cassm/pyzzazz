@@ -270,7 +270,7 @@ class Pyzzazz:
         print("\n")
 
     def init_controllers(self):
-        self.controllers.append(RedisControllerHandler())
+        self.controllers.append(RedisControllerHandler(self.calibration_handler, self.fixtures))
 
         for controller_conf in self.config_parser.get_controllers():
             # check for duplicate names
