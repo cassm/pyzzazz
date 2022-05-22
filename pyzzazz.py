@@ -17,7 +17,6 @@ from fixtures.bunting_polygon import BuntingPolygon
 from fixtures.arch import Arch
 from handlers.setting_handler import SettingHandler
 from handlers.calibration_handler import CalibrationHandler
-from handlers.hotkey_handler import HotKeyHandler
 from handlers.overlay_handler import OverlayHandler
 from common.graceful_killer import GracefulKiller
 
@@ -99,8 +98,6 @@ class Pyzzazz:
             self.init_fixtures()
             self.init_controllers()
             self.register_commands()
-
-            self.hotkey_handler = HotKeyHandler(self.fixtures, self.calibration_handler)
 
             self.update_video = self.video_used()
 
@@ -369,7 +366,7 @@ if __name__ == "__main__":
         while True:
             pyzzazz.update()
 
-            if killer.kill_now or pyzzazz.hotkey_handler.exit:
+            if killer.kill_now:
                 if term_saved:
                     termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
 
