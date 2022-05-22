@@ -33,7 +33,7 @@ class FizzyLiftingDrink(Pattern):
 
         blackstripes = np.cos((pct - t*0.05) * math.pi*2) * 1.5
         blackstripes_offset = np.cos((pct/60.0 - 0.9) * math.pi*2) * 1.75 + 1.75
-        blackstripes = np.clip(1.0, 0.0, blackstripes_offset + blackstripes)
+        blackstripes = np.clip(blackstripes_offset + blackstripes, 0.0, 1.0)
 
         r = blackstripes * np.cos(pct * freq_r + t / speed_r)
         g = blackstripes * np.cos(pct * freq_g + t / speed_g)

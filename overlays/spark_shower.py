@@ -47,7 +47,7 @@ class SparkShower(Overlay):
         sparkle_colours *= self.colour_factors[fixture_name]
         sparkle_colours *= sparkle_intensities[:,np.newaxis]
 
-        np.clip(255, 0, sparkle_colours)
+        np.clip(sparkle_colours, 0.0, 255.0)
 
         sparkle_colours = sparkle_colours[:len(colours)]
 

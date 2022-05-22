@@ -20,10 +20,10 @@ class StarDrive(Overlay):
         effective_intensity = min(1.0, self.intensity)
 
         fade_level = np.sin(self.global_z[fixture_name]*2 - time_since_start*1.0 + math.pi*1.5) + 1.0
-        np.clip(1.0, 0.0, fade_level)
+        np.clip(fade_level, 0.0, 1.0)
 
         warp_core_level = np.sin(self.global_z[fixture_name] * 25 - time_since_start*8) / 1.5 + 0.5
-        np.clip(1.0, 0.0, warp_core_level)
+        np.clip(warp_core_level, 0.0, 1.0)
 
         fade_level *= effective_intensity
 

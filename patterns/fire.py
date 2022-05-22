@@ -50,6 +50,6 @@ class Fire(Pattern):
 
         total_sine_val = (time_sine + space_sine) / 16.0
         palette_position = self.normalised_offset + spark_val + total_sine_val
-        palette_position = np.clip(1.0, 0.0, palette_position)
+        palette_position = np.clip(palette_position, 0.0, 1.0)
 
         return palette_handler.sample_positional_all(palette_position, "fire")
