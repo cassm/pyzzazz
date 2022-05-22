@@ -1,0 +1,21 @@
+[Unit]
+Description=pyzzazz
+Requires=network-online.target
+After=redis.service
+
+[Service]
+Type=simple
+
+ExecStart=/home/pi/src/pyzzazz/venv/bin/python3.9 -u /home/pi/src/pyzzazz/pyzzazz.py
+ExecStop=kill -9 $MAINPID
+Restart=always
+RestartSec=5
+User=pi
+
+CPUSchedulingPolicy=fifo
+CPUSchedulingPriority=80
+IOSchedulingClass=realtime
+IOSchedulingPriority=1
+
+[Install]
+WantedBy=multi-user.target
