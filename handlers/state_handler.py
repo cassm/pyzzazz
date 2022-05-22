@@ -32,7 +32,7 @@ class StateHandler:
         for x in fixtures:
             if isinstance(x, LedFixture):
                 pixels = x.get_pixels(force_rgb=True).tolist()
-                pixels_hex = [hex(y)[2:].zfill(2) for y in pixels]
+                pixels_hex = [hex(max(0, min(255, y)))[2:].zfill(2) for y in pixels]
                 pixels_str = ":".join(pixels_hex)
 
                 for node in nodeMapping.keys():
