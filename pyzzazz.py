@@ -17,6 +17,7 @@ from fixtures.bunting_polygon import BuntingPolygon
 from fixtures.arch import Arch
 from handlers.setting_handler import SettingHandler
 from handlers.calibration_handler import CalibrationHandler
+from handlers.node_config_handler import NodeConfigHandler
 from handlers.overlay_handler import OverlayHandler
 from common.graceful_killer import GracefulKiller
 
@@ -40,12 +41,13 @@ default_udp_port = 2390
 
 conf_file = Path(__file__).parent / "conf" / "elephant_conf.json"
 calibration_file = Path(__file__).parent / "conf" / "calibration.json"
+node_config_file = Path(__file__).parent / "conf" / "node_config.json"
 palette_path = Path(__file__).parent / "palettes"
 video_path = Path(__file__).parent / "videos"
 
 
 class Pyzzazz:
-    def __init__(self, conf_path, palette_path, video_path, calibration_path):
+    def __init__(self, conf_path, palette_path, video_path, calibration_path, node_config_path):
         try:
             self._src_dir = Path(__file__).parent
 
@@ -67,6 +69,7 @@ class Pyzzazz:
             self.palette_handler = PaletteHandler(palette_path)
             self.pattern_handler = PatternHandler()
             self.calibration_handler = CalibrationHandler(calibration_path)
+            self.node_config_handler = NodeConfigHandler(node_config_path)
 
             self.video_handlers = dict()
 
@@ -77,10 +80,12 @@ class Pyzzazz:
             self.usb_serial_manager = UsbSerialHandler()
             self.effective_time = 0.0
             self.last_update = time.time()
+            self.last_node_config_update = time.time()
             self.subprocesses = list()
 
             self.fps = 30.0
             self.time_per_frame = 1.0 / self.fps
+            self.node_config_update_interval = 1.0
 
             self.senders = dict()
             self.fixtures = []
@@ -181,6 +186,10 @@ class Pyzzazz:
         # prevent senders and video updating too often
         if self.last_update + self.time_per_frame > time.time():
             return
+
+        if self.last_node_config_update + self.node_config_update_interval > time.time():
+            self.last_node_config_update = time.time()
+            self.node_config_handler.pull_config()
 
         self.effective_time += (time.time() - self.last_update) * speed * 3  # we want to go from 0 to triple speed
         self.last_update = time.time()
@@ -360,7 +369,7 @@ if __name__ == "__main__":
         # FIXME check for conf on usb stick
         # FIXME grab palettes off usb stick
         # FIXME grab videos off usb stick
-        pyzzazz = Pyzzazz(conf_file, palette_path, video_path, calibration_file)
+        pyzzazz = Pyzzazz(conf_file, palette_path, video_path, calibration_file, node_config_file)
 
         print("Running...")
         while True:
