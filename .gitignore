@@ -5,5 +5,6 @@ venv/
 layouts/
 videos
 conf/calibration.json
+conf/node_config.json
 dump.rdb
 .env
