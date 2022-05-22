@@ -1,4 +1,5 @@
 import json
+import math
 import os
 
 
@@ -30,16 +31,19 @@ class CalibrationHandler:
 
     def set_angle(self, fixture, angle):
         self.config[fixture] = angle
+        self.config[self.get_selection()] %= math.pi*2
         self.save_conf()
 
     def add_angle_to_selection(self, angle):
         self.config[self.get_selection()] += angle
+        self.config[self.get_selection()] %= math.pi*2
         self.save_conf()
 
     def add_angle_to_fixture(self, fixture, angle):
         if fixture in self.config:
             print(f"Rotating ${fixture} from ${self.config[fixture]} by ${angle}")
             self.config[fixture] += angle
+            self.config[self.get_selection()] %= math.pi*2
             self.save_conf()
         else:
             print(f"Cannot rotate unknown fixture ${fixture}")
