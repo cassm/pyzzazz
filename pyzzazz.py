@@ -127,7 +127,7 @@ class Pyzzazz:
             sys.exit(1)
 
     def video_used(self):
-        return False
+        return True
         for controller_conf in self.config_parser.get_controllers():
             for button in controller_conf["buttons"]:
                 if button["command"]["name"] == "map_video":

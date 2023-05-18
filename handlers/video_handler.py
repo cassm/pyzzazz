@@ -10,6 +10,7 @@ class VideoHandler:
             raise Exception("ERROR: the directory {} does not exist".format(video_path))
 
         self.videos = dict()
+        self._video_indices = {}
 
         for video_name in os.listdir(video_path):
             if not video_name.startswith("."):
@@ -25,6 +26,7 @@ class VideoHandler:
         self._last_update = 0.0
         self._time_per_frame = 1.0 / 30.0
 
+        self.current_video_name = None
         self._switch_to_video(list(self.videos.keys())[0])
 
         self._global_scaling_factor = 0.5
@@ -33,19 +35,27 @@ class VideoHandler:
         self._global_scaling_factor = max(0.0, min(1.0, scaling_factor))
 
     def _switch_to_video(self, name):
+        if name == self.current_video_name:
+            return
+
         if name not in self.videos.keys():
             raise Exception("Unknown video ", name)
 
         self.current_video = self.videos[name]
+        self.current_video_name = name
+        if name not in self._video_indices:
+            self._video_indices[name] = 0
+
         self.vidcap = cv2.VideoCapture(self.current_video)
 
         self.vidcap.set(cv2.CAP_PROP_POS_AVI_RATIO, 1)
+        self.vidcap.set(cv2.CAP_PROP_POS_FRAMES, self._video_indices[self.current_video_name])
         self.vid_length = self.vidcap.get(cv2.CAP_PROP_POS_MSEC)
         self.num_frames = self.vidcap.get(cv2.CAP_PROP_FRAME_COUNT)
 
         self._update_sampling_factors()
 
-        self.vidcap.set(cv2.CAP_PROP_POS_MSEC, (self._last_update*1000) % self.vid_length)
+        # self.vidcap.set(cv2.CAP_PROP_POS_MSEC, (self._last_update*1000) % self.vid_length)
 
         success, self.frame = self.vidcap.read()
 
@@ -75,6 +85,7 @@ class VideoHandler:
 
             success, self.frame = self.vidcap.read()
             self._last_update += self._time_per_frame
+            self._video_indices[self.current_video_name] = self.vidcap.get(cv2.CAP_PROP_POS_FRAMES)
 
             if not success:
                 raise Exception("Failed to read video frame")
