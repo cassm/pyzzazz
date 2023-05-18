@@ -20,6 +20,14 @@ class NodeConfigHandler:
             self.config = dict()
             self.save_conf()
 
+    def clear_config(self):
+        print("NodeConfigHandler: Clearing config...")
+        self.config = {}
+        RedisHandler.try_command(self.redis_client.delete, "pyzzazz:clients")
+        RedisHandler.try_command(self.redis_client.delete, "pyzzazz:colourModes")
+        RedisHandler.try_command(self.redis_client.publish, "pyzzazz:clients:cmd", "RESET")
+        self.save_conf()
+
     def push_config(self):
         for key, value in self.config.get("fixtures", {}).items():
             RedisHandler.try_command(self.redis_client.hset, "pyzzazz:clients", key, value)

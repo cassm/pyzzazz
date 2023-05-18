@@ -17,6 +17,7 @@ from fixtures.bunting_polygon import BuntingPolygon
 from fixtures.arch import Arch
 from handlers.setting_handler import SettingHandler
 from handlers.calibration_handler import CalibrationHandler
+from handlers.fps_handler import FpsHandler
 from handlers.node_config_handler import NodeConfigHandler
 from handlers.overlay_handler import OverlayHandler
 from common.graceful_killer import GracefulKiller
@@ -29,6 +30,8 @@ import sys
 import tty
 import termios
 from shutil import copyfile
+import cProfile
+import os
 
 load_dotenv()
 
@@ -42,6 +45,7 @@ default_udp_port = 2390
 conf_file = Path(__file__).parent / "conf" / "elephant_conf.json"
 calibration_file = Path(__file__).parent / "conf" / "calibration.json"
 node_config_file = Path(__file__).parent / "conf" / "node_config.json"
+fps_config_path = Path(__file__).parent / "conf" / "fps.json"
 palette_path = Path(__file__).parent / "palettes"
 video_path = Path(__file__).parent / "videos"
 
@@ -83,8 +87,7 @@ class Pyzzazz:
             self.last_node_config_update = time.time()
             self.subprocesses = list()
 
-            self.fps = 30.0
-            self.time_per_frame = 1.0 / self.fps
+            self.fps_handler = FpsHandler(40, fps_config_path)
             self.node_config_update_interval = 1.0
 
             self.senders = dict()
@@ -109,7 +112,7 @@ class Pyzzazz:
             self.state_handler = StateHandler()
 
             if RedisHandler.is_connected():
-                self.state_handler.update_colours(self.fixtures)
+                #self.state_handler.update_colours(self.fixtures)
                 self.state_handler.update_coords(self.fixtures)
                 self.state_handler.update_fixtures(self.fixtures)
                 self.state_handler.update_patterns(self.pattern_handler)
@@ -184,7 +187,7 @@ class Pyzzazz:
                 controller.clear_events()
 
         # prevent senders and video updating too often
-        if self.last_update + self.time_per_frame > time.time():
+        if self.last_update + self.fps_handler.get_frame_interval() > time.time():
             return
 
         if self.last_node_config_update + self.node_config_update_interval > time.time():
@@ -211,7 +214,7 @@ class Pyzzazz:
 
         # update shared state
         if RedisHandler.is_connected():
-            self.state_handler.update_colours(self.fixtures)
+            #self.state_handler.update_colours(self.fixtures)
             self.state_handler.update_nodes(self.fixtures)
             self.state_handler.update_fps()
             self.state_handler.update_sliders(self.setting_handlers["master_settings"])
@@ -276,7 +279,7 @@ class Pyzzazz:
         print("\n")
 
     def init_controllers(self):
-        self.controllers.append(RedisControllerHandler(self.calibration_handler, self.fixtures))
+        self.controllers.append(RedisControllerHandler(self.calibration_handler, self.fixtures, self.node_config_handler, self.fps_handler))
 
         for controller_conf in self.config_parser.get_controllers():
             # check for duplicate names
@@ -348,7 +351,7 @@ class Pyzzazz:
             p.kill()
 
 
-if __name__ == "__main__":
+def main():
     term_saved = False
     old_settings = None
 
@@ -395,3 +398,8 @@ if __name__ == "__main__":
         pyzzazz.shut_down()
 
     print("have a nice day :)")
+
+if __name__ == "__main__":
+    main()
+    #os.chdir('/home/pi/src/pyzzazz')
+    #cProfile.run('main()','pyzzazzStats')
