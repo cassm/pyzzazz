@@ -37,7 +37,7 @@ class StateHandler:
 
                 for node in nodeMapping.keys():
                     if nodeMapping[node] == x.name:
-                        RedisHandler.try_command(self.redis.publish, f"pyzzazz:clients:{node}:leds", pixels_str)
+                        RedisHandler.try_command(self.redis.set, f"pyzzazz:clients:{node}:leds", pixels_str)
 
     def update_coords(self, fixtures):
         coords = []

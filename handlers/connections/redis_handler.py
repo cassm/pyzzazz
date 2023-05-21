@@ -33,6 +33,6 @@ class RedisHandler:
         try:
             RedisHandler.get_instance().ping()
             return True
-        except redis.ConnectionError:
-            print("noop")
+        except redis.ConnectionError as e:
+            print(e)
             return False

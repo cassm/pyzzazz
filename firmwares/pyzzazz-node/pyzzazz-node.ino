@@ -155,18 +155,19 @@ void setup()
     delay(curDelay);
   }
 
-  
+
   Serial.printf("Done!\n");
   forceReset();
-  
+
 }
 
-void msgCallback (Redis *redisInst, String channel, String msg) {
+void msgCallback (String channel, String msg) {
   //Serial.printf("Message on channel '%s': \"%s\"\n", channel.c_str(), msg.c_str());
 
   if (channel == "pyzzazz:clients:cmd" || channel == cmd_channel.c_str())
   {
     Serial.println("Got message on cmd channel");
+    Serial.println("::" + msg + "::");
     if (msg == "PING") {
       pong();
     }

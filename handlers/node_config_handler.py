@@ -25,7 +25,8 @@ class NodeConfigHandler:
         self.config = {}
         RedisHandler.try_command(self.redis_client.delete, "pyzzazz:clients")
         RedisHandler.try_command(self.redis_client.delete, "pyzzazz:colourModes")
-        RedisHandler.try_command(self.redis_client.publish, "pyzzazz:clients:cmd", "RESET")
+        for client in RedisHandler.try_command(self.redis_client.hgetall, "pyzzazz:clients").keys():
+            RedisHandler.try_command(self.redis_client.rpush, f"pyzzazz:clients:{client}:cmd", "RESET")
         self.save_conf()
 
     def push_config(self):
@@ -45,7 +46,7 @@ class NodeConfigHandler:
                 config_changed = True
 
             for key, value in new_fixture_config.items():
-                oldVal = self.config["fixtures"].get(key, "uninitialised") 
+                oldVal = self.config["fixtures"].get(key, "uninitialised")
                 if oldVal!= value:
                     print(f"NodeConfigHandler: fixtures:{key} {oldVal} -> {value}")
                     self.config["fixtures"][key] = value
