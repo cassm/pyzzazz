@@ -60,7 +60,7 @@ class VideoHandler:
         success, self.frame = self.vidcap.read()
 
         if not success:
-            raise Exception("Failed to read video frame")
+            print("Failed to read video frame")
 
     def _update_sampling_factors(self):
         width = self.vidcap.get(3)
@@ -88,7 +88,7 @@ class VideoHandler:
             self._video_indices[self.current_video_name] = self.vidcap.get(cv2.CAP_PROP_POS_FRAMES)
 
             if not success:
-                raise Exception("Failed to read video frame")
+                print("Failed to read video frame")
 
     def receive_command(self, command):
         if command["type"] == "pattern" and command["name"] == "map_video":
