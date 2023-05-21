@@ -19,10 +19,11 @@ class StateHandler:
             if isinstance(x, LedFixture):
                 colours.extend(x.get_pixels(force_rgb=True).tolist())
 
-        # rounding to 3 dec places drastically reduces network transfer volume, as this is transferred as a string
-        colours = [round(i/255.0, 3) for i in colours]
+        # prep for bytification
+        colours = [min(255, max(0, int(colours[i]))) for i in colours]
 
-        colours = [colours[i:i+3] for i in range(0, len(colours), 3)]
+        # colours = [colours[i:i+3] for i in range(0, len(colours), 3)]
+        colours = bytes(colours)
 
         RedisHandler.try_command(self.redis.set, 'pyzzazz:leds:colours', json.dumps(colours))
 
