@@ -5,12 +5,20 @@ from fixtures.bunting_polygon import BuntingPolygon
 import inspect
 import json
 import datetime
+import socket
 
+UDP_PORT = 5005
 
 class StateHandler:
     def __init__(self, ):
         self.redis = RedisHandler.get_instance()
         self.last_frame = None
+        self.ip_map = {}
+        self.sock = socket.socket(socket.AF_INET, # Internet
+                                  socket.SOCK_DGRAM) # UDP
+
+    def update_ips(self):
+        self.ip_map = RedisHandler.try_command(self.redis.hgetall, 'pyzzazz:mac2ip')
 
     def update_colours(self, fixtures):
         # TODO keep as np array until last stage
@@ -20,10 +28,11 @@ class StateHandler:
                 colours.extend(x.get_pixels(force_rgb=True).tolist())
 
         # prep for bytification
-        colours = [min(255, max(0, int(colours[i]))) for i in colours]
+        # colours = [min(255, max(0, int(colours[i]))) for i in colours]
+        # colours = bytes(colours)
 
-        # colours = [colours[i:i+3] for i in range(0, len(colours), 3)]
-        colours = bytes(colours)
+        colours = [round(i/255.0, 3) for i in colours]
+        colours = [colours[i:i+3] for i in range(0, len(colours), 3)]
 
         RedisHandler.try_command(self.redis.set, 'pyzzazz:leds:colours', json.dumps(colours))
 
@@ -33,12 +42,18 @@ class StateHandler:
         for x in fixtures:
             if isinstance(x, LedFixture):
                 pixels = x.get_pixels(force_rgb=True).tolist()
-                pixels_hex = [hex(max(0, min(255, y)))[2:].zfill(2) for y in pixels]
-                pixels_str = ":".join(pixels_hex)
+                if len(pixels) != x.num_pixels*3:
+                    print (f"WHAT {len(pixels)}::{x.num_pixels}")
+                pixels = [max(1, min(255, int(ch))) for ch in pixels]
+                pixels_bytes = bytes(pixels)
 
                 for node in nodeMapping.keys():
                     if nodeMapping[node] == x.name:
-                        RedisHandler.try_command(self.redis.set, f"pyzzazz:clients:{node}:leds", pixels_str)
+                        if node in self.ip_map:
+                            # print(f"{x.name}:{len(pixels)}:{len(pixels_bytes)}")
+                            # print(f"sending {len(pixels_bytes)} to {self.ip_map[node]}:{UDP_PORT}")
+                            self.sock.sendto(pixels_bytes, (self.ip_map[node], UDP_PORT))
+                    #     RedisHandler.try_command(self.redis.publish, f"pyzzazz:clients:{node}:leds", pixels_bytes)
 
     def update_coords(self, fixtures):
         coords = []
