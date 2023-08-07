@@ -5,12 +5,13 @@ import subprocess
 
 
 class RedisControllerHandler(ControllerHandler):
-    def __init__(self, calibration_handler, fixtures, node_config_handler, fps_handler):
+    def __init__(self, calibration_handler, fixtures, node_config_handler, fps_handler, state_handler):
         self.name = "REDIS_CONTROLLER"
         ControllerHandler.__init__(self, {"name": self.name})
         self.calibration_handler = calibration_handler
         self.node_config_handler = node_config_handler
         self.fps_handler = fps_handler
+        self.state_handler = state_handler
         self.fixtures = fixtures
         self.redis_client = RedisHandler.get_instance()
 

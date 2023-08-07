@@ -12,7 +12,10 @@ class RedisHandler:
             host=os.getenv("REDIS_IP"),
             port=os.getenv("REDIS_PORT"),
             db=0,
+            socket_timeout=15,
+            socket_connect_timeout=15,
             decode_responses=True,
+
             password=os.getenv("REDIS_PW"))
 
     @staticmethod

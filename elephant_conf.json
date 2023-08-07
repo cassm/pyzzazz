@@ -42,8 +42,7 @@
       "radius": 1.65,
       "location": [0.0, 0.0, 0.3],
       "farthest_point": [3.9, 0.0, 0.4],
-      "senders": [["OCTO_SENDER_001", 1]],
-      "dead_pixels": 6
+      "senders": [["OCTO_SENDER_001", 1]]
     },
     {
       "name": "led_fix_bunting_2",
@@ -52,14 +51,13 @@
       "channel_order": "rgb",
       "geometry": "bunting_polygon",
       "sides": 6,
-      "leds_per_strand": 43,
+      "leds_per_strand": 47,
       "length_per_strand": 2.5,
       "num_strands": 5,
       "radius": 2.075,
       "location": [0.0, 0.0, 0.2],
       "farthest_point": [3.9, 0.0, 0.4],
-      "senders": [["OCTO_SENDER_001", 0]],
-      "dead_pixels": 13
+      "senders": [["OCTO_SENDER_001", 0]]
     },
     {
       "name": "led_fix_bunting_arch_dj",
@@ -67,7 +65,7 @@
       "default_pattern": "sparkle",
       "channel_order": "rgb",
       "geometry": "arch",
-      "num_pixels": 43,
+      "num_pixels": 50,
       "r": 2.4,
       "theta": -0.52,
       "height": 1,
@@ -286,25 +284,25 @@
           "name": "sexy_plaid_all",
           "id": 20,
           "target_keyword": "led_fix_",
-          "command": "{'type': 'pattern', 'name': 'map_video', 'video_name': 'sexy_plaid.mp4', 'args': {}}"
+          "command": "{'type': 'pattern', 'name': 'sparkle', 'video_name': 'sexy_plaid.mp4', 'args': {}}"
         },
         {
           "name": "sexy_plaid_icosahedron",
           "id": 21,
           "target_keyword": "icosahedron",
-          "command": "{'type': 'pattern', 'name': 'map_video', 'video_name': 'sexy_plaid.mp4', 'args': {}}"
+          "command": "{'type': 'pattern', 'name': 'sparkle', 'video_name': 'sexy_plaid.mp4', 'args': {}}"
         },
         {
           "name": "sexy_plaid_bunting",
           "id": 22,
           "target_keyword": "bunting",
-          "command": "{'type': 'pattern', 'name': 'map_video', 'video_name': 'sexy_plaid.mp4', 'args': {}}"
+          "command": "{'type': 'pattern', 'name': 'sparkle', 'video_name': 'sexy_plaid.mp4', 'args': {}}"
         },
         {
           "name": "sexy_plaid_cylinder",
           "id": 23,
           "target_keyword": "cylinder",
-          "command": "{'type': 'pattern', 'name': 'map_video', 'video_name': 'sexy_plaid.mp4', 'args': {}}"
+          "command": "{'type': 'pattern', 'name': 'sparkle', 'video_name': 'sexy_plaid.mp4', 'args': {}}"
         },
         {
           "name": "fire_all",
@@ -334,25 +332,25 @@
           "name": "forest-sheep_all",
           "id": 28,
           "target_keyword": "led_fix_",
-          "command": "{'type': 'pattern', 'name': 'map_video', 'video_name': 'forest-sheep-mpeg2.mp4', 'args': {}}"
+          "command": "{'type': 'pattern', 'name': 'sparkle', 'video_name': 'forest-sheep-mpeg2.mp4', 'args': {}}"
         },
         {
           "name": "forest-sheep_icosahedron",
           "id": 29,
           "target_keyword": "icosahedron",
-          "command": "{'type': 'pattern', 'name': 'map_video', 'video_name': 'forest-sheep-mpeg2.mp4', 'args': {}}"
+          "command": "{'type': 'pattern', 'name': 'sparkle', 'video_name': 'forest-sheep-mpeg2.mp4', 'args': {}}"
         },
         {
           "name": "forest-sheep_bunting",
           "id": 30,
           "target_keyword": "bunting",
-          "command": "{'type': 'pattern', 'name': 'map_video', 'video_name': 'forest-sheep-mpeg2.mp4', 'args': {}}"
+          "command": "{'type': 'pattern', 'name': 'sparkle', 'video_name': 'forest-sheep-mpeg2.mp4', 'args': {}}"
         },
         {
           "name": "forest-sheep_cylinder",
           "id": 31,
           "target_keyword": "cylinder",
-          "command": "{'type': 'pattern', 'name': 'map_video', 'video_name': 'forest-sheep-mpeg2.mp4', 'args': {}}"
+          "command": "{'type': 'pattern', 'name': 'sparkle', 'video_name': 'forest-sheep-mpeg2.mp4', 'args': {}}"
         },
         {
           "name": "star drive",

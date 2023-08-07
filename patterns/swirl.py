@@ -22,6 +22,8 @@ class Swirl(Pattern):
     def get_pixel_colours(self, leds, time, palette_handler, palette_name):
         raw_colours = palette_handler.sample_radial_all(self._theta_offsets, time, self._space_factor, self._time_factor, palette_name).astype(np.float32)
         # raw_colours *= 0.7  # account for increased overall brightness
-        raw_colours *= np.sin(self._theta_offsets*6 - (time*self._time_factor) * 24)[:,np.newaxis]/2 + 0.6
+        raw_colours *= np.sin(self._theta_offsets*6 - (time*self._time_factor) * 24)[:,np.newaxis]/2 + 0.5
+        raw_colours += 0.1
+        np.clip(raw_colours, 0.0, 1.0)
 
         return raw_colours

@@ -23,7 +23,8 @@ class LedFixture(Fixture):
 
         self.geometry = config.get("geometry", "No geometry present in fixture definition")
         self.channel_order = config.get("channel_order", "No channel_order present in fixture definition")
-        self.num_pixels = config.get("num_pixels", 0)
+        self.dead_pixels = config.get("dead_pixels", 0)
+        self.num_pixels = config.get("num_pixels", 0) - self.dead_pixels
         self.senders_info = list(SenderInfo(sender[0], sender[1]) for sender in senders)
 
         # deal with hex values
@@ -146,9 +147,13 @@ class LedFixture(Fixture):
 
     def get_byte_values(self, channel_order, pixels):
         input_order = ["r", "g", "b"]
-        input_values = np.array([np.take(pixels, 0, axis=1),
-                                 np.take(pixels, 1, axis=1),
-                                 np.take(pixels, 2, axis=1)])
+        pixel_order = [0,1,2]
+
+        if "cylinder" in self.name:
+            pixel_order = [1,0,2]
+        input_values = np.array([np.take(pixels, pixel_order[0], axis=1),
+                                 np.take(pixels, pixel_order[1], axis=1),
+                                 np.take(pixels, pixel_order[2], axis=1)])
 
         if "w" in channel_order:
             w = np.min(pixels, axis=1)

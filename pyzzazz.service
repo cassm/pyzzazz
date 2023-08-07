@@ -6,11 +6,11 @@ After=redis.service
 [Service]
 Type=simple
 
-ExecStart=/home/pi/src/pyzzazz/venv/bin/python3.9 -u /home/pi/src/pyzzazz/pyzzazz.py
+ExecStart=python3 -u /home/cassm/src/pyzzazz/pyzzazz.py
 ExecStop=kill -9 $MAINPID
 Restart=always
 RestartSec=5
-User=pi
+User=cassm
 
 CPUSchedulingPolicy=fifo
 CPUSchedulingPriority=80

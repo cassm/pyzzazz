@@ -52,7 +52,10 @@ class MakeMeOneWithEverything(Pattern):
         rgb[..., 1] = np.sin(-time / -2 + mangled_deltas * (5 + np.cos(-time / 2.2 + mangled_deltas))) + 0.25
         rgb[..., 2] = np.sin(-time / -2 + mangled_deltas * (5 + np.cos(-time / 2.5 + mangled_deltas))) + 0.25
 
+
         rgb *= self._shimmer_level
+
+        np.clip(rgb, 0.0, 1.0)
 
         w_major = self._white_level + np.sin(-time / -8 + self._origin_deltas / 3) * self._shimmer_level
         w_minor = np.sin(-time / -10 + self._origin_deltas / 1.4) * self._shimmer_level / 4
@@ -88,6 +91,7 @@ class MakeMeOneWithEverything(Pattern):
 
             swoosh_level += (1.0 / distances_behind_swoosh) * intensity
 
+        np.clip(swoosh_level, 0.0, 1.0)
 
         # print(f"max swoosh level {max(swoosh_level)}")
         w = np.maximum(w, np.minimum(swoosh_level, 1)*64)
@@ -99,6 +103,7 @@ class MakeMeOneWithEverything(Pattern):
 
         rgb += w[:,np.newaxis]
         rgb *= (swoosh_level[:,np.newaxis] + 1)
+        np.clip(rgb, 0.0, 1.0)
         return rgb
 
     @staticmethod

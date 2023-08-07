@@ -9,13 +9,19 @@ import socket
 
 UDP_PORT = 5005
 
+class NodeSock:
+    def __init__(self, ip_addr):
+        addr = socket.getaddrinfo(ip_addr, 5005, socket.AF_INET, socket.SOCK_DGRAM)[0]
+        self.sock = socket.socket(*addr[:3])
+        self.sock.connect(addr[4])
+        self.ip_addr = ip_addr
+
 class StateHandler:
     def __init__(self, ):
+        self.node_socks = {}
         self.redis = RedisHandler.get_instance()
         self.last_frame = None
         self.ip_map = {}
-        self.sock = socket.socket(socket.AF_INET, # Internet
-                                  socket.SOCK_DGRAM) # UDP
 
     def update_ips(self):
         self.ip_map = RedisHandler.try_command(self.redis.hgetall, 'pyzzazz:mac2ip')
@@ -36,24 +42,65 @@ class StateHandler:
 
         RedisHandler.try_command(self.redis.set, 'pyzzazz:leds:colours', json.dumps(colours))
 
+    def refresh_sock(self, node):
+        if node not in self.node_socks:
+            self.node_socks[node] = NodeSock(self.ip_map[node])
+        elif self.node_socks[node].ip_addr != self.ip_map[node]:
+            self.node_socks[node].sock.close()
+            self.node_socks[node] = NodeSock(self.ip_map[node])
+
+    def control_nodes(self, nodeMapping):
+        for node in nodeMapping.keys():
+            cmd = RedisHandler.try_command(self.redis.rpop, f"pyzzazz:clients:{node}:cmd")
+            if cmd is not None:
+                if cmd == "PING":
+                    self.send_node_cmd(node, "P")
+                elif cmd == "RESET":
+                    self.send_node_cmd(node, "R")
+                elif cmd == "CLEAR":
+                    self.send_node_cmd(node, "C")
+                elif cmd == "COLOUR_MODE_RGB":
+                    self.send_node_cmd(node, "4")
+                elif cmd == "COLOUR_MODE_RGBW":
+                    self.send_node_cmd(node, "3")
+                else:
+                    print(f"received unknown cmd for {node}: {cmd}")
+
+
     def update_nodes(self, fixtures):
         nodeMapping = RedisHandler.try_command(self.redis.hgetall, 'pyzzazz:clients')
+        self.control_nodes(nodeMapping)
 
         for x in fixtures:
             if isinstance(x, LedFixture):
                 pixels = x.get_pixels(force_rgb=True).tolist()
-                if len(pixels) != x.num_pixels*3:
-                    print (f"WHAT {len(pixels)}::{x.num_pixels}")
-                pixels = [max(1, min(255, int(ch))) for ch in pixels]
+                dead_pixels = [1,1,1]*x.dead_pixels
+                pixels = dead_pixels + pixels
+                pixels = [ord("F")] + [max(0, min(255, int(ch))) for ch in pixels]
+
                 pixels_bytes = bytes(pixels)
 
                 for node in nodeMapping.keys():
                     if nodeMapping[node] == x.name:
                         if node in self.ip_map:
+                            self.refresh_sock(node)
                             # print(f"{x.name}:{len(pixels)}:{len(pixels_bytes)}")
                             # print(f"sending {len(pixels_bytes)} to {self.ip_map[node]}:{UDP_PORT}")
-                            self.sock.sendto(pixels_bytes, (self.ip_map[node], UDP_PORT))
+                            try:
+                                self.node_socks[node].sock.sendto(pixels_bytes, (self.ip_map[node], UDP_PORT))
+                            except Exception as e:
+                                print(e)
                     #     RedisHandler.try_command(self.redis.publish, f"pyzzazz:clients:{node}:leds", pixels_bytes)
+    def send_node_cmd(self, node, cmd):
+        print(f"cmd {node}::{cmd}")
+        if node in self.ip_map:
+            self.refresh_sock(node)
+            # print(f"{x.name}:{len(pixels)}:{len(pixels_bytes)}")
+            # print(f"sending {len(pixels_bytes)} to {self.ip_map[node]}:{UDP_PORT}")
+            try:
+                self.node_socks[node].sock.sendto(bytes([ord(cmd[0])]), (self.ip_map[node], UDP_PORT))
+            except Exception as e:
+                print(e)
 
     def update_coords(self, fixtures):
         coords = []

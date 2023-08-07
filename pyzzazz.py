@@ -87,7 +87,7 @@ class Pyzzazz:
             self.last_node_config_update = time.time()
             self.subprocesses = list()
 
-            self.fps_handler = FpsHandler(40, fps_config_path)
+            self.fps_handler = FpsHandler(30, fps_config_path)
             self.node_config_update_interval = 1.0
 
             self.senders = dict()
@@ -99,6 +99,7 @@ class Pyzzazz:
             #self.udp_handler = UdpHandler(default_udp_port)
 
             self.overlay_handler = OverlayHandler()
+            self.state_handler = StateHandler()
 
             # these must be done in this order
             self.init_setting_handlers()
@@ -109,7 +110,6 @@ class Pyzzazz:
 
             self.update_video = self.video_used()
 
-            self.state_handler = StateHandler()
 
             if RedisHandler.is_connected():
                 #self.state_handler.update_colours(self.fixtures)
@@ -214,7 +214,8 @@ class Pyzzazz:
 
         # update shared state
         if RedisHandler.is_connected():
-            #self.state_handler.update_colours(self.fixtures)
+            self.state_handler.update_colours(self.fixtures)
+            self.state_handler.update_ips()
             self.state_handler.update_nodes(self.fixtures)
             self.state_handler.update_fps()
             self.state_handler.update_sliders(self.setting_handlers["master_settings"])
@@ -279,7 +280,7 @@ class Pyzzazz:
         print("\n")
 
     def init_controllers(self):
-        self.controllers.append(RedisControllerHandler(self.calibration_handler, self.fixtures, self.node_config_handler, self.fps_handler))
+        self.controllers.append(RedisControllerHandler(self.calibration_handler, self.fixtures, self.node_config_handler, self.fps_handler, self.state_handler))
 
         for controller_conf in self.config_parser.get_controllers():
             # check for duplicate names

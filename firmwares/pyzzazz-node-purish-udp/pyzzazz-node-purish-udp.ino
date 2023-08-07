@@ -2,14 +2,13 @@
 #include <Adafruit_NeoPixel.h>
 #include "ESP8266TimerInterrupt.h"
 #include "gamma.h"
-
+#include <WiFiUdp.h>
 /*****************************************
 ******** SET THISFOR EACH UNIT **********
 ******************************************/
 
 #define PSU_WATTS 100
 
-#include <WiFiUdp.h>
 /*****************************************
 *****************************************/
 
@@ -24,7 +23,11 @@
 
 #define BUFFSIZE NUM_LEDS*6
 
+#define UDP_PORT 5005
 WiFiUDP Udp;
+
+uint64_t last_cmd_check = 0;
+uint64_t cmd_check_interval = 500;
 
 
 char packetBuffer[BUFFSIZE]; //buffer to hold incoming packet
@@ -112,10 +115,11 @@ void power_limit() {
         }
     }
 }
-void receiveColours() {
+void receivePacket() {
   int packetSize = Udp.parsePacket();
       
   if (packetSize) {
+    /*
     Serial.print("Received packet of size ");
     Serial.println(packetSize);
     Serial.print("From ");
@@ -123,16 +127,38 @@ void receiveColours() {
     Serial.print(remoteIp);
     Serial.print(", port ");
     Serial.println(Udp.remotePort());
+    */
     // read the packet into packetBufffer
     int len = Udp.read(packetBuffer, BUFFSIZE);
     if (len > 0) {
       packetBuffer[len] = 0;
     }
-    Serial.println("Contents:");
-    Serial.println(packetBuffer);
-    //updateColours(packetBuffer, packetSize);
-  } else {
-    Serial.println("nope");
+    char cmd = char(packetBuffer[0]);
+    if (cmd == 'F') {
+        if (!PINGED) {
+            updateColours(&packetBuffer[1], packetSize-1);
+            setPixelsFromBuffer();
+            pixels.show();
+    }
+    } else if (cmd == 'P') {
+        Serial.println("UDP: PING");
+        pong();
+    } else if (cmd == 'R') {
+        Serial.println("UDP: RESET");
+        forceReset();
+    } else if (cmd == 'C') {
+        Serial.println("UDP: CLEAR");
+        clearPixels();
+    } else if (cmd == '3') {
+        Serial.println("UDP: Setting colour mode to RGBW");
+        CURRENT_COLOUR_MODE = COLOUR_MODE_RGBW;
+    } else if (cmd == '4') {
+        Serial.println("UDP: Setting colour mode to RGB");
+        CURRENT_COLOUR_MODE = COLOUR_MODE_RGB;
+    } else {
+        Serial.print("UDP: Unknown command");
+        Serial.println(cmd);
+    }
   }
 }
 
@@ -164,8 +190,11 @@ void setup()
   Serial.println();
   Serial.print("IP Address: ");
   Serial.println(WiFi.localIP());
+  Serial.print("MAC Address: ");
+  Serial.println(MAC_ADDR);
 
   pixels.begin();
+  Udp.begin(UDP_PORT);
 
   auto backoffCounter = -1;
   auto resetBackoffCounter = [&]() {
@@ -192,7 +221,7 @@ void setup()
 
 }
 
-void msgCallback (Redis *redisInst, String channel, String msg) {
+void msgCallback (String channel, String msg) {
   //Serial.printf("Message on channel '%s': \"%s\"\n", channel.c_str(), msg.c_str());
 
   if (channel == "pyzzazz:clients:cmd" || channel == cmd_channel.c_str())
@@ -266,12 +295,8 @@ bool subscriberLoop(std::function<void(void)> resetBackoffCounter)
     CURRENT_COLOUR_MODE = COLOUR_MODE_RGBW;
   }
   Serial.println("starting");
-  while (true) {
-    receiveColours();
-    delay(50);
-  }
   
-
+/*
    Serial.println("subscribing to channel " + leds_channel);
    Serial.println("subscribing to channel " + cmd_channel);
    Serial.println("subscribing to channel clients:cmd");
@@ -291,23 +316,16 @@ bool subscriberLoop(std::function<void(void)> resetBackoffCounter)
    redisConn.stop();
    Serial.printf("Connection closed! (%d)\n", subRv);
    return subRv == RedisSubscribeServerDisconnected; // server disconnect is retryable, everything else is fatal
-   /*
+   */
+   
   while (true) {
-    String msg = redis.get(leds_channel.c_str());
-    if (msg && msg != "") {
-        resetBackoffCounter();
-        msgCallback(leds_channel, msg);
-    }
-    msg = redis.lpop(cmd_channel.c_str());
-    if (msg && msg != "") {
-        resetBackoffCounter();
-        msgCallback(cmd_channel, msg);
-    }
+    receivePacket();
+    delay(10);
   }
-  delay(1000/30);*/
 }
 
 void updateColours(char* colourString, int bufflen) {
+    //Serial.println(bufflen);
     const int numLeds = bufflen/3;
     const int maxLeds = CURRENT_COLOUR_MODE == COLOUR_MODE_RGB ? NUM_LEDS : NUM_RGBW_LEDS;
     //Serial.println(colourString);

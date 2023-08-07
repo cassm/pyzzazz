@@ -1,0 +1,172 @@
+From 8ae0542a830d9e8ee7eab40aa9b2653fd615bcb1 Mon Sep 17 00:00:00 2001
+From: Cass May <cass@cassm.net>
+Date: Sat, 21 May 2022 14:27:41 +0100
+Subject: [PATCH] handle absent redis server
+
+---
+ handlers/connections/redis_handler.py         | 15 +++++++++++
+ .../controllers/redis_controller_handler.py   |  2 +-
+ handlers/state_handler.py                     | 20 +++++++-------
+ pyzzazz.py                                    | 26 +++++++++++--------
+ 4 files changed, 41 insertions(+), 22 deletions(-)
+
+diff --git a/handlers/connections/redis_handler.py b/handlers/connections/redis_handler.py
+index 00d1d6e..0046be6 100644
+--- a/handlers/connections/redis_handler.py
++++ b/handlers/connections/redis_handler.py
+@@ -21,3 +21,18 @@ class RedisHandler:
+             RedisHandler.create_instance()
+ 
+         return RedisHandler.client
++
++    def try_command(f, *args, **kwargs):
++        try:
++            return f(*args, **kwargs)
++        except redis.ConnectionError:
++            return None
++
++    @staticmethod
++    def is_connected():
++        try:
++            RedisHandler.get_instance().ping()
++            return True
++        except redis.ConnectionError:
++            print("noop")
++            return False
+diff --git a/handlers/controllers/redis_controller_handler.py b/handlers/controllers/redis_controller_handler.py
+index 3d0e191..7dc0a34 100644
+--- a/handlers/controllers/redis_controller_handler.py
++++ b/handlers/controllers/redis_controller_handler.py
+@@ -14,7 +14,7 @@ class RedisControllerHandler(ControllerHandler):
+         return True
+ 
+     def update(self):
+-        cmdLists = self.redis_client.lpop('pyzzazz:commands', 50)
++        cmdLists = RedisHandler.try_command(self.redis_client.lpop, 'pyzzazz:commands', 50)
+ 
+         if not cmdLists:
+             return
+diff --git a/handlers/state_handler.py b/handlers/state_handler.py
+index 45a4727..8b43ace 100644
+--- a/handlers/state_handler.py
++++ b/handlers/state_handler.py
+@@ -24,10 +24,10 @@ class StateHandler:
+ 
+         colours = [colours[i:i+3] for i in range(0, len(colours), 3)]
+ 
+-        self.redis.set('pyzzazz:leds:colours', json.dumps(colours))
++        RedisHandler.try_command(self.redis.set, 'pyzzazz:leds:colours', json.dumps(colours))
+ 
+     def update_nodes(self, fixtures):
+-        nodeMapping = self.redis.hgetall('pyzzazz:clients')
++        nodeMapping = RedisHandler.try_command(self.redis.hgetall, 'pyzzazz:clients')
+ 
+         for x in fixtures:
+             if isinstance(x, LedFixture):
+@@ -37,7 +37,7 @@ class StateHandler:
+ 
+                 for node in nodeMapping.keys():
+                     if nodeMapping[node] == x.name:
+-                        self.redis.publish(f"pyzzazz:clients:{node}:leds", pixels_str)
++                        RedisHandler.try_command(self.redis.publish, f"pyzzazz:clients:{node}:leds", pixels_str)
+ 
+     def update_coords(self, fixtures):
+         coords = []
+@@ -48,7 +48,7 @@ class StateHandler:
+                     fixture_coords.pop()
+                 coords.extend(fixture_coords)
+ 
+-        self.redis.set('pyzzazz:leds:coords', json.dumps(coords))
++        RedisHandler.try_command(self.redis.set, 'pyzzazz:leds:coords', json.dumps(coords))
+ 
+     def update_fixtures(self, fixtures):
+         fixture_tree = {}
+@@ -75,7 +75,7 @@ class StateHandler:
+ 
+             ptr['instances'].append(x.name)
+ 
+-        self.redis.set('pyzzazz:fixtures', json.dumps(fixture_tree))
++        RedisHandler.try_command(self.redis.set, 'pyzzazz:fixtures', json.dumps(fixture_tree))
+ 
+     def update_fps(self):
+         new_frame = datetime.datetime.now()
+@@ -84,7 +84,7 @@ class StateHandler:
+             frame_data = {
+                 'fps': round(1.0/interval_secs, 1),
+             }
+-            self.redis.set('pyzzazz:fps', json.dumps(frame_data))
++            RedisHandler.try_command(self.redis.set, 'pyzzazz:fps', json.dumps(frame_data))
+ 
+         self.last_frame = new_frame
+ 
+@@ -94,14 +94,14 @@ class StateHandler:
+         # map video requires arguments and needs its own section
+         patterns.remove('map_video')
+ 
+-        self.redis.set('pyzzazz:patterns', json.dumps(patterns))
++        RedisHandler.try_command(self.redis.set, 'pyzzazz:patterns', json.dumps(patterns))
+ 
+     def update_palettes(self, palette_handler):
+-        self.redis.set('pyzzazz:palettes', json.dumps(palette_handler.get_palette_names()))
++        RedisHandler.try_command(self.redis.set, 'pyzzazz:palettes', json.dumps(palette_handler.get_palette_names()))
+ 
+     def update_overlays(self, overlay_handler):
+-        self.redis.set('pyzzazz:overlays', json.dumps(list(overlay_handler.get_overlays().keys())))
++        RedisHandler.try_command(self.redis.set, 'pyzzazz:overlays', json.dumps(list(overlay_handler.get_overlays().keys())))
+ 
+     def update_sliders(self, settings_handler):
+-        self.redis.set('pyzzazz:sliders', json.dumps(settings_handler.get_sliders()))
++        RedisHandler.try_command(self.redis.set, 'pyzzazz:sliders', json.dumps(settings_handler.get_sliders()))
+ 
+diff --git a/pyzzazz.py b/pyzzazz.py
+index bfcb003..f875c53 100644
+--- a/pyzzazz.py
++++ b/pyzzazz.py
+@@ -1,4 +1,5 @@
+ from handlers.config_handler import ConfigHandler
++from handlers.connections.redis_handler import RedisHandler
+ from handlers.state_handler import StateHandler
+ from handlers.connections.usb_serial_handler import UsbSerialHandler
+ from handlers.senders.usb_serial_sender_handler import UsbSerialSenderHandler
+@@ -102,13 +103,15 @@ class Pyzzazz:
+             self.update_video = self.video_used()
+ 
+             self.state_handler = StateHandler()
+-            self.state_handler.update_colours(self.fixtures)
+-            self.state_handler.update_coords(self.fixtures)
+-            self.state_handler.update_fixtures(self.fixtures)
+-            self.state_handler.update_patterns(self.pattern_handler)
+-            self.state_handler.update_palettes(self.palette_handler)
+-            self.state_handler.update_overlays(self.overlay_handler)
+-            self.state_handler.update_sliders(self.setting_handlers["master_settings"])
++
++            if RedisHandler.is_connected():
++                self.state_handler.update_colours(self.fixtures)
++                self.state_handler.update_coords(self.fixtures)
++                self.state_handler.update_fixtures(self.fixtures)
++                self.state_handler.update_patterns(self.pattern_handler)
++                self.state_handler.update_palettes(self.palette_handler)
++                self.state_handler.update_overlays(self.overlay_handler)
++                self.state_handler.update_sliders(self.setting_handlers["master_settings"])
+ 
+         except:
+             for p in self.subprocesses:
+@@ -201,10 +204,11 @@ class Pyzzazz:
+         self.overlay_handler.update()
+ 
+         # update shared state
+-        self.state_handler.update_colours(self.fixtures)
+-        self.state_handler.update_nodes(self.fixtures)
+-        self.state_handler.update_fps()
+-        self.state_handler.update_sliders(self.setting_handlers["master_settings"])
++        if RedisHandler.is_connected():
++            self.state_handler.update_colours(self.fixtures)
++            self.state_handler.update_nodes(self.fixtures)
++            self.state_handler.update_fps()
++            self.state_handler.update_sliders(self.setting_handlers["master_settings"])
+ 
+     def init_senders(self):
+         for sender_conf in self.config_parser.get_senders():
+-- 
+2.25.1
+
