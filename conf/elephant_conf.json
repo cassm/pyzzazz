@@ -387,14 +387,14 @@
           "id": 0,
           "target_keyword": "master_settings",
           "command": "{'type': 'slider', 'name': 'brightness'}",
-          "default": 50
+          "default": 75
         },
         {
           "name": "master speed",
           "id": 1,
           "target_keyword": "master_settings",
           "command": "{'type': 'slider', 'name': 'speed'}",
-          "default": 100
+          "default": 50
         },
         {
           "name": "master smoothness",
