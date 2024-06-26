@@ -16,7 +16,7 @@
     {
       "name": "led_fix_bunting_0",
       "type": "led",
-      "default_pattern": "sparkle",
+      "default_pattern": "swirl",
       "channel_order": "grbw",
       "geometry": "bunting_polygon",
       "sides": 6,
@@ -32,7 +32,7 @@
     {
       "name": "led_fix_bunting_1",
       "type": "led",
-      "default_pattern": "sparkle",
+      "default_pattern": "swirl",
       "channel_order": "rgb",
       "geometry": "bunting_polygon",
       "sides": 6,
@@ -43,28 +43,29 @@
       "location": [0.0, 0.0, 0.3],
       "farthest_point": [3.9, 0.0, 0.4],
       "senders": [["OCTO_SENDER_001", 1]],
-      "dead_pixels": 6
+      "dead_pixels_end": 12
     },
     {
       "name": "led_fix_bunting_2",
       "type": "led",
-      "default_pattern": "sparkle",
+      "default_pattern": "swirl",
       "channel_order": "rgb",
       "geometry": "bunting_polygon",
       "sides": 6,
-      "leds_per_strand": 43,
+      "leds_per_strand": 56,
       "length_per_strand": 2.5,
       "num_strands": 5,
       "radius": 2.075,
       "location": [0.0, 0.0, 0.2],
       "farthest_point": [3.9, 0.0, 0.4],
       "senders": [["OCTO_SENDER_001", 0]],
-      "dead_pixels": 13
+      "dead_pixels_start": 8,
+      "dead_pixels_end": 6
     },
     {
       "name": "led_fix_bunting_arch_dj",
       "type": "led",
-      "default_pattern": "sparkle",
+      "default_pattern": "swirl",
       "channel_order": "rgb",
       "geometry": "arch",
       "num_pixels": 43,
@@ -78,7 +79,7 @@
     {
       "name": "led_fix_cylinder_0",
       "type": "led",
-      "default_pattern": "sparkle",
+      "default_pattern": "swirl",
       "channel_order": "grbw",
       "geometry": "cylinder",
       "location": [2.2, 0.0, -0.5],
@@ -91,7 +92,7 @@
     {
       "name": "led_fix_cylinder_1",
       "type": "led",
-      "default_pattern": "sparkle",
+      "default_pattern": "swirl",
       "channel_order": "grbw",
       "geometry": "cylinder",
       "location": [1.1, 1.9, -0.5],
@@ -104,7 +105,7 @@
     {
       "name": "led_fix_cylinder_2",
       "type": "led",
-      "default_pattern": "sparkle",
+      "default_pattern": "swirl",
       "channel_order": "grbw",
       "geometry": "cylinder",
       "location": [-1.1, 1.9, -0.5],
@@ -117,7 +118,7 @@
     {
       "name": "led_fix_cylinder_3",
       "type": "led",
-      "default_pattern": "sparkle",
+      "default_pattern": "swirl",
       "channel_order": "grbw",
       "geometry": "cylinder",
       "location": [-2.2, 0.0, -0.5],
@@ -130,7 +131,7 @@
     {
       "name": "led_fix_cylinder_4",
       "type": "led",
-      "default_pattern": "sparkle",
+      "default_pattern": "swirl",
       "channel_order": "grbw",
       "geometry": "cylinder",
       "location": [-1.1, -1.9, -0.5],
@@ -143,7 +144,7 @@
     {
       "name": "led_fix_cylinder_5",
       "type": "led",
-      "default_pattern": "sparkle",
+      "default_pattern": "swirl",
       "channel_order": "grbw",
       "geometry": "cylinder",
       "location": [1.1, -1.9, -0.5],
