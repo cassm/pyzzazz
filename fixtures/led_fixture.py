@@ -23,8 +23,9 @@ class LedFixture(Fixture):
 
         self.geometry = config.get("geometry", "No geometry present in fixture definition")
         self.channel_order = config.get("channel_order", "No channel_order present in fixture definition")
-        self.dead_pixels = config.get("dead_pixels", 0)
-        self.num_pixels = config.get("num_pixels", 0) - self.dead_pixels
+        self.dead_pixels_start = config.get("dead_pixels_start", 0)
+        self.dead_pixels_end = config.get("dead_pixels_end", 0)
+        self.num_pixels = (config.get("num_pixels", 0) - self.dead_pixels_start) - self.dead_pixels_end
         self.senders_info = list(SenderInfo(sender[0], sender[1]) for sender in senders)
 
         # deal with hex values

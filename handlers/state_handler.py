@@ -74,8 +74,9 @@ class StateHandler:
         for x in fixtures:
             if isinstance(x, LedFixture):
                 pixels = x.get_pixels(force_rgb=True).tolist()
-                dead_pixels = [1,1,1]*x.dead_pixels
-                pixels = dead_pixels + pixels
+                dead_pixels_start = [1,1,1]*x.dead_pixels_start
+                dead_pixels_end = [1,1,1]*x.dead_pixels_end
+                pixels = dead_pixels_start + pixels + dead_pixels_end
                 pixels = [ord("F")] + [max(0, min(255, int(ch))) for ch in pixels]
 
                 pixels_bytes = bytes(pixels)
